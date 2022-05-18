@@ -1,6 +1,5 @@
 #pragma once
 
-
 //
 #include "Data_engine/Data_loader.h"
 #include "Data_engine/Data_writer.h"
@@ -14,19 +13,13 @@ using namespace std;
 /*!
 
 */
-class Data_engine : public Data_loader, public Data_writer
-{
+class Data_engine : public Data_loader, public Data_writer {
 public:
+  //! Default constructor/destructor
+  Data_engine();
+  ~Data_engine();
 
-
-	//! Default constructor/destructor
-	Data_engine();
-	~Data_engine();
-
-
-	//! Initiation
-	void init(Image_loader * image_loader_ptr, string output_folder, bool _is_ICL_NUIM_dataset = false);
-
-
+  //! Initiation
+  void init(Image_loader *image_loader_ptr, string output_folder,
+            bool _is_ICL_NUIM_dataset = false);
 };
-
