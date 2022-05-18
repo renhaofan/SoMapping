@@ -37,13 +37,12 @@ using namespace std;
 
 */
 class UI_engine {
-public:
+ public:
   //! The pointer to this static object.
   static UI_engine *instance_ptr;
   //! Member function for instantiating this static object.
   static UI_engine *instance(void) {
-    if (instance_ptr == nullptr)
-      instance_ptr = new UI_engine();
+    if (instance_ptr == nullptr) instance_ptr = new UI_engine();
     return instance_ptr;
   }
 
@@ -151,7 +150,7 @@ public:
   //! OpenGL mouse wheel call back function
   static void OpenGL_MouseWheelFunction(int button, int dir, int x, int y);
 
-private:
+ private:
   //!
   void interactive_events();
 

@@ -1,4 +1,5 @@
 #include "SLAM_system_settings.h"
+
 #include "OurLib/my_math_functions.h"
 
 //
@@ -61,8 +62,7 @@ void SLAM_system_settings::set_to_default() {
   //
   this->number_of_hierarchy_layers = 3;
   //
-  for (int i = 0; i < MAX_LAYER_NUMBER; i++)
-    this->max_iterate_times[i] = 20;
+  for (int i = 0; i < MAX_LAYER_NUMBER; i++) this->max_iterate_times[i] = 20;
   //
   this->convergence_threshold = 1e-4f;
   this->failure_threshold = 5e-1f;

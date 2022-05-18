@@ -21,7 +21,7 @@ using namespace std;
 #include "ceres/rotation.h"
 
 //!
-#pragma comment(                                                               \
+#pragma comment( \
     lib, "C:/English_path/glog-0.4.0/glog-0.4.0-build/Release/glog.lib")
 //#pragma comment(lib,"glog.lib")
 

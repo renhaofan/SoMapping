@@ -48,7 +48,7 @@ using namespace Eigen;
                                                                                                 \end{bmatrix}\f$
 */
 class My_pose {
-public:
+ public:
   /*!	Default constructor.	*/
   //! Malloc device(GPU) memory by CUDA API
   My_pose();

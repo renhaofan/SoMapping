@@ -5,7 +5,7 @@
 
 */
 class Environment_Initializer {
-public:
+ public:
   //! Max threads per CUDA block.
   int max_TperB;
   //! GPU clock frequency.
@@ -27,7 +27,7 @@ public:
   */
   void init_environment(int argc, char **argv);
 
-private:
+ private:
   //!
   bool print_detail_informations = false;
 };

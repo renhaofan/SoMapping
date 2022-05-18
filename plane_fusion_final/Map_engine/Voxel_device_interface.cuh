@@ -282,10 +282,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y;
   Px = P1_x;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_0 = voxel_block_array[voxel_index].sdf;
   // z y x
   // 0 0 1
@@ -293,10 +291,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y;
   Px = P1_x + VOXEL_SIZE;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_1 = voxel_block_array[voxel_index].sdf;
   // - 0 0 x
   interpolate_x0 = sdf_0 * (1 - coeff_x) + sdf_1 * coeff_x;
@@ -307,10 +303,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y + VOXEL_SIZE;
   Px = P1_x;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_0 = voxel_block_array[voxel_index].sdf;
   // z y x
   // 0 1 1
@@ -318,10 +312,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y + VOXEL_SIZE;
   Px = P1_x + VOXEL_SIZE;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_1 = voxel_block_array[voxel_index].sdf;
   // - 0 1 x
   interpolate_x1 = sdf_0 * (1 - coeff_x) + sdf_1 * coeff_x;
@@ -335,10 +327,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y;
   Px = P1_x;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_0 = voxel_block_array[voxel_index].sdf;
   // z y x
   // 1 0 1
@@ -346,10 +336,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y;
   Px = P1_x + VOXEL_SIZE;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_1 = voxel_block_array[voxel_index].sdf;
   // - 1 0 x
   interpolate_x0 = sdf_0 * (1 - coeff_x) + sdf_1 * coeff_x;
@@ -360,10 +348,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y + VOXEL_SIZE;
   Px = P1_x;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_0 = voxel_block_array[voxel_index].sdf;
   // z y x
   // 1 1 1
@@ -371,10 +357,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y + VOXEL_SIZE;
   Px = P1_x + VOXEL_SIZE;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_1 = voxel_block_array[voxel_index].sdf;
   // - 1 1 x
   interpolate_x1 = sdf_0 * (1 - coeff_x) + sdf_1 * coeff_x;
@@ -418,8 +402,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y;
     Px = P1_x;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_000 = voxel_block_array[voxel_index].sdf;
@@ -428,8 +411,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y;
     Px = P1_x + VOXEL_SIZE;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_001 = voxel_block_array[voxel_index].sdf;
@@ -438,8 +420,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y + VOXEL_SIZE;
     Px = P1_x;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_010 = voxel_block_array[voxel_index].sdf;
@@ -448,8 +429,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y + VOXEL_SIZE;
     Px = P1_x + VOXEL_SIZE;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_011 = voxel_block_array[voxel_index].sdf;
@@ -459,8 +439,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y;
     Px = P1_x;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_100 = voxel_block_array[voxel_index].sdf;
@@ -469,8 +448,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y;
     Px = P1_x + VOXEL_SIZE;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_101 = voxel_block_array[voxel_index].sdf;
@@ -479,8 +457,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y + VOXEL_SIZE;
     Px = P1_x;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_110 = voxel_block_array[voxel_index].sdf;
@@ -489,8 +466,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y + VOXEL_SIZE;
     Px = P1_x + VOXEL_SIZE;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_111 = voxel_block_array[voxel_index].sdf;

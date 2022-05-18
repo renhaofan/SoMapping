@@ -12,10 +12,12 @@
 #include <helper_functions.h>
 
 //
-#include "math.h"
-#include <Eigen/Dense>
 #include <float.h>
+
+#include <Eigen/Dense>
 #include <unsupported/Eigen/FFT>
+
+#include "math.h"
 //
 #include "Map_engine/Mesh_generator_KernelFunc.cuh"
 #include "Map_engine/Plane_map_KernelFunc.cuh"
@@ -27,9 +29,9 @@ Plane_map::Plane_map() {
   //
   checkCudaErrors(cudaMalloc((void **)&this->dev_plane_list,
                              MAX_CURRENT_PLANES * sizeof(Plane_info)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_allocated_entries),
-                             (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) *
-                                 sizeof(HashEntry)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_allocated_entries),
+      (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(HashEntry)));
   checkCudaErrors(
       cudaMalloc((void **)&(this->dev_number_of_entries), sizeof(int)));
   checkCudaErrors(
@@ -95,8 +97,7 @@ void Plane_map::update_plane_list(const Plane_info *current_planes,
   int current_model_plane_number = this->plane_counter;
   for (int match_id = 1; match_id < matches.size(); match_id++) {
     int current_plane_index = matches[match_id].x;
-    if (!current_planes[current_plane_index].is_valid)
-      continue;
+    if (!current_planes[current_plane_index].is_valid) continue;
 
     int model_plane_index = matches[match_id].y;
     if (model_plane_index >= current_model_plane_number) {
@@ -270,9 +271,9 @@ void Plane_map::generate_plane_map(const HashEntry *dev_entries,
     int total_plane_block_num = 0;
     //
     Plane_pixel *temp_plane_pixel_array = nullptr;
-    checkCudaErrors(cudaMalloc((void **)&temp_plane_pixel_array,
-                               PIXEL_BLOCK_NUM * PLANE_PIXEL_BLOCK_SIZE *
-                                   sizeof(Plane_pixel)));
+    checkCudaErrors(cudaMalloc(
+        (void **)&temp_plane_pixel_array,
+        PIXEL_BLOCK_NUM * PLANE_PIXEL_BLOCK_SIZE * sizeof(Plane_pixel)));
 
     checkCudaErrors(cudaMemcpy(&this->number_of_entries,
                                this->dev_number_of_entries, sizeof(int),
@@ -283,9 +284,9 @@ void Plane_map::generate_plane_map(const HashEntry *dev_entries,
           cudaMemset(this->dev_number_of_pixel_block, 0x00, sizeof(int)));
       checkCudaErrors(
           cudaMemset(this->dev_plane_entry_excess_counter, 0x00, sizeof(int)));
-      checkCudaErrors(cudaMemset(temp_plane_pixel_array, 0x00,
-                                 PIXEL_BLOCK_NUM * PLANE_PIXEL_BLOCK_SIZE *
-                                     sizeof(Plane_pixel)));
+      checkCudaErrors(cudaMemset(
+          temp_plane_pixel_array, 0x00,
+          PIXEL_BLOCK_NUM * PLANE_PIXEL_BLOCK_SIZE * sizeof(Plane_pixel)));
 
       // Allocate memory
       PlaneHashEntry *temp_entry = nullptr;
@@ -301,8 +302,8 @@ void Plane_map::generate_plane_map(const HashEntry *dev_entries,
 
       // PlaneHashEntry temp_buffer_1[ORDERED_PLANE_TABLE_LENGTH +
       // EXCESS_PLANE_TABLE_LENGTH]; checkCudaErrors(cudaMemcpy(temp_buffer_1,
-      // temp_entry, 1024 * sizeof(PlaneHashEntry), cudaMemcpyDeviceToHost)); for
-      // (int i = 0; i < 1024; i++)
+      // temp_entry, 1024 * sizeof(PlaneHashEntry), cudaMemcpyDeviceToHost));
+      // for (int i = 0; i < 1024; i++)
       //{
       //	printf("%d, %d, %d\n",
       //		   temp_buffer_1[i].position[0],
@@ -414,7 +415,6 @@ void Plane_map::generate_plane_map(const HashEntry *dev_entries,
 }
 
 void Plane_map::generate_planar_block_render_information() {
-
   dim3 block_rect(1, 1, 1), thread_rect(1, 1, 1);
 
   // Compute position of pixel blocks

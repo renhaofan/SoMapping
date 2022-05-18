@@ -27,7 +27,6 @@
 #include <device_launch_parameters.h>
 #include <helper_cuda.h>
 #include <helper_functions.h>
-
 #include <math.h>
 
 // arg

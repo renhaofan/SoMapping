@@ -3,9 +3,9 @@
 //
 #include "Track_KernelFunc.cuh"
 //
-#include "OurLib/reduction_KernelFunc.cuh"
-
 #include <float.h>
+
+#include "OurLib/reduction_KernelFunc.cuh"
 
 // Bilinear interpolation
 inline __device__ bool interpolate_bilinear(float u, float v,
@@ -13,16 +13,14 @@ inline __device__ bool interpolate_bilinear(float u, float v,
                                             int layer_width, int layer_height,
                                             float &interpolated_float);
 //
-inline __device__ bool
-interpolate_bilinear(float u, float v, const My_Type::Vector2f *vec2_image,
-                     int layer_width, int layer_height,
-                     My_Type::Vector2f &interpolated_point);
+inline __device__ bool interpolate_bilinear(
+    float u, float v, const My_Type::Vector2f *vec2_image, int layer_width,
+    int layer_height, My_Type::Vector2f &interpolated_point);
 //
-inline __device__ bool
-interpolate_bilinear(float u, float v, const My_Type::Vector3f *vec3_image,
-                     int layer_width, int layer_height,
-                     My_Type::Vector3f &interpolated_point,
-                     float continuous_threshold = FLT_MAX);
+inline __device__ bool interpolate_bilinear(
+    float u, float v, const My_Type::Vector3f *vec3_image, int layer_width,
+    int layer_height, My_Type::Vector3f &interpolated_point,
+    float continuous_threshold = FLT_MAX);
 
 // Point-Plane residual
 __global__ void compute_points_residual_KernelFunc(
@@ -55,8 +53,7 @@ __global__ void compute_points_residual_KernelFunc(
   // Read current point position
   if (valid_point) {
     current_point = current_points[current_index];
-    if (current_point.z == 0.0f)
-      valid_point = false;
+    if (current_point.z == 0.0f) valid_point = false;
   }
 
   float u_model, v_model;
@@ -144,10 +141,8 @@ __global__ void compute_points_residual_KernelFunc(
     distance = fabsf(diff_vec.dot(model_normal));
     // To Do : use huber functor here !
     // if (distance > 0.1f)		valid_point = false;
-    if (distance > 0.05f)
-      valid_point = false;
-    if (diff_vec.norm() > 0.1f)
-      valid_point = false;
+    if (distance > 0.05f) valid_point = false;
+    if (diff_vec.norm() > 0.1f) valid_point = false;
   }
 
   // Hessian, Nabla
@@ -286,8 +281,7 @@ __global__ void generate_correspondence_lines_KernelFunc(
   // Read current point position
   if (valid_point) {
     current_point = current_points[current_index];
-    if (current_point.z == 0.0f)
-      valid_point = false;
+    if (current_point.z == 0.0f) valid_point = false;
   }
 
   float u_model, v_model;
@@ -363,10 +357,8 @@ __global__ void generate_correspondence_lines_KernelFunc(
     distance = fabsf(diff_vec.dot(model_normal));
     // To Do : use huber functor here !
     // if (distance > 0.1f)		valid_point = false;
-    if (distance > 0.03f)
-      valid_point = false;
-    if (diff_vec.norm() > 0.1f)
-      valid_point = false;
+    if (distance > 0.03f) valid_point = false;
+    if (diff_vec.norm() > 0.1f) valid_point = false;
   }
 
   if (valid_point) {
@@ -422,8 +414,7 @@ __global__ void compute_photometric_residual_KernelFunc(
   My_Type::Vector3f current_point, trans_point;
   if (valid_pixel) {
     current_point = current_points[current_index];
-    if (current_point.z == 0.0f)
-      valid_pixel = false;
+    if (current_point.z == 0.0f) valid_pixel = false;
   }
 
   float u_model, v_model;
@@ -602,17 +593,13 @@ inline __device__ bool interpolate_bilinear(float u, float v,
   //
   float point_00, point_01, point_10, point_11;
   point_00 = float_image[base_index];
-  if (point_00 == 0.0f)
-    return false;
+  if (point_00 == 0.0f) return false;
   point_01 = float_image[base_index + 1];
-  if (point_01 == 0.0f)
-    return false;
+  if (point_01 == 0.0f) return false;
   point_10 = float_image[base_index + layer_width];
-  if (point_10 == 0.0f)
-    return false;
+  if (point_10 == 0.0f) return false;
   point_11 = float_image[base_index + layer_width + 1];
-  if (point_11 == 0.0f)
-    return false;
+  if (point_11 == 0.0f) return false;
   //
   float point_0, point_1;
   point_0 = (1 - coeff_x) * point_00 + coeff_x * point_01;
@@ -624,10 +611,9 @@ inline __device__ bool interpolate_bilinear(float u, float v,
 }
 
 //
-inline __device__ bool
-interpolate_bilinear(float u, float v, const My_Type::Vector2f *vec2_image,
-                     int layer_width, int layer_height,
-                     My_Type::Vector2f &interpolated_point) {
+inline __device__ bool interpolate_bilinear(
+    float u, float v, const My_Type::Vector2f *vec2_image, int layer_width,
+    int layer_height, My_Type::Vector2f &interpolated_point) {
   float coeff_x, coeff_y;
   coeff_x = u - floor(u);
   coeff_y = v - floor(v);
@@ -643,17 +629,13 @@ interpolate_bilinear(float u, float v, const My_Type::Vector2f *vec2_image,
   //
   My_Type::Vector2f point_00, point_01, point_10, point_11;
   point_00 = vec2_image[base_index];
-  if (point_00.y == 0.0f)
-    return false;
+  if (point_00.y == 0.0f) return false;
   point_01 = vec2_image[base_index + 1];
-  if (point_01.y == 0.0f)
-    return false;
+  if (point_01.y == 0.0f) return false;
   point_10 = vec2_image[base_index + layer_width];
-  if (point_10.y == 0.0f)
-    return false;
+  if (point_10.y == 0.0f) return false;
   point_11 = vec2_image[base_index + layer_width + 1];
-  if (point_11.y == 0.0f)
-    return false;
+  if (point_11.y == 0.0f) return false;
   //
   My_Type::Vector2f point_0, point_1;
   point_0 = (1 - coeff_x) * point_00 + coeff_x * point_01;
@@ -665,11 +647,10 @@ interpolate_bilinear(float u, float v, const My_Type::Vector2f *vec2_image,
 }
 
 //
-inline __device__ bool
-interpolate_bilinear(float u, float v, const My_Type::Vector3f *vec3_image,
-                     int layer_width, int layer_height,
-                     My_Type::Vector3f &interpolated_point,
-                     float continuous_threshold) {
+inline __device__ bool interpolate_bilinear(
+    float u, float v, const My_Type::Vector3f *vec3_image, int layer_width,
+    int layer_height, My_Type::Vector3f &interpolated_point,
+    float continuous_threshold) {
   float coeff_x = u - floor(u);
   float coeff_y = v - floor(v);
 
@@ -684,17 +665,13 @@ interpolate_bilinear(float u, float v, const My_Type::Vector3f *vec3_image,
   //
   My_Type::Vector3f point_00, point_01, point_10, point_11;
   point_00 = vec3_image[base_index];
-  if (point_00.z == 0.0f)
-    return false;
+  if (point_00.z == 0.0f) return false;
   point_01 = vec3_image[base_index + 1];
-  if (point_01.z == 0.0f)
-    return false;
+  if (point_01.z == 0.0f) return false;
   point_10 = vec3_image[base_index + layer_width];
-  if (point_10.z == 0.0f)
-    return false;
+  if (point_10.z == 0.0f) return false;
   point_11 = vec3_image[base_index + layer_width + 1];
-  if (point_11.z == 0.0f)
-    return false;
+  if (point_11.z == 0.0f) return false;
   //
   My_Type::Vector3f point_0, point_1;
   point_0 = (1 - coeff_x) * point_00 + coeff_x * point_01;

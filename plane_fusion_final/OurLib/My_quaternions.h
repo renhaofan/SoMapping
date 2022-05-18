@@ -23,8 +23,9 @@ namespace My_Type {
 
 
 */
-template <typename T> class My_quaternions {
-public:
+template <typename T>
+class My_quaternions {
+ public:
   //! Real, image X, image Y, image Z
   T qr, qx, qy, qz;
 
@@ -128,8 +129,8 @@ public:
   }
 
   //! Quaternions "+="
-  _IS_CUDA_CODE_ inline My_quaternions &
-  operator+=(const My_quaternions &quaternions_1) {
+  _IS_CUDA_CODE_ inline My_quaternions &operator+=(
+      const My_quaternions &quaternions_1) {
     this->qr += quaternions_1.qr;
     this->qx += quaternions_1.qx;
     this->qy += quaternions_1.qy;
@@ -138,8 +139,8 @@ public:
     return (*this);
   }
   //! Quaternions "-="
-  _IS_CUDA_CODE_ inline My_quaternions &
-  operator-=(const My_quaternions &quaternions_1) {
+  _IS_CUDA_CODE_ inline My_quaternions &operator-=(
+      const My_quaternions &quaternions_1) {
     this->qr -= quaternions_1.qr;
     this->qx -= quaternions_1.qx;
     this->qy -= quaternions_1.qy;
@@ -148,8 +149,8 @@ public:
     return (*this);
   };
   //! Quaternions "*="
-  _IS_CUDA_CODE_ inline My_quaternions &
-  operator*=(const My_quaternions &quaternions_1) {
+  _IS_CUDA_CODE_ inline My_quaternions &operator*=(
+      const My_quaternions &quaternions_1) {
     My_quaternions<T> buffer(*this);
     //
     this->qr = buffer.qr * quaternions_1.qr - buffer.qx * quaternions_1.qx -
@@ -165,27 +166,27 @@ public:
   }
 
   //! Quaternions "+"
-  _IS_CUDA_CODE_ inline friend My_quaternions
-  operator+(const My_quaternions &quaternions_1,
-            const My_quaternions &quaternions_2) {
+  _IS_CUDA_CODE_ inline friend My_quaternions operator+(
+      const My_quaternions &quaternions_1,
+      const My_quaternions &quaternions_2) {
     My_quaternions<T> result(quaternions_1);
     result += quaternions_2;
 
     return (result);
   }
   //! Quaternions "-"
-  _IS_CUDA_CODE_ inline friend My_quaternions
-  operator-(const My_quaternions &quaternions_1,
-            const My_quaternions &quaternions_2) {
+  _IS_CUDA_CODE_ inline friend My_quaternions operator-(
+      const My_quaternions &quaternions_1,
+      const My_quaternions &quaternions_2) {
     My_quaternions<T> result(quaternions_1);
     result -= quaternions_2;
 
     return (result);
   }
   //! Quaternions "*"
-  _IS_CUDA_CODE_ inline friend My_quaternions
-  operator*(const My_quaternions &quaternions_1,
-            const My_quaternions &quaternions_2) {
+  _IS_CUDA_CODE_ inline friend My_quaternions operator*(
+      const My_quaternions &quaternions_1,
+      const My_quaternions &quaternions_2) {
     My_quaternions<T> result(quaternions_1);
     result *= quaternions_2;
 
@@ -193,16 +194,16 @@ public:
   }
 
   //! Quaternions "*" Scalar
-  _IS_CUDA_CODE_ inline friend My_quaternions
-  operator*(const float &scalar, const My_quaternions &quaternions_1) {
+  _IS_CUDA_CODE_ inline friend My_quaternions operator*(
+      const float &scalar, const My_quaternions &quaternions_1) {
     My_quaternions<T> result(quaternions_1);
     result *= scalar;
 
     return (result);
   }
   //! Scalar "*" Quaternions
-  _IS_CUDA_CODE_ inline friend My_quaternions
-  operator*(const My_quaternions &quaternions_1, const float &scalar) {
+  _IS_CUDA_CODE_ inline friend My_quaternions operator*(
+      const My_quaternions &quaternions_1, const float &scalar) {
     My_quaternions<T> result(quaternions_1);
     result *= scalar;
 
@@ -229,4 +230,4 @@ public:
 typedef My_quaternions<float> My_quaternionsf;
 typedef My_quaternions<double> My_quaternionsd;
 
-} // namespace My_Type
+}  // namespace My_Type

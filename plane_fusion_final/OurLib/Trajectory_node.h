@@ -20,7 +20,7 @@
 
 */
 class Trajectory_node {
-public:
+ public:
   //! Frame's time stamp or frame's index
   double time;
   //! Translation

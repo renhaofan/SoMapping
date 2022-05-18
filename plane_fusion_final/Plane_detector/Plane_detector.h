@@ -1,13 +1,13 @@
 #pragma once
 
 //
+#include <Eigen/Dense>
 #include <iostream>
+#include <unsupported/Eigen/FFT>
 #include <vector>
 
 #include "OurLib/My_matrix.h"
 #include "Plane_detector/Plane_structure.h"
-#include <Eigen/Dense>
-#include <unsupported/Eigen/FFT>
 
 //
 // CUDA header files
@@ -24,7 +24,7 @@
 
 */
 class Plane_detector {
-public:
+ public:
   //! Size of aligned depth image
   My_Type::Vector2i aligned_depth_size;
   //! Size of cells matrix
@@ -102,7 +102,7 @@ public:
                                const int *dev_model_plane_labels,
                                std::vector<std::pair<int, int>> &plane_matches);
 
-protected:
+ protected:
   //! Prepare to detect planes
   /*!
 
@@ -113,18 +113,18 @@ protected:
   /*!
 
   */
-  virtual void
-  presegment_to_cell(const My_Type::Vector3f *dev_current_points,
-                     const My_Type::Vector3f *dev_current_normals) = 0;
+  virtual void presegment_to_cell(
+      const My_Type::Vector3f *dev_current_points,
+      const My_Type::Vector3f *dev_current_normals) = 0;
 
   //! Fit plane for each cell
   /*!
 
   */
-  virtual void
-  fit_plane_for_each_cell(const My_Type::Vector3f *dev_current_points,
-                          const My_Type::Vector3f *dev_current_normals,
-                          Cell_info *dev_cell_info_mat) = 0;
+  virtual void fit_plane_for_each_cell(
+      const My_Type::Vector3f *dev_current_points,
+      const My_Type::Vector3f *dev_current_normals,
+      Cell_info *dev_cell_info_mat) = 0;
 
   //! Cluster cells to planes
   /*!
@@ -142,9 +142,8 @@ protected:
   void transfer_plane_coordinate(const Eigen::Matrix4f &camera_pose);
 
   //
-  std::vector<std::pair<int, int>>
-  find_most_overlap_model_plane(int current_plane_label,
-                                int model_plane_counter);
+  std::vector<std::pair<int, int>> find_most_overlap_model_plane(
+      int current_plane_label, int model_plane_counter);
 };
 
 //!
@@ -153,7 +152,7 @@ protected:
 
 */
 class Plane_stereoprojection_detector : public Plane_detector {
-public:
+ public:
   //! CUDA device pointer of hist_PxPy.
   float *hist_mat, *dev_hist_mat;
   //! CUDA device pointer of hist_normal.
@@ -175,14 +174,14 @@ public:
   //
   void init() override;
 
-protected:
+ protected:
   //
   void prepare_to_detect() override;
 
   //
-  void
-  presegment_to_cell(const My_Type::Vector3f *dev_current_points,
-                     const My_Type::Vector3f *dev_current_normals) override{};
+  void presegment_to_cell(
+      const My_Type::Vector3f *dev_current_points,
+      const My_Type::Vector3f *dev_current_normals) override{};
 
   //
   void fit_plane_for_each_cell(const My_Type::Vector3f *dev_current_points,
@@ -202,7 +201,7 @@ protected:
 
 */
 class Plane_super_pixel_detector : public Plane_detector {
-public:
+ public:
 #if (TEST_OLD_METOD)
   //! CUDA device pointer of hist_PxPy.
   float *hist_mat, *dev_hist_mat;
@@ -248,7 +247,7 @@ public:
   //
   void init() override;
 
-private:
+ private:
   //
   void prepare_to_detect() override;
 

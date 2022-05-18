@@ -26,7 +26,7 @@
 #define MAX_SDF_WEIGHT_MASK 0x7F
 //   Block  Voxel
 #define VOXEL_BLOCK_WDITH 8
-#define VOXEL_BLOCK_SIZE                                                       \
+#define VOXEL_BLOCK_SIZE \
   (VOXEL_BLOCK_WDITH * VOXEL_BLOCK_WDITH * VOXEL_BLOCK_WDITH)
 //   Voxel  				5mm
 //#define VOXEL_SIZE				0.008f
@@ -77,7 +77,7 @@ typedef struct _HashEntry {
   int position[3];
   //   hash collision ，   excess entries  HashEntry
   // offset < 0  collision； offset >= 0  collision
-  int offset; //    int
+  int offset;  //    int
   //   Block
   // ptr < 0    ； ptr >= 0
   int ptr;

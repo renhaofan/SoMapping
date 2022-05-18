@@ -14,7 +14,7 @@ using namespace std;
 
 */
 class Data_engine : public Data_loader, public Data_writer {
-public:
+ public:
   //! Default constructor/destructor
   Data_engine();
   ~Data_engine();

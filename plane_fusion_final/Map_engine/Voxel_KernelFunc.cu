@@ -9,9 +9,9 @@
 #include <helper_functions.h>
 
 //
-#include "Voxel_KernelFunc.cuh"
-
 #include <float.h>
+
+#include "Voxel_KernelFunc.cuh"
 
 //
 __device__ inline float floor_by_stride(float &value, float &step);
@@ -65,10 +65,9 @@ inline __device__ void block_256_reduce_max(T *cache_T, int tid);
 // HashEntry * entry
 // My_Type::Vector3i * order_pos
 //! Build allocate flag for allcation stage. (CUDA kernel function)
-__global__ void
-build_entry_flag_KernelFunc(const My_Type::Vector3f *current_points,
-                            const float *map_pose, const HashEntry *entry,
-                            char *allocate_flag, My_Type::Vector3i *order_pos) {
+__global__ void build_entry_flag_KernelFunc(
+    const My_Type::Vector3f *current_points, const float *map_pose,
+    const HashEntry *entry, char *allocate_flag, My_Type::Vector3i *order_pos) {
   //
   int u, v, image_width, index;
   u = threadIdx.x + blockIdx.x * blockDim.x;
@@ -78,8 +77,7 @@ build_entry_flag_KernelFunc(const My_Type::Vector3f *current_points,
   //
   My_Type::Vector3f camera_point = current_points[index];
   //
-  if (camera_point.z <= FLT_EPSILON)
-    return;
+  if (camera_point.z <= FLT_EPSILON) return;
 
   //
   My_Type::Vector3f camera_ray = camera_point;
@@ -129,12 +127,9 @@ build_entry_flag_KernelFunc(const My_Type::Vector3f *current_points,
   ray_step_line.x = (int)floorf(ray_current.x / DDA_STEP_SIZE_MM);
   ray_step_line.y = (int)floorf(ray_current.y / DDA_STEP_SIZE_MM);
   ray_step_line.z = (int)floorf(ray_current.z / DDA_STEP_SIZE_MM);
-  if (ray_direction.x > 0.0)
-    ray_step_line.x++;
-  if (ray_direction.y > 0.0)
-    ray_step_line.y++;
-  if (ray_direction.z > 0.0)
-    ray_step_line.z++;
+  if (ray_direction.x > 0.0) ray_step_line.x++;
+  if (ray_direction.y > 0.0) ray_step_line.y++;
+  if (ray_direction.z > 0.0) ray_step_line.z++;
 
   //
   ray_current_t = 0;
@@ -145,12 +140,9 @@ build_entry_flag_KernelFunc(const My_Type::Vector3f *current_points,
     block_position.x = ray_step_line.x;
     block_position.y = ray_step_line.y;
     block_position.z = ray_step_line.z;
-    if (direction_flag.x > 0)
-      block_position.x--;
-    if (direction_flag.y > 0)
-      block_position.y--;
-    if (direction_flag.z > 0)
-      block_position.z--;
+    if (direction_flag.x > 0) block_position.x--;
+    if (direction_flag.y > 0) block_position.y--;
+    if (direction_flag.z > 0) block_position.z--;
 
     //
     int hash_value =
@@ -241,7 +233,6 @@ void build_entry_flag_CUDA(dim3 block_rect, dim3 thread_rect,
                            const My_Type::Vector3f *current_points,
                            const float *map_pose, const HashEntry *entry,
                            char *allocate_flag, My_Type::Vector3i *order_pos) {
-
   build_entry_flag_KernelFunc<<<block_rect, thread_rect>>>(
       current_points, map_pose, entry, allocate_flag, order_pos);
 }
@@ -264,8 +255,7 @@ __global__ void build_entry_flag_KernelFunc(My_Type::Vector3i *block_position,
                                             My_Type::Vector3i *order_pos) {
   // block position array
   int index = threadIdx.x + blockDim.x * blockIdx.x;
-  if (index >= block_num)
-    return;
+  if (index >= block_num) return;
 
   //
   My_Type::Vector3f position, block_center;
@@ -339,7 +329,6 @@ void build_entry_flag_CUDA(dim3 block_rect, dim3 thread_rect,
                            My_Type::Vector3i *block_position, int block_num,
                            float *pose, HashEntry *entry, char *allocate_flag,
                            My_Type::Vector3i *order_pos) {
-
   build_entry_flag_KernelFunc<<<block_rect, thread_rect>>>(
       block_position, block_num, pose, entry, allocate_flag, order_pos);
 }
@@ -347,15 +336,13 @@ void build_entry_flag_CUDA(dim3 block_rect, dim3 thread_rect,
 #pragma endregion
 
 //! Allocate voxel blocks. (link entry to block)
-__global__ void
-allocate_by_flag_KernelFunc(HashEntry *entry, const char *allocate_flag,
-                            My_Type::Vector3i *pos_buffer, int *excess_counter,
-                            int *number_of_blocks,
-                            My_Type::Vector3i *voxel_block_position) {
+__global__ void allocate_by_flag_KernelFunc(
+    HashEntry *entry, const char *allocate_flag, My_Type::Vector3i *pos_buffer,
+    int *excess_counter, int *number_of_blocks,
+    My_Type::Vector3i *voxel_block_position) {
   int hash_value = threadIdx.x + blockIdx.x * blockDim.x, excess_offset,
       pre_offset;
-  if (allocate_flag[hash_value] == NOT_NEED_ALLOCATE)
-    return;
+  if (allocate_flag[hash_value] == NOT_NEED_ALLOCATE) return;
 
   My_Type::Vector3i block_position = pos_buffer[hash_value];
   bool is_collision = false;
@@ -381,8 +368,7 @@ allocate_by_flag_KernelFunc(HashEntry *entry, const char *allocate_flag,
     }
 
     // ------------------------ To Do : out put error state
-    if (excess_offset > EXCESS_TABLE_LENGTH + ORDERED_TABLE_LENGTH)
-      return;
+    if (excess_offset > EXCESS_TABLE_LENGTH + ORDERED_TABLE_LENGTH) return;
 
     entry[excess_offset].position[0] = block_position.x;
     entry[excess_offset].position[1] = block_position.y;
@@ -412,18 +398,16 @@ void allocate_by_flag_CUDA(dim3 block_rect, dim3 thread_rect, HashEntry *entry,
       voxel_block_position);
 }
 
-__global__ void
-build_visible_flag_KernelFunc(const My_Type::Vector3f *current_points,
-                              const float *camera_pose, HashEntry *entry,
-                              char *visible_flag) {
+__global__ void build_visible_flag_KernelFunc(
+    const My_Type::Vector3f *current_points, const float *camera_pose,
+    HashEntry *entry, char *visible_flag) {
   int u, v, image_width, index;
   u = threadIdx.x + blockIdx.x * blockDim.x;
   v = threadIdx.y + blockIdx.y * blockDim.y;
   image_width = blockDim.x * gridDim.x;
   index = u + v * image_width;
   My_Type::Vector3f camera_point = current_points[index];
-  if (camera_point.z <= FLT_EPSILON)
-    return;
+  if (camera_point.z <= FLT_EPSILON) return;
 
   My_Type::Vector3f camera_ray = camera_point;
   camera_ray /= norm3df(camera_ray.x, camera_ray.y, camera_ray.z);
@@ -469,24 +453,18 @@ build_visible_flag_KernelFunc(const My_Type::Vector3f *current_points,
   ray_step_line.x = (int)floorf(ray_current.x / DDA_STEP_SIZE_MM);
   ray_step_line.y = (int)floorf(ray_current.y / DDA_STEP_SIZE_MM);
   ray_step_line.z = (int)floorf(ray_current.z / DDA_STEP_SIZE_MM);
-  if (ray_direction.x > 0.0)
-    ray_step_line.x++;
-  if (ray_direction.y > 0.0)
-    ray_step_line.y++;
-  if (ray_direction.z > 0.0)
-    ray_step_line.z++;
+  if (ray_direction.x > 0.0) ray_step_line.x++;
+  if (ray_direction.y > 0.0) ray_step_line.y++;
+  if (ray_direction.z > 0.0) ray_step_line.z++;
 
   ray_current_t = 0;
   while (ray_current_t < 2 * TRUNCATED_BAND_MM) {
 #pragma region(Mark entries)
 
     block_position = ray_step_line;
-    if (direction_flag.x > 0)
-      block_position.x--;
-    if (direction_flag.y > 0)
-      block_position.y--;
-    if (direction_flag.z > 0)
-      block_position.z--;
+    if (direction_flag.x > 0) block_position.x--;
+    if (direction_flag.y > 0) block_position.y--;
+    if (direction_flag.z > 0) block_position.z--;
 
     int hash_value =
         hash_func(block_position.x, block_position.y, block_position.z);
@@ -558,13 +536,11 @@ void build_visible_flag_CUDA(dim3 block_rect, dim3 thread_rect,
       current_points, camera_pose, entry, visible_flag);
 }
 
-__global__ void
-build_relative_flag_KernelFunc(My_Type::Vector3i *block_position, int block_num,
-                               float *pose, HashEntry *entry,
-                               char *relative_flag) {
+__global__ void build_relative_flag_KernelFunc(
+    My_Type::Vector3i *block_position, int block_num, float *pose,
+    HashEntry *entry, char *relative_flag) {
   int index = threadIdx.x + blockDim.x * blockIdx.x;
-  if (index >= block_num)
-    return;
+  if (index >= block_num) return;
 
   My_Type::Vector3f position, block_center;
   position.x =
@@ -632,7 +608,6 @@ void build_relative_flag_CUDA(dim3 block_rect, dim3 thread_rect,
                               My_Type::Vector3i *block_position, int block_num,
                               float *pose, HashEntry *entry,
                               char *relative_flag) {
-
   build_relative_flag_KernelFunc<<<block_rect, thread_rect>>>(
       block_position, block_num, pose, entry, relative_flag);
 }
@@ -645,8 +620,7 @@ __global__ void build_visible_list_KernelFunc(const HashEntry *entry,
                                               int *min_depth, int *max_depth) {
   int hash_value = threadIdx.x + blockIdx.x * blockDim.x;
 
-  if (visible_flag[hash_value] == INVISIBLE_BLOCK)
-    return;
+  if (visible_flag[hash_value] == INVISIBLE_BLOCK) return;
 
   int index = atomicAdd(visible_counter, 1);
   HashEntry entry_cache = entry[hash_value];
@@ -683,8 +657,7 @@ __global__ void build_relative_list_KernelFunc(HashEntry *entry,
                                                float *pose_inv) {
   int hash_value = threadIdx.x + blockIdx.x * blockDim.x;
 
-  if (relative_flag[hash_value] == 0)
-    return;
+  if (relative_flag[hash_value] == 0) return;
 
   int index = atomicAdd(relative_counter, 1);
   HashEntry entry_cache = entry[hash_value];
@@ -695,7 +668,6 @@ void build_relative_list_CUDA(dim3 block_rect, dim3 thread_rect,
                               HashEntry *entry, HashEntry *relative_list,
                               char *relative_flag, int *relative_counter,
                               float *pose_inv) {
-
   build_relative_list_KernelFunc<<<block_rect, thread_rect>>>(
       entry, relative_list, relative_flag, relative_counter, pose_inv);
 }
@@ -720,8 +692,7 @@ __global__ void raycast_get_range_KernelFunc(
   float min_depth, max_depth;
   min_depth = 0.001f * (float)min_distance[0] - DDA_STEP_SIZE;
   max_depth = 0.001f * (float)max_distance[0] + DDA_STEP_SIZE;
-  if (min_depth >= max_depth)
-    return;
+  if (min_depth >= max_depth) return;
   camera_start_x = min_depth * (float)(u - sensor_params.sensor_cx) /
                    sensor_params.sensor_fx;
   camera_start_y = min_depth * (float)(v - sensor_params.sensor_cy) /
@@ -777,30 +748,23 @@ __global__ void raycast_get_range_KernelFunc(
   step_line[0] = (int)floorf(current[0] / DDA_STEP_SIZE);
   step_line[1] = (int)floorf(current[1] / DDA_STEP_SIZE);
   step_line[2] = (int)floorf(current[2] / DDA_STEP_SIZE);
-  if (direction_x > 0.0)
-    step_line[0]++;
-  if (direction_y > 0.0)
-    step_line[1]++;
-  if (direction_z > 0.0)
-    step_line[2]++;
+  if (direction_x > 0.0) step_line[0]++;
+  if (direction_y > 0.0) step_line[1]++;
+  if (direction_z > 0.0) step_line[2]++;
 
   //
   bool found_allocated_before = false;
   bool is_find_near = false;
   while (current_t_coeff < max_t_coeff) {
-
 #pragma region(Get Range)
 
     //
     block_pos[0] = step_line[0];
     block_pos[1] = step_line[1];
     block_pos[2] = step_line[2];
-    if (direction_flag[0] > 0)
-      block_pos[0]--;
-    if (direction_flag[1] > 0)
-      block_pos[1]--;
-    if (direction_flag[2] > 0)
-      block_pos[2]--;
+    if (direction_flag[0] > 0) block_pos[0]--;
+    if (direction_flag[1] > 0) block_pos[1]--;
+    if (direction_flag[2] > 0) block_pos[2]--;
 
     //
     hash_value = hash_func(block_pos[0], block_pos[1], block_pos[2]);
@@ -858,12 +822,9 @@ __global__ void raycast_get_range_KernelFunc(
     step_line[0] = (int)floorf(current[0] / DDA_STEP_SIZE);
     step_line[1] = (int)floorf(current[1] / DDA_STEP_SIZE);
     step_line[2] = (int)floorf(current[2] / DDA_STEP_SIZE);
-    if (direction_x > 0.0)
-      step_line[0]++;
-    if (direction_y > 0.0)
-      step_line[1]++;
-    if (direction_z > 0.0)
-      step_line[2]++;
+    if (direction_x > 0.0) step_line[0]++;
+    if (direction_y > 0.0) step_line[1]++;
+    if (direction_z > 0.0) step_line[2]++;
     //
     if (fabsf((float)step_line[0] * DDA_STEP_SIZE - current[0]) < FLT_EPSILON)
       step_line[0] += direction_flag[0];
@@ -934,8 +895,7 @@ __global__ void raycast_get_range_4corner_KernelFunc(
   float min_depth, max_depth;
   min_depth = 0.001f * (float)min_distance[0] - DDA_STEP_SIZE;
   max_depth = 0.001f * (float)max_distance[0] + DDA_STEP_SIZE;
-  if (min_depth >= max_depth)
-    return;
+  if (min_depth >= max_depth) return;
 
   int u, v, u_index, v_index;
   u_index = threadIdx.x;
@@ -1000,29 +960,22 @@ __global__ void raycast_get_range_4corner_KernelFunc(
     step_line[0] = (int)floorf(current[0] / DDA_STEP_SIZE);
     step_line[1] = (int)floorf(current[1] / DDA_STEP_SIZE);
     step_line[2] = (int)floorf(current[2] / DDA_STEP_SIZE);
-    if (direction_x > 0.0)
-      step_line[0]++;
-    if (direction_y > 0.0)
-      step_line[1]++;
-    if (direction_z > 0.0)
-      step_line[2]++;
+    if (direction_x > 0.0) step_line[0]++;
+    if (direction_y > 0.0) step_line[1]++;
+    if (direction_z > 0.0) step_line[2]++;
 
     //
     bool found_allocated_before = false;
     bool is_find_near = false;
     while (current_t_coeff < max_t_coeff) {
-
 #pragma region(Get range)
 
       block_pos[0] = step_line[0];
       block_pos[1] = step_line[1];
       block_pos[2] = step_line[2];
-      if (direction_flag[0] > 0)
-        block_pos[0]--;
-      if (direction_flag[1] > 0)
-        block_pos[1]--;
-      if (direction_flag[2] > 0)
-        block_pos[2]--;
+      if (direction_flag[0] > 0) block_pos[0]--;
+      if (direction_flag[1] > 0) block_pos[1]--;
+      if (direction_flag[2] > 0) block_pos[2]--;
 
       hash_value = hash_func(block_pos[0], block_pos[1], block_pos[2]);
 
@@ -1072,12 +1025,9 @@ __global__ void raycast_get_range_4corner_KernelFunc(
       step_line[0] = (int)floorf(current[0] / DDA_STEP_SIZE);
       step_line[1] = (int)floorf(current[1] / DDA_STEP_SIZE);
       step_line[2] = (int)floorf(current[2] / DDA_STEP_SIZE);
-      if (direction_x > 0.0)
-        step_line[0]++;
-      if (direction_y > 0.0)
-        step_line[1]++;
-      if (direction_z > 0.0)
-        step_line[2]++;
+      if (direction_x > 0.0) step_line[0]++;
+      if (direction_y > 0.0) step_line[1]++;
+      if (direction_z > 0.0) step_line[2]++;
       //
       if (fabsf((float)step_line[0] * DDA_STEP_SIZE - current[0]) < FLT_EPSILON)
         step_line[0] += direction_flag[0];
@@ -1153,8 +1103,7 @@ __global__ void raycast_byStep_KernelFunc(
   int map_W = ceilf((float)image_W / (float)raycast_patch_width);
   min_z = range_map[u_index + map_W * v_index].x;
   max_z = range_map[u_index + map_W * v_index].y;
-  if (min_z >= max_z)
-    return;
+  if (min_z >= max_z) return;
 
   camera_start_x =
       min_z * (float)(u - sensor_params.sensor_cx) / sensor_params.sensor_fx;
@@ -1259,7 +1208,6 @@ __global__ void raycast_byStep_KernelFunc(
     ray_length += step_length;
 
     if (valid_point) {
-
       int point_index = u + image_W * v;
       raycast_points[point_index].x = (float)(ray_length * camera_direction_x);
       raycast_points[point_index].y = (float)(ray_length * camera_direction_y);
@@ -1354,8 +1302,7 @@ __global__ void raycast_byStep_KernelFunc(
   int map_W = 1 + (int)ceilf((float)image_W / (float)raycast_patch_width);
   min_z = range_map[u_index + map_W * v_index].x;
   max_z = range_map[u_index + map_W * v_index].y;
-  if (min_z >= max_z)
-    return;
+  if (min_z >= max_z) return;
 
   camera_start_x =
       min_z * (float)(u - sensor_params.sensor_cx) / sensor_params.sensor_fx;
@@ -1631,24 +1578,20 @@ __global__ void prj_fusion_sdf_KernelFunc(
   prj_u = (int)(sensor_params.sensor_fx * camera_Vx + sensor_params.sensor_cx);
   prj_v = (int)(sensor_params.sensor_fy * camera_Vy + sensor_params.sensor_cy);
   //
-  if (prj_u < 0 || prj_u >= depth_width)
-    return;
-  if (prj_v < 0 || prj_v >= depth_height)
-    return;
+  if (prj_u < 0 || prj_u >= depth_width) return;
+  if (prj_v < 0 || prj_v >= depth_height) return;
 
   //
   depth = (float)current_points[prj_u + prj_v * depth_width].z;
   //
   // if (depth < MIN_VALID_DEPTH_M || depth > MAX_VALID_DEPTH_M)
   // return;
-  if (depth < FLT_EPSILON)
-    return;
+  if (depth < FLT_EPSILON) return;
 
   //      SDF
   sdf_current = (depth - camera_Vz) / TRUNCATED_BAND;
   //
-  if ((sdf_current > 1.0f) || (sdf_current < -1.0f))
-    return;
+  if ((sdf_current > 1.0f) || (sdf_current < -1.0f)) return;
 
   //
   voxel_offset = threadIdx.x + threadIdx.y * VOXEL_BLOCK_WDITH +
@@ -1670,7 +1613,6 @@ void prj_fusion_sdf_CUDA(dim3 block_rect, dim3 thread_rect,
                          Sensor_params sensor_params, int depth_width,
                          int depth_height, const HashEntry *visible_list,
                          Voxel_f *voxel_block_array) {
-
   prj_fusion_sdf_KernelFunc<<<block_rect, thread_rect>>>(
       current_points, camera_pose_inv, sensor_params, depth_width, depth_height,
       visible_list, voxel_block_array);
@@ -1728,37 +1670,30 @@ __global__ void prj_normal_fusion_sdf_KernelFunc(
       (int)(sensor_params.sensor_fy * (voxel_in_camera.y / voxel_in_camera.z) +
             sensor_params.sensor_cy);
   //
-  if (prj_u < 0 || prj_u >= depth_width)
-    return;
-  if (prj_v < 0 || prj_v >= depth_height)
-    return;
+  if (prj_u < 0 || prj_u >= depth_width) return;
+  if (prj_v < 0 || prj_v >= depth_height) return;
 
   //
   My_Type::Vector3f current_point = current_points[prj_u + prj_v * depth_width];
-  if (current_point.z < FLT_EPSILON)
-    return;
+  if (current_point.z < FLT_EPSILON) return;
 
   // Compute cos(\theta)
   My_Type::Vector3f current_normal, ray_vector;
-  if (voxel_in_camera.norm() < FLT_EPSILON)
-    return;
+  if (voxel_in_camera.norm() < FLT_EPSILON) return;
   ray_vector = voxel_in_camera;
   ray_vector /= voxel_in_camera.norm();
   current_normal = current_normals[prj_u + prj_v * depth_width];
   float inner_product = -ray_vector.x * current_normal.x -
                         ray_vector.y * current_normal.y -
                         ray_vector.z * current_normal.z;
-  if (inner_product < 0.5f)
-    inner_product = 0.5f;
+  if (inner_product < 0.5f) inner_product = 0.5f;
 
   // Diff distance
   float diff_distance = (current_point - voxel_in_camera).norm();
-  if (current_point.z - voxel_in_camera.z < 0)
-    diff_distance = -diff_distance;
+  if (current_point.z - voxel_in_camera.z < 0) diff_distance = -diff_distance;
   float sdf_current = diff_distance * inner_product / TRUNCATED_BAND;
   //
-  if ((sdf_current > 1.0f) || (sdf_current < -1.0f))
-    return;
+  if ((sdf_current > 1.0f) || (sdf_current < -1.0f)) return;
 
   //
   voxel_offset = threadIdx.x + threadIdx.y * VOXEL_BLOCK_WDITH +
@@ -1799,8 +1734,7 @@ __global__ void fusion_map_sdf_KernelFunc(
   bool is_valid_voxel = true;
 
   //
-  if (block_index >= relative_counter[0])
-    is_valid_voxel = false;
+  if (block_index >= relative_counter[0]) is_valid_voxel = false;
 
   //
   My_Type::Vector3f block_position;
@@ -1837,8 +1771,7 @@ __global__ void fusion_map_sdf_KernelFunc(
   int voxel_index_f =
       get_voxel_index_neighbor(voxel_position_f.x, voxel_position_f.y,
                                voxel_position_f.z, fragment_entry);
-  if (voxel_index_f < 0)
-    is_valid_voxel = false;
+  if (voxel_index_f < 0) is_valid_voxel = false;
 
   //
   int voxel_offset, voxel_index;
@@ -1847,8 +1780,7 @@ __global__ void fusion_map_sdf_KernelFunc(
     //
     fragment_voxel = fragment_Voxel_map[voxel_index_f];
 
-    if (fragment_voxel.weight < MIN_RAYCAST_WEIGHT)
-      is_valid_voxel = false;
+    if (fragment_voxel.weight < MIN_RAYCAST_WEIGHT) is_valid_voxel = false;
   }
 
   //      SDF
@@ -1892,17 +1824,19 @@ __global__ void fusion_map_sdf_KernelFunc(
     //	int block_pos[3];
     //	// Block
     //	block_pos[0] = floorf(voxel_position_f.x / (VOXEL_SIZE *
-    //VOXEL_BLOCK_WDITH)); 	block_pos[1] = floorf(voxel_position_f.y /
+    // VOXEL_BLOCK_WDITH)); 	block_pos[1] = floorf(voxel_position_f.y /
     //(VOXEL_SIZE * VOXEL_BLOCK_WDITH)); 	block_pos[2] =
-    //floorf(voxel_position_f.z / (VOXEL_SIZE * VOXEL_BLOCK_WDITH));
+    // floorf(voxel_position_f.z / (VOXEL_SIZE * VOXEL_BLOCK_WDITH));
     //	// Voxel   Block
     //	offset_x = roundf((voxel_position_f.x - ((float)block_pos[0]) *
     //(VOXEL_SIZE * VOXEL_BLOCK_WDITH)) / VOXEL_SIZE); 	offset_y =
-    //roundf((voxel_position_f.y - ((float)block_pos[1]) * (VOXEL_SIZE *
-    //VOXEL_BLOCK_WDITH)) / VOXEL_SIZE); 	offset_z = roundf((voxel_position_f.z -
+    // roundf((voxel_position_f.y - ((float)block_pos[1]) * (VOXEL_SIZE *
+    // VOXEL_BLOCK_WDITH)) / VOXEL_SIZE); 	offset_z =
+    // roundf((voxel_position_f.z
+    // -
     //((float)block_pos[2]) * (VOXEL_SIZE * VOXEL_BLOCK_WDITH)) / VOXEL_SIZE);
     //	printf("%d, %d, %d, %d, %d, %d\r\n", threadIdx.x, offset_x, threadIdx.y,
-    //offset_y, threadIdx.z, offset_z);
+    // offset_y, threadIdx.z, offset_z);
     //}
   }
 }
@@ -1912,7 +1846,6 @@ void fusion_map_sdf_CUDA(dim3 block_rect, dim3 thread_rect,
                          Voxel_f *this_Voxel_map, float *pose_inv,
                          HashEntry *fragment_entry, Voxel_f *fragment_Voxel_map,
                          int *plane_global_index) {
-
   fusion_map_sdf_KernelFunc<<<block_rect, thread_rect>>>(
       relative_list, relative_counter, this_Voxel_map, pose_inv, fragment_entry,
       fragment_Voxel_map, plane_global_index);
@@ -1961,24 +1894,20 @@ __global__ void prj_fusion_plane_label_KernelFunc(
   prj_u = (int)(sensor_params.sensor_fx * camera_Vx + sensor_params.sensor_cx);
   prj_v = (int)(sensor_params.sensor_fy * camera_Vy + sensor_params.sensor_cy);
   //
-  if (prj_u < 0 || prj_u >= depth_width)
-    return;
-  if (prj_v < 0 || prj_v >= depth_height)
-    return;
+  if (prj_u < 0 || prj_u >= depth_width) return;
+  if (prj_v < 0 || prj_v >= depth_height) return;
 
   //
   depth = (float)current_points[prj_u + prj_v * depth_width].z;
   //
   // if (depth < MIN_VALID_DEPTH_M || depth > MAX_VALID_DEPTH_M)
   // return;
-  if (depth < FLT_EPSILON)
-    return;
+  if (depth < FLT_EPSILON) return;
 
   //      SDF
   sdf_current = (depth - camera_Vz) / TRUNCATED_BAND;
   //
-  if ((sdf_current > 1.0f) || (sdf_current < -1.0f))
-    return;
+  if ((sdf_current > 1.0f) || (sdf_current < -1.0f)) return;
 
   //
   voxel_offset = threadIdx.x + threadIdx.y * VOXEL_BLOCK_WDITH +
@@ -2006,16 +1935,14 @@ void prj_fusion_plane_label_CUDA(dim3 block_rect, dim3 thread_rect,
 }
 
 //     Block
-__global__ void
-reduce_range_KernelFunc(const My_Type::Vector3i *__restrict__ block_position,
-                        int block_num, int *min_depth, int *max_depth,
-                        const float *pose_inv) {
+__global__ void reduce_range_KernelFunc(
+    const My_Type::Vector3i *__restrict__ block_position, int block_num,
+    int *min_depth, int *max_depth, const float *pose_inv) {
   //
   bool is_valid_block = true;
   //
   int index = threadIdx.x + blockDim.x * blockIdx.x;
-  if (index >= block_num)
-    is_valid_block = false;
+  if (index >= block_num) is_valid_block = false;
 
   float current_depth;
   if (is_valid_block) {
@@ -2032,8 +1959,7 @@ reduce_range_KernelFunc(const My_Type::Vector3i *__restrict__ block_position,
     current_depth = pose_inv[2] * position.x + pose_inv[6] * position.y +
                     pose_inv[10] * position.z + pose_inv[14];
     //
-    if (current_depth < FLT_EPSILON)
-      is_valid_block = false;
+    if (current_depth < FLT_EPSILON) is_valid_block = false;
   }
 
   // Reduce minimum and maximum
@@ -2064,7 +1990,6 @@ void reduce_range_CUDA(dim3 block_rect, dim3 thread_rect,
                        const My_Type::Vector3i *__restrict__ block_position,
                        int block_num, int *min_depth, int *max_depth,
                        const float *pose_inv) {
-
   reduce_range_KernelFunc<<<block_rect, thread_rect>>>(
       block_position, block_num, min_depth, max_depth, pose_inv);
 }
@@ -2096,11 +2021,10 @@ __global__ void merge_frame_with_occlusion_KernelFunc(
   float fragment_depth = fragment_points[index].z;
   // if (global_depth < FLT_EPSILON || global_depth > MAX_VALID_DEPTH_M)
   // is_global_point_valid = false; if (fragment_depth < FLT_EPSILON ||
-  // fragment_depth > MAX_VALID_DEPTH_M)		is_fragment_point_valid = false;
-  if (global_depth < FLT_EPSILON)
-    return;
-  if (fragment_depth < FLT_EPSILON)
-    return;
+  // fragment_depth > MAX_VALID_DEPTH_M)		is_fragment_point_valid
+  // = false;
+  if (global_depth < FLT_EPSILON) return;
+  if (fragment_depth < FLT_EPSILON) return;
 
   // both valid, compute occlusion
   if (is_global_point_valid && is_fragment_point_valid) {
@@ -2145,7 +2069,6 @@ void merge_frame_with_occlusion_CUDA(
     My_Type::Vector3f *merge_normal, int *global_weight, int *fragment_weight,
     int *merge_weight, int *global_plane_img, int *fragment_plane_img,
     int *merge_plane_img) {
-
   merge_frame_with_occlusion_KernelFunc<<<block_rect, thread_rect>>>(
       global_points, fragment_points, merge_points, global_normal,
       fragment_normal, merge_normal, global_weight, fragment_weight,
@@ -2205,8 +2128,7 @@ __global__ void copy_voexl_map_KernelFunc(HashEntry *relative_list,
     }
 
     //
-    if (!is_find)
-      is_valid_voxel = false;
+    if (!is_find) is_valid_voxel = false;
   }
 
   //   Voxel
@@ -2230,7 +2152,6 @@ void copy_voexl_map_CUDA(dim3 block_rect, dim3 thread_rect,
                          HashEntry *relative_list, int *relative_counter,
                          Voxel_f *dst_Voxel_map, HashEntry *fragment_entry,
                          Voxel_f *fragment_Voxel_map) {
-
   copy_voexl_map_KernelFunc<<<block_rect, thread_rect>>>(
       relative_list, relative_counter, dst_Voxel_map, fragment_entry,
       fragment_Voxel_map);
@@ -2246,8 +2167,7 @@ __global__ void reduce_current_voxel_block_position_KernelFunc(
   // Index of visible list
   int index = threadIdx.x + blockDim.x * blockIdx.x;
   // Check if index out of range
-  if (index >= visible_counter)
-    is_valid_entry = false;
+  if (index >= visible_counter) is_valid_entry = false;
 
   // Reduce sum
   __shared__ float cache_f[256];
@@ -2264,20 +2184,20 @@ __global__ void reduce_current_voxel_block_position_KernelFunc(
     //
     if (tid == 0) {
       switch (i) {
-      case 0: {
-        atomicAdd((float *)&(current_weight_center[0].x), cache_f[0]);
-        break;
-      }
-      case 1: {
-        atomicAdd((float *)&(current_weight_center[0].y), cache_f[0]);
-        break;
-      }
-      case 2: {
-        atomicAdd((float *)&(current_weight_center[0].z), cache_f[0]);
-        break;
-      }
-      default:
-        break;
+        case 0: {
+          atomicAdd((float *)&(current_weight_center[0].x), cache_f[0]);
+          break;
+        }
+        case 1: {
+          atomicAdd((float *)&(current_weight_center[0].y), cache_f[0]);
+          break;
+        }
+        case 2: {
+          atomicAdd((float *)&(current_weight_center[0].z), cache_f[0]);
+          break;
+        }
+        default:
+          break;
       }
     }
   }
@@ -2286,7 +2206,6 @@ __global__ void reduce_current_voxel_block_position_KernelFunc(
 void reduce_current_voxel_block_position_CUDA(
     dim3 block_rect, dim3 thread_rect, HashEntry *visible_list,
     My_Type::Vector3f *current_weight_center, int visible_counter) {
-
   reduce_current_voxel_block_position_KernelFunc<<<block_rect, thread_rect>>>(
       visible_list, current_weight_center, visible_counter);
 }
@@ -2300,8 +2219,7 @@ __global__ void reduce_map_voxel_block_position_KernelFunc(
   // Compute Hash value
   int hash_value = threadIdx.x + blockDim.x * blockIdx.x;
   // Check entry is allocated
-  if (entry[hash_value].ptr < 0)
-    is_valid_entry = false;
+  if (entry[hash_value].ptr < 0) is_valid_entry = false;
 
   // Reduce sum
   __shared__ float cache_f[256];
@@ -2318,20 +2236,20 @@ __global__ void reduce_map_voxel_block_position_KernelFunc(
     //
     if (tid == 0) {
       switch (i) {
-      case 0: {
-        atomicAdd(&(map_weight_center[0].x), cache_f[0]);
-        break;
-      }
-      case 1: {
-        atomicAdd(&(map_weight_center[0].y), cache_f[0]);
-        break;
-      }
-      case 2: {
-        atomicAdd(&(map_weight_center[0].z), cache_f[0]);
-        break;
-      }
-      default:
-        break;
+        case 0: {
+          atomicAdd(&(map_weight_center[0].x), cache_f[0]);
+          break;
+        }
+        case 1: {
+          atomicAdd(&(map_weight_center[0].y), cache_f[0]);
+          break;
+        }
+        case 2: {
+          atomicAdd(&(map_weight_center[0].z), cache_f[0]);
+          break;
+        }
+        default:
+          break;
       }
     }
   }
@@ -2340,24 +2258,21 @@ __global__ void reduce_map_voxel_block_position_KernelFunc(
 void reduce_map_voxel_block_position_CUDA(
     dim3 block_rect, dim3 thread_rect, HashEntry *entry,
     My_Type::Vector3f *map_weight_center) {
-
   reduce_map_voxel_block_position_KernelFunc<<<block_rect, thread_rect>>>(
       entry, map_weight_center);
 }
 
 // Reduce fragment map's bounding box
-__global__ void
-reduce_map_bounding_box_KernelFunc(HashEntry *entry,
-                                   My_Type::Vector3i *map_min_offset,
-                                   My_Type::Vector3i *map_max_offset) {
+__global__ void reduce_map_bounding_box_KernelFunc(
+    HashEntry *entry, My_Type::Vector3i *map_min_offset,
+    My_Type::Vector3i *map_max_offset) {
   //
   bool is_valid_entry = true;
 
   // Compute Hash value
   int hash_value = threadIdx.x + blockDim.x * blockIdx.x;
   // Check entry is allocated
-  if (entry[hash_value].ptr < 0)
-    is_valid_entry = false;
+  if (entry[hash_value].ptr < 0) is_valid_entry = false;
 
   // Read voxel block position
   __shared__ int cache_i1[256], cache_i2[256];
@@ -2376,23 +2291,23 @@ reduce_map_bounding_box_KernelFunc(HashEntry *entry,
     //
     if (tid == 0) {
       switch (i) {
-      case 0: {
-        atomicMin(&(map_min_offset[0].x), cache_i1[0]);
-        atomicMax(&(map_max_offset[0].x), cache_i2[0]);
-        break;
-      }
-      case 1: {
-        atomicMin(&(map_min_offset[0].y), cache_i1[0]);
-        atomicMax(&(map_max_offset[0].y), cache_i2[0]);
-        break;
-      }
-      case 2: {
-        atomicMin(&(map_min_offset[0].z), cache_i1[0]);
-        atomicMax(&(map_max_offset[0].z), cache_i2[0]);
-        break;
-      }
-      default:
-        break;
+        case 0: {
+          atomicMin(&(map_min_offset[0].x), cache_i1[0]);
+          atomicMax(&(map_max_offset[0].x), cache_i2[0]);
+          break;
+        }
+        case 1: {
+          atomicMin(&(map_min_offset[0].y), cache_i1[0]);
+          atomicMax(&(map_max_offset[0].y), cache_i2[0]);
+          break;
+        }
+        case 2: {
+          atomicMin(&(map_min_offset[0].z), cache_i1[0]);
+          atomicMax(&(map_max_offset[0].z), cache_i2[0]);
+          break;
+        }
+        default:
+          break;
       }
     }
   }
@@ -2402,7 +2317,6 @@ void reduce_map_bounding_box_CUDA(dim3 block_rect, dim3 thread_rect,
                                   HashEntry *entry,
                                   My_Type::Vector3i *map_min_offset,
                                   My_Type::Vector3i *map_max_offset) {
-
   reduce_map_bounding_box_KernelFunc<<<block_rect, thread_rect>>>(
       entry, map_min_offset, map_max_offset);
 }
@@ -2647,10 +2561,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y;
   Px = P1_x;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_0 = voxel_block_array[voxel_index].sdf;
   // z y x
   // 0 0 1
@@ -2658,10 +2570,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y;
   Px = P1_x + VOXEL_SIZE;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_1 = voxel_block_array[voxel_index].sdf;
   // - 0 0 x
   interpolate_x0 = sdf_0 * (1 - coeff_x) + sdf_1 * coeff_x;
@@ -2672,10 +2582,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y + VOXEL_SIZE;
   Px = P1_x;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_0 = voxel_block_array[voxel_index].sdf;
   // z y x
   // 0 1 1
@@ -2683,10 +2591,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y + VOXEL_SIZE;
   Px = P1_x + VOXEL_SIZE;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_1 = voxel_block_array[voxel_index].sdf;
   // - 0 1 x
   interpolate_x1 = sdf_0 * (1 - coeff_x) + sdf_1 * coeff_x;
@@ -2700,10 +2606,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y;
   Px = P1_x;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_0 = voxel_block_array[voxel_index].sdf;
   // z y x
   // 1 0 1
@@ -2711,10 +2615,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y;
   Px = P1_x + VOXEL_SIZE;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_1 = voxel_block_array[voxel_index].sdf;
   // - 1 0 x
   interpolate_x0 = sdf_0 * (1 - coeff_x) + sdf_1 * coeff_x;
@@ -2725,10 +2627,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y + VOXEL_SIZE;
   Px = P1_x;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_0 = voxel_block_array[voxel_index].sdf;
   // z y x
   // 1 1 1
@@ -2736,10 +2636,8 @@ __device__ inline bool get_sdf_interpolated(float &Vx, float &Vy, float &Vz,
   Py = P1_y + VOXEL_SIZE;
   Px = P1_x + VOXEL_SIZE;
   voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-  if (voxel_index < 0)
-    return false;
-  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
-    return false;
+  if (voxel_index < 0) return false;
+  if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT) return false;
   sdf_1 = voxel_block_array[voxel_index].sdf;
   // - 1 1 x
   interpolate_x1 = sdf_0 * (1 - coeff_x) + sdf_1 * coeff_x;
@@ -2783,8 +2681,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y;
     Px = P1_x;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_000 = voxel_block_array[voxel_index].sdf;
@@ -2793,8 +2690,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y;
     Px = P1_x + VOXEL_SIZE;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_001 = voxel_block_array[voxel_index].sdf;
@@ -2803,8 +2699,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y + VOXEL_SIZE;
     Px = P1_x;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_010 = voxel_block_array[voxel_index].sdf;
@@ -2813,8 +2708,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y + VOXEL_SIZE;
     Px = P1_x + VOXEL_SIZE;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_011 = voxel_block_array[voxel_index].sdf;
@@ -2824,8 +2718,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y;
     Px = P1_x;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_100 = voxel_block_array[voxel_index].sdf;
@@ -2834,8 +2727,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y;
     Px = P1_x + VOXEL_SIZE;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_101 = voxel_block_array[voxel_index].sdf;
@@ -2844,8 +2736,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y + VOXEL_SIZE;
     Px = P1_x;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_110 = voxel_block_array[voxel_index].sdf;
@@ -2854,8 +2745,7 @@ __device__ inline bool interpolate_normal_by_sdf(
     Py = P1_y + VOXEL_SIZE;
     Px = P1_x + VOXEL_SIZE;
     voxel_index = get_voxel_index_neighbor(Px, Py, Pz, entry);
-    if (voxel_index < 0)
-      return false;
+    if (voxel_index < 0) return false;
     if (voxel_block_array[voxel_index].weight < MIN_RAYCAST_WEIGHT)
       return false;
     sdf_111 = voxel_block_array[voxel_index].sdf;
@@ -2947,14 +2837,11 @@ inline __device__ void warp_reduce(volatile T *cache_T, int tid) {
 template <typename T>
 inline __device__ void block_256_reduce(volatile T *cache_T, int tid) {
   __syncthreads();
-  if (tid < 128)
-    cache_T[tid] += cache_T[tid + 128];
+  if (tid < 128) cache_T[tid] += cache_T[tid + 128];
   __syncthreads();
-  if (tid < 64)
-    cache_T[tid] += cache_T[tid + 64];
+  if (tid < 64) cache_T[tid] += cache_T[tid + 64];
   __syncthreads();
-  if (tid < 32)
-    warp_reduce(cache_T, tid);
+  if (tid < 32) warp_reduce(cache_T, tid);
   __syncthreads();
 }
 
@@ -2962,14 +2849,11 @@ inline __device__ void block_256_reduce(volatile T *cache_T, int tid) {
 template <typename T>
 inline __device__ void block_256_reduce_min(T *cache_T, int tid) {
   __syncthreads();
-  if (tid < 128)
-    cache_T[tid] = min(cache_T[tid], cache_T[tid + 128]);
+  if (tid < 128) cache_T[tid] = min(cache_T[tid], cache_T[tid + 128]);
   __syncthreads();
-  if (tid < 64)
-    cache_T[tid] = min(cache_T[tid], cache_T[tid + 64]);
+  if (tid < 64) cache_T[tid] = min(cache_T[tid], cache_T[tid + 64]);
   __syncthreads();
-  if (tid < 32)
-    warp_reduce_min(cache_T, tid);
+  if (tid < 32) warp_reduce_min(cache_T, tid);
   __syncthreads();
 }
 // GPU Warp Reduce minimum
@@ -2987,14 +2871,11 @@ inline __device__ void warp_reduce_min(volatile T *cache_T, int tid) {
 template <typename T>
 inline __device__ void block_256_reduce_max(T *cache_T, int tid) {
   __syncthreads();
-  if (tid < 128)
-    cache_T[tid] = max(cache_T[tid], cache_T[tid + 128]);
+  if (tid < 128) cache_T[tid] = max(cache_T[tid], cache_T[tid + 128]);
   __syncthreads();
-  if (tid < 64)
-    cache_T[tid] = max(cache_T[tid], cache_T[tid + 64]);
+  if (tid < 64) cache_T[tid] = max(cache_T[tid], cache_T[tid + 64]);
   __syncthreads();
-  if (tid < 32)
-    warp_reduce_max(cache_T, tid);
+  if (tid < 32) warp_reduce_max(cache_T, tid);
   __syncthreads();
 }
 // GPU Warp Reduce maximum

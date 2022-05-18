@@ -106,7 +106,6 @@ struct Cost_function_of_adjacent_plane {
                       point_W[2] * n2_W[2]);
 
     if (false) {
-
       T inner_product =
           n1_W[0] * n2_W[0] + n1_W[1] * n2_W[1] + n1_W[2] * n2_W[2];
       residual[0] = (T)weight * ((T)1 - inner_product);

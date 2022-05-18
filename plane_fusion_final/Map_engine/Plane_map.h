@@ -17,7 +17,7 @@
 
 */
 class Plane_map {
-public:
+ public:
   //! Plane counter (label-0 is reserved for non-plane region)
   int plane_counter = 1;
   //! Plane list
@@ -84,7 +84,7 @@ public:
   //!
   void generate_planar_block_render_information();
 
-private:
+ private:
   //!
   // void compress_hash_plane();
 };

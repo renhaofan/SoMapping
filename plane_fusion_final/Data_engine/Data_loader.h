@@ -28,7 +28,7 @@ using namespace std;
 
 */
 class Data_loader {
-public:
+ public:
   //! Default constructor/destructor
   Data_loader();
   ~Data_loader();
@@ -95,7 +95,7 @@ public:
     return this->GLcamera_keyview_trajectory;
   }
 
-protected:
+ protected:
   //! Image loader
   Image_loader *image_loader;
 
@@ -134,7 +134,7 @@ protected:
   //! Initialize Image_loader
   void init_image_loader(Image_loader *image_loader_ptr);
 
-private:
+ private:
   //! Show current frame
   /*!
           \param	color_mat	cv::Mat of color image.

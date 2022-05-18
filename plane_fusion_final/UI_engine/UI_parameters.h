@@ -7,13 +7,12 @@
         \note	Singleton of UI_engine paramenters
 */
 class UI_parameters {
-public:
+ public:
   //! The pointer to this static object.
   static UI_parameters *instance_ptr;
   //! Member function for instantiating this static object.
   static UI_parameters *instance(void) {
-    if (instance_ptr == nullptr)
-      instance_ptr = new UI_parameters();
+    if (instance_ptr == nullptr) instance_ptr = new UI_parameters();
     return instance_ptr;
   }
 

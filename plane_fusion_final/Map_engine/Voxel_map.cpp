@@ -19,8 +19,9 @@
 #include "SLAM_system/SLAM_system_settings.h"
 
 // C/C++ IO
-#include <iostream>
 #include <stdio.h>
+
+#include <iostream>
 using namespace std;
 
 //
@@ -143,9 +144,9 @@ void Voxel_map::init_Voxel_map(My_Type::Vector2i aligned_depth_size,
   checkCudaErrors(cudaMalloc((void **)&(this->dev_min_depth), sizeof(int)));
   checkCudaErrors(cudaMalloc((void **)&(this->dev_max_depth), sizeof(int)));
   // entry
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_entrise),
-                             (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) *
-                                 sizeof(HashEntry)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_entrise),
+      (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(HashEntry)));
   checkCudaErrors(cudaMalloc((void **)&(this->dev_visible_list),
                              VISIBLE_LIST_LENGTH * sizeof(HashEntry)));
   checkCudaErrors(cudaMalloc((void **)&(this->dev_relative_list),
@@ -160,9 +161,9 @@ void Voxel_map::init_Voxel_map(My_Type::Vector2i aligned_depth_size,
   checkCudaErrors(cudaMalloc((void **)&(this->dev_ordered_position),
                              ORDERED_TABLE_LENGTH * sizeof(My_Type::Vector3i)));
   // Voxel Block Array
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_voxel_block_array),
-                             this->max_voxel_block_number * VOXEL_BLOCK_SIZE *
-                                 sizeof(Voxel_f)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_voxel_block_array),
+      this->max_voxel_block_number * VOXEL_BLOCK_SIZE * sizeof(Voxel_f)));
 
   // Raycast Range
   checkCudaErrors(cudaMalloc((void **)&(this->dev_raycast_range_map),
@@ -193,19 +194,19 @@ void Voxel_map::init_Voxel_map(My_Type::Vector2i aligned_depth_size,
                  this->scene_depth_width * this->scene_depth_height *
                      sizeof(My_Type::Vector3f)));
   // Raycast weight
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_raycast_weight),
-                             this->raycast_depth_width *
-                                 this->raycast_depth_height * sizeof(int)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_scene_weight),
-                             this->scene_depth_width *
-                                 this->scene_depth_height * sizeof(int)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_raycast_weight),
+      this->raycast_depth_width * this->raycast_depth_height * sizeof(int)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_scene_weight),
+      this->scene_depth_width * this->scene_depth_height * sizeof(int)));
   // Raycast Plane label
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_raycast_plane_label),
-                             this->raycast_depth_width *
-                                 this->raycast_depth_height * sizeof(int)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_scene_plane_label),
-                             this->scene_depth_width *
-                                 this->scene_depth_height * sizeof(int)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_raycast_plane_label),
+      this->raycast_depth_width * this->raycast_depth_height * sizeof(int)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_scene_plane_label),
+      this->scene_depth_width * this->scene_depth_height * sizeof(int)));
 
   // for view
   // Voxel block position
@@ -229,17 +230,17 @@ void Voxel_map::init_Voxel_map(My_Type::Vector2i aligned_depth_size,
   checkCudaErrors(
       cudaMemset(this->dev_number_of_visible_blocks, 0x00, sizeof(int)));
   // entry
-  checkCudaErrors(cudaMemset(this->dev_entrise, 0xF7,
-                             (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) *
-                                 sizeof(HashEntry)));
+  checkCudaErrors(cudaMemset(
+      this->dev_entrise, 0xF7,
+      (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(HashEntry)));
   // voxel      0 （   0）
-  checkCudaErrors(cudaMemset(this->dev_voxel_block_array, 0x00,
-                             this->max_voxel_block_number * VOXEL_BLOCK_SIZE *
-                                 sizeof(Voxel_f)));
+  checkCudaErrors(cudaMemset(
+      this->dev_voxel_block_array, 0x00,
+      this->max_voxel_block_number * VOXEL_BLOCK_SIZE * sizeof(Voxel_f)));
   //
-  checkCudaErrors(cudaMemset(this->dev_raycast_plane_label, 0x00,
-                             this->raycast_depth_width *
-                                 this->raycast_depth_height * sizeof(int)));
+  checkCudaErrors(cudaMemset(
+      this->dev_raycast_plane_label, 0x00,
+      this->raycast_depth_width * this->raycast_depth_height * sizeof(int)));
 
   // CPU
   this->allocate_flag = (char *)malloc(ORDERED_TABLE_LENGTH * sizeof(char));
@@ -276,8 +277,7 @@ int Voxel_map::allocate_voxel_block(My_Type::Vector3f *dev_current_points,
                                     Eigen::Matrix4f camera_pose,
                                     Eigen::Matrix4f sumap_pose) {
   //   Voxel Block
-  if (this->out_of_block)
-    return this->number_of_blocks;
+  if (this->out_of_block) return this->number_of_blocks;
 
   //
   // this->camera_pose_in_submap.mat = this->submap_pose.mat.inverse() *
@@ -430,7 +430,6 @@ void Voxel_map::fusion_SDF_to_voxel(My_Type::Vector3f *dev_current_points,
 void Voxel_map::fusion_plane_label_to_voxel(
     My_Type::Vector3f *dev_current_points, int *plane_img,
     Eigen::Matrix4f camera_pose, Eigen::Matrix4f submap_pose) {
-
   //
   // this->camera_pose_in_submap.mat = this->submap_pose.mat.inverse() * pose;
   this->camera_pose_in_submap.mat = submap_pose.inverse() * camera_pose;
@@ -500,140 +499,144 @@ void Voxel_map::raycast_by_pose(Eigen::Matrix4f camera_pose, RaycastMode mode) {
 
   //
   switch (mode) {
-  case RaycastMode::RAYCSAT_FOR_TRACKING: {
-    //-------------- Get range map
-    //       Block   ，    Patch（16x16） Range
-    checkCudaErrors(cudaMemset(this->dev_raycast_range_map, 0x00,
-                               this->raycast_range_map_width *
-                                   this->raycast_range_map_height *
-                                   sizeof(My_Type::Vector2f)));
+    case RaycastMode::RAYCSAT_FOR_TRACKING: {
+      //-------------- Get range map
+      //       Block   ，    Patch（16x16） Range
+      checkCudaErrors(cudaMemset(this->dev_raycast_range_map, 0x00,
+                                 this->raycast_range_map_width *
+                                     this->raycast_range_map_height *
+                                     sizeof(My_Type::Vector2f)));
 
-    // ---------------------------- To Do : validate memory access safety
-    //  PatchSize   Raycast        Raycast   Patch Range
-    // Set CUDA kernel lunch paramenters
-    thread_rect.x = this->raycast_range_map_width - 1;
-    thread_rect.y = 1;
-    thread_rect.z = 1;
-    block_rect.x = this->raycast_range_map_height - 1;
-    block_rect.y = 1;
-    block_rect.z = 1;
-    // Lunch CUDA kernel function
-    if (true) {
-      raycast_get_range_4corner_CUDA(
+      // ---------------------------- To Do : validate memory access safety
+      //  PatchSize   Raycast        Raycast   Patch Range
+      // Set CUDA kernel lunch paramenters
+      thread_rect.x = this->raycast_range_map_width - 1;
+      thread_rect.y = 1;
+      thread_rect.z = 1;
+      block_rect.x = this->raycast_range_map_height - 1;
+      block_rect.y = 1;
+      block_rect.z = 1;
+      // Lunch CUDA kernel function
+      if (true) {
+        raycast_get_range_4corner_CUDA(
+            block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
+            SLAM_system_settings::instance()->sensor_params,
+            SLAM_system_settings::instance()->raycast_range_patch_width,
+            this->dev_entrise, this->dev_min_depth, this->dev_max_depth,
+            this->dev_raycast_range_map);
+      } else {
+        raycast_get_range_CUDA(
+            block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
+            this->dev_entrise, SLAM_system_settings::instance()->sensor_params,
+            SLAM_system_settings::instance()->raycast_range_patch_width,
+            this->dev_min_depth, this->dev_max_depth,
+            this->dev_raycast_range_map);
+      }
+      // CUDA_CKECK_KERNEL;
+
+      // ----------------------- Raycast
+      thread_rect.x =
+          SLAM_system_settings::instance()->raycast_range_patch_width;
+      thread_rect.y =
+          SLAM_system_settings::instance()->raycast_range_patch_width;
+      thread_rect.z = 1;
+      block_rect.x = this->raycast_depth_width / thread_rect.x;
+      block_rect.y = this->raycast_depth_height / thread_rect.y;
+      block_rect.z = 1;
+
+      checkCudaErrors(
+          cudaMemset(this->dev_raycast_points, 0x00,
+                     this->raycast_depth_width * this->raycast_depth_height *
+                         sizeof(My_Type::Vector3f)));
+      checkCudaErrors(
+          cudaMemset(this->dev_raycast_normal, 0x00,
+                     this->raycast_depth_width * this->raycast_depth_height *
+                         sizeof(My_Type::Vector3f)));
+      raycast_byStep_CUDA(
           block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
           SLAM_system_settings::instance()->sensor_params,
           SLAM_system_settings::instance()->raycast_range_patch_width,
-          this->dev_entrise, this->dev_min_depth, this->dev_max_depth,
-          this->dev_raycast_range_map);
-    } else {
-      raycast_get_range_CUDA(
-          block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
-          this->dev_entrise, SLAM_system_settings::instance()->sensor_params,
-          SLAM_system_settings::instance()->raycast_range_patch_width,
-          this->dev_min_depth, this->dev_max_depth,
-          this->dev_raycast_range_map);
+          this->dev_entrise, this->dev_voxel_block_array,
+          this->dev_raycast_range_map, this->dev_raycast_points,
+          this->dev_raycast_normal, this->dev_raycast_plane_label,
+          this->dev_raycast_weight);
+      // CUDA_CKECK_KERNEL;
+
+      break;
     }
-    // CUDA_CKECK_KERNEL;
+    case RaycastMode::RAYCAST_FOR_VIEW: {
+      //-------------- Get range map
+      //
+      checkCudaErrors(cudaMemset(this->dev_scene_range_map, 0x00,
+                                 this->scene_range_map_width *
+                                     this->scene_range_map_height *
+                                     sizeof(My_Type::Vector2f)));
 
-    // ----------------------- Raycast
-    thread_rect.x = SLAM_system_settings::instance()->raycast_range_patch_width;
-    thread_rect.y = SLAM_system_settings::instance()->raycast_range_patch_width;
-    thread_rect.z = 1;
-    block_rect.x = this->raycast_depth_width / thread_rect.x;
-    block_rect.y = this->raycast_depth_height / thread_rect.y;
-    block_rect.z = 1;
+      //
+      //
+      thread_rect.x = this->scene_range_map_width - 1;
+      thread_rect.y = 1;
+      thread_rect.z = 1;
+      block_rect.x = this->scene_range_map_height - 1;
+      block_rect.y = 1;
+      block_rect.z = 1;
+      // Lunch CUDA kernel function
+      if (true) {
+        raycast_get_range_4corner_CUDA(
+            block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
+            SLAM_system_settings::instance()->sensor_params,
+            SLAM_system_settings::instance()->raycast_range_patch_width,
+            this->dev_entrise, this->dev_min_depth, this->dev_max_depth,
+            this->dev_scene_range_map);
+      } else {
+        raycast_get_range_CUDA(
+            block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
+            this->dev_entrise, SLAM_system_settings::instance()->sensor_params,
+            SLAM_system_settings::instance()->raycast_range_patch_width,
+            this->dev_min_depth, this->dev_max_depth,
+            this->dev_scene_range_map);
+      }
+      // CUDA_CKECK_KERNEL;
 
-    checkCudaErrors(
-        cudaMemset(this->dev_raycast_points, 0x00,
-                   this->raycast_depth_width * this->raycast_depth_height *
-                       sizeof(My_Type::Vector3f)));
-    checkCudaErrors(
-        cudaMemset(this->dev_raycast_normal, 0x00,
-                   this->raycast_depth_width * this->raycast_depth_height *
-                       sizeof(My_Type::Vector3f)));
-    raycast_byStep_CUDA(
-        block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
-        SLAM_system_settings::instance()->sensor_params,
-        SLAM_system_settings::instance()->raycast_range_patch_width,
-        this->dev_entrise, this->dev_voxel_block_array,
-        this->dev_raycast_range_map, this->dev_raycast_points,
-        this->dev_raycast_normal, this->dev_raycast_plane_label,
-        this->dev_raycast_weight);
-    // CUDA_CKECK_KERNEL;
+      checkCudaErrors(cudaMemcpy(&(this->min_depth), this->dev_min_depth,
+                                 sizeof(int), cudaMemcpyDeviceToHost));
+      checkCudaErrors(cudaMemcpy(&(this->max_depth), this->dev_max_depth,
+                                 sizeof(int), cudaMemcpyDeviceToHost));
 
-    break;
-  }
-  case RaycastMode::RAYCAST_FOR_VIEW: {
+      // ----------------------- Raycast
+      thread_rect.x =
+          SLAM_system_settings::instance()->raycast_range_patch_width;
+      thread_rect.y =
+          SLAM_system_settings::instance()->raycast_range_patch_width;
+      thread_rect.z = 1;
+      block_rect.x = this->scene_depth_width / thread_rect.x;
+      block_rect.y = this->scene_depth_height / thread_rect.y;
+      block_rect.z = 1;
 
-    //-------------- Get range map
-    //
-    checkCudaErrors(
-        cudaMemset(this->dev_scene_range_map, 0x00,
-                   this->scene_range_map_width * this->scene_range_map_height *
-                       sizeof(My_Type::Vector2f)));
-
-    //
-    //
-    thread_rect.x = this->scene_range_map_width - 1;
-    thread_rect.y = 1;
-    thread_rect.z = 1;
-    block_rect.x = this->scene_range_map_height - 1;
-    block_rect.y = 1;
-    block_rect.z = 1;
-    // Lunch CUDA kernel function
-    if (true) {
-      raycast_get_range_4corner_CUDA(
+      checkCudaErrors(
+          cudaMemset(this->dev_scene_points, 0x00,
+                     this->scene_depth_width * this->scene_depth_height *
+                         sizeof(My_Type::Vector3f)));
+      checkCudaErrors(
+          cudaMemset(this->dev_scene_normals, 0x00,
+                     this->scene_depth_width * this->scene_depth_height *
+                         sizeof(My_Type::Vector3f)));
+      raycast_byStep_CUDA(
           block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
           SLAM_system_settings::instance()->sensor_params,
           SLAM_system_settings::instance()->raycast_range_patch_width,
-          this->dev_entrise, this->dev_min_depth, this->dev_max_depth,
-          this->dev_scene_range_map);
-    } else {
-      raycast_get_range_CUDA(
-          block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
-          this->dev_entrise, SLAM_system_settings::instance()->sensor_params,
-          SLAM_system_settings::instance()->raycast_range_patch_width,
-          this->dev_min_depth, this->dev_max_depth, this->dev_scene_range_map);
+          this->dev_entrise, this->dev_voxel_block_array,
+          this->dev_scene_range_map, this->dev_scene_points,
+          this->dev_scene_normals, this->dev_scene_plane_label,
+          this->dev_scene_weight);
+      //			CUDA_CKECK_KERNEL;
+      //
+      break;
     }
-    // CUDA_CKECK_KERNEL;
-
-    checkCudaErrors(cudaMemcpy(&(this->min_depth), this->dev_min_depth,
-                               sizeof(int), cudaMemcpyDeviceToHost));
-    checkCudaErrors(cudaMemcpy(&(this->max_depth), this->dev_max_depth,
-                               sizeof(int), cudaMemcpyDeviceToHost));
-
-    // ----------------------- Raycast
-    thread_rect.x = SLAM_system_settings::instance()->raycast_range_patch_width;
-    thread_rect.y = SLAM_system_settings::instance()->raycast_range_patch_width;
-    thread_rect.z = 1;
-    block_rect.x = this->scene_depth_width / thread_rect.x;
-    block_rect.y = this->scene_depth_height / thread_rect.y;
-    block_rect.z = 1;
-
-    checkCudaErrors(
-        cudaMemset(this->dev_scene_points, 0x00,
-                   this->scene_depth_width * this->scene_depth_height *
-                       sizeof(My_Type::Vector3f)));
-    checkCudaErrors(
-        cudaMemset(this->dev_scene_normals, 0x00,
-                   this->scene_depth_width * this->scene_depth_height *
-                       sizeof(My_Type::Vector3f)));
-    raycast_byStep_CUDA(
-        block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
-        SLAM_system_settings::instance()->sensor_params,
-        SLAM_system_settings::instance()->raycast_range_patch_width,
-        this->dev_entrise, this->dev_voxel_block_array,
-        this->dev_scene_range_map, this->dev_scene_points,
-        this->dev_scene_normals, this->dev_scene_plane_label,
-        this->dev_scene_weight);
-    //			CUDA_CKECK_KERNEL;
-    //
-    break;
-  }
-  default: {
-    printf("Illegal mode!\r\n");
-    break;
-  }
+    default: {
+      printf("Illegal mode!\r\n");
+      break;
+    }
   }
 }
 
@@ -659,17 +662,17 @@ void Voxel_map::update_from_last_voxel_map(
   checkCudaErrors(
       cudaMalloc((void **)&(dev_temp_visible_flag),
                  (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(char)));
-  checkCudaErrors(cudaMalloc((void **)&(dev_temp_visible_entries),
-                             (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) *
-                                 sizeof(HashEntry)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(dev_temp_visible_entries),
+      (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(HashEntry)));
 
   for (int i = 0; (i < 20 && number_of_visible_enteies != 0); i++) {
     // Init data
     checkCudaErrors(
         cudaMemset(dev_number_of_visible_enteies, 0x00, sizeof(int)));
-    checkCudaErrors(cudaMemset(dev_temp_visible_flag, 0x00,
-                               (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) *
-                                   sizeof(char)));
+    checkCudaErrors(cudaMemset(
+        dev_temp_visible_flag, 0x00,
+        (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(char)));
 
     // Find visible entries
     {
@@ -740,17 +743,17 @@ void Voxel_map::clear_Voxel_map() {
   checkCudaErrors(
       cudaMemset(this->dev_number_of_visible_blocks, 0x00, sizeof(int)));
   // entry           （ptr  ）
-  checkCudaErrors(cudaMemset(this->dev_entrise, 0xF7,
-                             (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) *
-                                 sizeof(HashEntry)));
+  checkCudaErrors(cudaMemset(
+      this->dev_entrise, 0xF7,
+      (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(HashEntry)));
   // voxel      0 （   0）
-  checkCudaErrors(cudaMemset(this->dev_voxel_block_array, 0x00,
-                             this->max_voxel_block_number * VOXEL_BLOCK_SIZE *
-                                 sizeof(Voxel_f)));
+  checkCudaErrors(cudaMemset(
+      this->dev_voxel_block_array, 0x00,
+      this->max_voxel_block_number * VOXEL_BLOCK_SIZE * sizeof(Voxel_f)));
   //
-  checkCudaErrors(cudaMemset(this->dev_raycast_plane_label, 0x00,
-                             this->raycast_depth_width *
-                                 this->raycast_depth_height * sizeof(int)));
+  checkCudaErrors(cudaMemset(
+      this->dev_raycast_plane_label, 0x00,
+      this->raycast_depth_width * this->raycast_depth_height * sizeof(int)));
 }
 
 //
@@ -846,17 +849,18 @@ void Voxel_map::release_voxel_map() {
 //
 //	//
 //	checkCudaErrors(cudaMemset(this->dev_scene_color, 0x00,
-//this->scene_depth_width * this->scene_depth_height *
-//sizeof(My_Type::Vector4uc)));
+// this->scene_depth_width * this->scene_depth_height *
+// sizeof(My_Type::Vector4uc)));
 //
 //
 //	//
 //	// Set CUDA kernel lunch paramenters
 //	thread_rect.x =
-//SLAM_system_settings::instance()->image_alginment_patch_width; 	thread_rect.y =
-//SLAM_system_settings::instance()->image_alginment_patch_width; 	thread_rect.z =
-//1; 	block_rect.x = this->scene_depth_width / thread_rect.x; 	block_rect.y =
-//this->scene_depth_height / thread_rect.y; 	block_rect.z = 1;
+// SLAM_system_settings::instance()->image_alginment_patch_width;
+// thread_rect.y = SLAM_system_settings::instance()->image_alginment_patch_width;
+// thread_rect.z = 1; 	block_rect.x = this->scene_depth_width / thread_rect.x;
+// block_rect.y = this->scene_depth_height / thread_rect.y; 	block_rect.z =
+// 1;
 //
 //
 //	//         Lunch CUDA kernel function
@@ -866,20 +870,20 @@ void Voxel_map::release_voxel_map() {
 //		{
 //			//
 //			render_gypsum_CUDA(block_rect, thread_rect,
-//this->dev_scene_normals, this->dev_scene_color); 			break;
+// this->dev_scene_normals, this->dev_scene_color); 			break;
 //		}
 //		case 2:
 //		{
 //			//
 //			render_weight_CUDA(block_rect, thread_rect,
-//this->dev_scene_normals, this->dev_scene_weight, this->dev_scene_color);
+// this->dev_scene_normals, this->dev_scene_weight, this->dev_scene_color);
 //			break;
 //		}
 //		case 3:
 //		{
 //			//
 //			render_plane_label_CUDA(block_rect, thread_rect,
-//this->dev_scene_normals, this->dev_scene_plane_label, this->dev_scene_color);
+// this->dev_scene_normals, this->dev_scene_plane_label, this->dev_scene_color);
 //			break;
 //		}
 //	default:
@@ -890,12 +894,12 @@ void Voxel_map::release_voxel_map() {
 //
 //	//
 //	checkCudaErrors(cudaMemcpy(this->scene_points, this->dev_scene_points,
-//this->scene_depth_width * this->scene_depth_height *
-//sizeof(My_Type::Vector3f), cudaMemcpyDeviceToHost));
+// this->scene_depth_width * this->scene_depth_height *
+// sizeof(My_Type::Vector3f), cudaMemcpyDeviceToHost));
 //	//
 //	checkCudaErrors(cudaMemcpy(this->scene_color, this->dev_scene_color,
-//this->scene_depth_width * this->scene_depth_height *
-//sizeof(My_Type::Vector4uc), cudaMemcpyDeviceToHost));
+// this->scene_depth_width * this->scene_depth_height *
+// sizeof(My_Type::Vector4uc), cudaMemcpyDeviceToHost));
 //
 //
 //}

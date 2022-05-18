@@ -1,10 +1,11 @@
-#include "Image_loader.h"
-
 #include <iostream>
+
+#include "Image_loader.h"
 // file operation
-#include <fstream>
 #include <io.h>
 #include <stdio.h>
+
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -37,32 +38,31 @@ bool Offline_image_loader::load_next_frame(double &timestamp,
                                            cv::Mat &color_mat,
                                            cv::Mat &depth_mat) {
   // Validate frame index
-  if (!this->is_ready_to_load_next_frame())
-    return false;
+  if (!this->is_ready_to_load_next_frame()) return false;
 
   // Load timestamp and images
   timestamp = this->depth_timestamp_vector[this->frame_index];
   switch (this->image_loader_mode) {
-  case ImageLoaderMode::NO_DATA:
-    return false;
-  case ImageLoaderMode::WITH_DEPTH_ONLY: {
-    depth_mat = cv::imread(this->depth_path_vector[this->frame_index].c_str(),
-                           CV_LOAD_IMAGE_UNCHANGED);
-    break;
-  }
-  case ImageLoaderMode::WITH_COLOR_AND_DEPTH: {
-    int depth_index = this->depth_index_vector[this->frame_index];
-    int color_index = this->color_index_vector[this->frame_index];
-    depth_mat = cv::imread(this->depth_path_vector[depth_index].c_str(),
-                           CV_LOAD_IMAGE_UNCHANGED);
-    color_mat = cv::imread(this->color_path_vector[color_index].c_str(),
-                           CV_LOAD_IMAGE_UNCHANGED);
-    break;
-  }
-  case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES:
-    return false;
-  default:
-    break;
+    case ImageLoaderMode::NO_DATA:
+      return false;
+    case ImageLoaderMode::WITH_DEPTH_ONLY: {
+      depth_mat = cv::imread(this->depth_path_vector[this->frame_index].c_str(),
+                             CV_LOAD_IMAGE_UNCHANGED);
+      break;
+    }
+    case ImageLoaderMode::WITH_COLOR_AND_DEPTH: {
+      int depth_index = this->depth_index_vector[this->frame_index];
+      int color_index = this->color_index_vector[this->frame_index];
+      depth_mat = cv::imread(this->depth_path_vector[depth_index].c_str(),
+                             CV_LOAD_IMAGE_UNCHANGED);
+      color_mat = cv::imread(this->color_path_vector[color_index].c_str(),
+                             CV_LOAD_IMAGE_UNCHANGED);
+      break;
+    }
+    case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES:
+      return false;
+    default:
+      break;
   }
 
   // To next frame
@@ -95,10 +95,8 @@ void Offline_image_loader::init(string color_folder, string depth_folder) {
 
 //
 bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
-
   // Validate frame index
-  if (frame_id < 0 || frame_id >= this->number_of_frames)
-    return false;
+  if (frame_id < 0 || frame_id >= this->number_of_frames) return false;
   this->frame_index = frame_id;
   return true;
 
@@ -110,16 +108,16 @@ bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
   //	case ImageLoaderMode::WITH_DEPTH_ONLY:
   //	{
   //		depth_mat =
-  //imread(this->depth_path_vector[this->frame_index].c_str(),
-  //CV_LOAD_IMAGE_UNCHANGED); 		break;
+  // imread(this->depth_path_vector[this->frame_index].c_str(),
+  // CV_LOAD_IMAGE_UNCHANGED); 		break;
   //	}
   //	case ImageLoaderMode::WITH_COLOR_AND_DEPTH:
   //	{
   //		depth_mat =
-  //imread(this->depth_path_vector[this->frame_index].c_str(),
-  //CV_LOAD_IMAGE_UNCHANGED); 		color_mat =
-  //imread(this->color_path_vector[this->frame_index].c_str(),
-  //CV_LOAD_IMAGE_UNCHANGED); 		break;
+  // imread(this->depth_path_vector[this->frame_index].c_str(),
+  // CV_LOAD_IMAGE_UNCHANGED); 		color_mat =
+  // imread(this->color_path_vector[this->frame_index].c_str(),
+  // CV_LOAD_IMAGE_UNCHANGED); 		break;
   //	}
   //	case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES:
   //		return false;
@@ -150,15 +148,16 @@ bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
 //		{
 //			do
 //			{
-//				if ((fileinfo.attrib & _A_SUBDIR)){ /* space holder */
-//} 				else
+//				if ((fileinfo.attrib & _A_SUBDIR)){ /* space holder
+//*/ } 				else
 //				{
-//					this->color_path_vector.push_back(color_folder +
-//fileinfo.name);
+//					this->color_path_vector.push_back(color_folder
+//+ fileinfo.name);
 //					// save time stamp
 //					double time_stamp = 0.0;
 //					sscanf(fileinfo.name, "%lf",
-//&time_stamp); 					this->color_timestamp_vector.push_back(time_stamp);
+//&time_stamp);
+//this->color_timestamp_vector.push_back(time_stamp);
 //				}
 //
 //			} while (_findnext(hFile, &fileinfo) == 0);
@@ -177,15 +176,16 @@ bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
 //		{
 //			do
 //			{
-//				if ((fileinfo.attrib & _A_SUBDIR)){ /* space holder */
-//} 				else
+//				if ((fileinfo.attrib & _A_SUBDIR)){ /* space holder
+//*/ } 				else
 //				{
-//					this->depth_path_vector.push_back(depth_folder +
-//fileinfo.name);
+//					this->depth_path_vector.push_back(depth_folder
+//+ fileinfo.name);
 //					// save time stamp
 //					double time_stamp = 0.0;
 //					sscanf(fileinfo.name, "%lf",
-//&time_stamp); 					this->depth_timestamp_vector.push_back(time_stamp);
+//&time_stamp);
+//this->depth_timestamp_vector.push_back(time_stamp);
 //				}
 //
 //			} while (_findnext(hFile, &fileinfo) == 0);
@@ -197,19 +197,19 @@ bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
 //
 //	// Set mode of data loader
 //	if (this->depth_path_vector.size() == 0 &&
-//this->color_path_vector.size() == 0)
+// this->color_path_vector.size() == 0)
 //	{
 //		this->image_loader_mode = ImageLoaderMode::NO_DATA;
 //		this->number_of_frames = 0;
 //	}
 //	else if (this->depth_path_vector.size() > 0 &&
-//this->color_path_vector.size() == 0)
+// this->color_path_vector.size() == 0)
 //	{
 //		this->image_loader_mode = ImageLoaderMode::WITH_DEPTH_ONLY;
 //		this->number_of_frames = this->depth_path_vector.size();
 //	}
 //	else if (this->depth_path_vector.size() > 0 &&
-//this->color_path_vector.size() > 0)
+// this->color_path_vector.size() > 0)
 //	{
 //		this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
 //		// algin timestamp (align to depth image)
@@ -220,16 +220,18 @@ bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
 //		this->color_index_vector.reserve(this->depth_path_vector.size());
 //		for (int depth_image_id = 0, color_image_id = 0;
 //			 depth_image_id < this->depth_timestamp_vector.size() &&
-//color_image_id < this->color_timestamp_vector.size(); 			 depth_image_id++)
+// color_image_id < this->color_timestamp_vector.size();
+// depth_image_id++)
 //		{
 //			double depth_timestamp =
-//this->depth_timestamp_vector[depth_image_id];
+// this->depth_timestamp_vector[depth_image_id];
 //
 //			while (color_image_id <
-//this->color_timestamp_vector.size())
+// this->color_timestamp_vector.size())
 //			{
-//				if (this->color_timestamp_vector[color_image_id] <
-//depth_timestamp) 				{	color_image_id++;} 				else
+//				if (this->color_timestamp_vector[color_image_id]
+//< depth_timestamp) 				{	color_image_id++;}
+// else
 //				{
 //					this->color_index_vector.push_back(color_image_id);
 //					break;
@@ -245,7 +247,6 @@ bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
 
 //
 void Offline_image_loader::read_image_parameters() {
-
   if (this->color_path_vector.size() > 0) {
     cv::Mat temp_mat;
 
@@ -293,56 +294,58 @@ void Offline_image_loader::read_image_parameters() {
 //
 void Offline_image_loader::print_state(bool print_all_pathes) const {
   switch (this->image_loader_mode) {
-  case ImageLoaderMode::NO_DATA: {
-    printf("No color or depth image found!\n");
-    break;
-  }
-  case ImageLoaderMode::WITH_DEPTH_ONLY: {
-    printf("Only depth images found!\n %d depth images\n",
-           (int)this->depth_path_vector.size());
-
-    if (print_all_pathes) {
-      for (size_t path_id = 0; path_id < this->depth_path_vector.size();
-           path_id++) {
-        printf("%s\n", this->depth_path_vector[path_id].c_str());
-      }
+    case ImageLoaderMode::NO_DATA: {
+      printf("No color or depth image found!\n");
+      break;
     }
-    break;
-  }
-  case ImageLoaderMode::WITH_COLOR_AND_DEPTH: {
-    printf("Both color and depth images found!\n %d depth images \n %d color "
-           "images\n",
-           (int)this->depth_path_vector.size(),
-           (int)this->color_path_vector.size());
+    case ImageLoaderMode::WITH_DEPTH_ONLY: {
+      printf("Only depth images found!\n %d depth images\n",
+             (int)this->depth_path_vector.size());
 
-    if (print_all_pathes) {
-      printf("Depth image pathes:\n");
-      for (size_t path_id = 0; path_id < this->depth_path_vector.size();
-           path_id++) {
-        printf("%s\n", this->depth_path_vector[path_id].c_str());
+      if (print_all_pathes) {
+        for (size_t path_id = 0; path_id < this->depth_path_vector.size();
+             path_id++) {
+          printf("%s\n", this->depth_path_vector[path_id].c_str());
+        }
       }
-      printf("\n");
-
-      printf("Color image pathes:\n");
-      for (size_t path_id = 0; path_id < this->color_path_vector.size();
-           path_id++) {
-        printf("%s\n", this->color_path_vector[path_id].c_str());
-      }
-      printf("\n");
+      break;
     }
-    break;
-  }
-  case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES: {
-    printf("Error data format : Unequal color and depth images found!\n (%d "
-           "depth images != %d color images)\n",
-           (int)this->depth_path_vector.size(),
-           (int)this->color_path_vector.size());
-    break;
-  }
-  default: {
-    cout << "Invalid state!" << endl;
-    break;
-  }
+    case ImageLoaderMode::WITH_COLOR_AND_DEPTH: {
+      printf(
+          "Both color and depth images found!\n %d depth images \n %d color "
+          "images\n",
+          (int)this->depth_path_vector.size(),
+          (int)this->color_path_vector.size());
+
+      if (print_all_pathes) {
+        printf("Depth image pathes:\n");
+        for (size_t path_id = 0; path_id < this->depth_path_vector.size();
+             path_id++) {
+          printf("%s\n", this->depth_path_vector[path_id].c_str());
+        }
+        printf("\n");
+
+        printf("Color image pathes:\n");
+        for (size_t path_id = 0; path_id < this->color_path_vector.size();
+             path_id++) {
+          printf("%s\n", this->color_path_vector[path_id].c_str());
+        }
+        printf("\n");
+      }
+      break;
+    }
+    case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES: {
+      printf(
+          "Error data format : Unequal color and depth images found!\n (%d "
+          "depth images != %d color images)\n",
+          (int)this->depth_path_vector.size(),
+          (int)this->color_path_vector.size());
+      break;
+    }
+    default: {
+      cout << "Invalid state!" << endl;
+      break;
+    }
   }
 }
 

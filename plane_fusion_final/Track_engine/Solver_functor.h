@@ -1,8 +1,9 @@
 
 
 // Eigen
-#include <Eigen/Dense>
 #include <float.h>
+
+#include <Eigen/Dense>
 
 //
 #define CONDITION_NUMBER_THRESHOLD 300
@@ -29,7 +30,7 @@ void compute_pose_mat_from_result(
 
 */
 class GaussianNewton_solver {
-public:
+ public:
   //!
   GaussianNewton_solver() { last_good_pose.setIdentity(); }
   ~GaussianNewton_solver(){};
@@ -71,9 +72,9 @@ public:
   }
 
   //! Compute pose matrix from result vector
-  friend void
-  compute_pose_mat_from_result(const Eigen::Matrix<float, 6, 1> &result_vector,
-                               Eigen::Matrix4f &output_pose_mat);
+  friend void compute_pose_mat_from_result(
+      const Eigen::Matrix<float, 6, 1> &result_vector,
+      Eigen::Matrix4f &output_pose_mat);
 };
 
 //!
@@ -81,7 +82,7 @@ public:
 
 */
 class LevenbergMarquardt_solver {
-public:
+ public:
   //!
   LevenbergMarquardt_solver() {
     last_good_pose.setIdentity();
@@ -148,7 +149,7 @@ public:
   }
 
   //! Compute pose matrix from result vector
-  friend void
-  compute_pose_mat_from_result(const Eigen::Matrix<float, 6, 1> &result_vector,
-                               Eigen::Matrix4f &output_pose_mat);
+  friend void compute_pose_mat_from_result(
+      const Eigen::Matrix<float, 6, 1> &result_vector,
+      Eigen::Matrix4f &output_pose_mat);
 };

@@ -7,10 +7,10 @@
 //
 #define MIN_PLANE_DISTANCE 0.02
 //#define HISTOGRAM_STEP					0.02
-//#define HISTOGRAM_WIDTH					256		// 0.08 *
-//64 = 2.56 * 2 (-2.56 to +2.56)
+//#define HISTOGRAM_WIDTH					256		// 0.08
+//* 64 = 2.56 * 2 (-2.56 to +2.56)
 #define HISTOGRAM_STEP 0.05
-#define HISTOGRAM_WIDTH 128 // 0.08 * 64 = 2.56 * 2 (-2.56 to +2.56)
+#define HISTOGRAM_WIDTH 128  // 0.08 * 64 = 2.56 * 2 (-2.56 to +2.56)
 //
 #define MAX_CURRENT_PLANES 64
 #define MAX_MODEL_PLANES 1024
@@ -76,8 +76,14 @@ typedef struct struct_Plane_info {
   struct_Plane_info(float _nx, float _ny, float _nz, float _weight,
                     int _plane_index, int _cell_num, bool _is_valid,
                     int _global_index)
-      : nx(_nx), ny(_ny), nz(_nz), weight(_weight), plane_index(_plane_index),
-        cell_num(_cell_num), is_valid(_is_valid), global_index(_global_index) {}
+      : nx(_nx),
+        ny(_ny),
+        nz(_nz),
+        weight(_weight),
+        plane_index(_plane_index),
+        cell_num(_cell_num),
+        is_valid(_is_valid),
+        global_index(_global_index) {}
 
 } Plane_info;
 
@@ -147,7 +153,7 @@ typedef struct PlaneHashEntry {
   //
   int position[2];
   // offset < 0 collision  offset >= 0  collision
-  int offset; //    int
+  int offset;  //    int
   // ptr < 0   ptr >= 0
   int ptr;
 
@@ -155,7 +161,7 @@ typedef struct PlaneHashEntry {
 
 // Plane pixel block width/size
 #define PLANE_PIXEL_BLOCK_WIDTH 16
-#define PLANE_PIXEL_BLOCK_SIZE                                                 \
+#define PLANE_PIXEL_BLOCK_SIZE \
   (PLANE_PIXEL_BLOCK_WIDTH * PLANE_PIXEL_BLOCK_WIDTH)
 #define TRACK_PLANE_THRESHOLD 0.6
 // Pixel block number

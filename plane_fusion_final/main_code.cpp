@@ -11,11 +11,6 @@
 // Namespace
 using namespace std;
 
-// TODO
-#pragma comment(                                                               \
-    lib,                                                                       \
-    "C:/English_path/ceres-solver-1.14.0/ceres-solver-1.14.0-build/lib/Release/ceres.lib")
-
 //! Print argvs
 void print_argvs(int, char **);
 //!
@@ -39,10 +34,11 @@ int main(int argc, char **argv) {
     int dm = std::atoi(argv[3]);
     image_loader_ptr = new Offline_image_loader(cal, dir, dm);
   } else {
-    printf("Please input 'calibration file' for online input,\n or "
-           "'calibration file, sequence dir, dataset "
-           "mode(ICL:0,TUM:1,MyZR300:2,MyD435i:3,MyAzureKinect:4)' for offline "
-           "input.");
+    printf(
+        "Please input 'calibration file' for online input,\n or "
+        "'calibration file, sequence dir, dataset "
+        "mode(ICL:0,TUM:1,MyZR300:2,MyD435i:3,MyAzureKinect:4)' for offline "
+        "input.");
     return 0;
   }
 
@@ -59,7 +55,7 @@ int main(int argc, char **argv) {
   //
   //	// Create Image_loader
   //	Image_loader * image_loader_ptr = create_image_loader(color_folder,
-  //depth_folder);
+  // depth_folder);
   //
   // Initiation
   Main_engine::instance()->init(argc, argv, image_loader_ptr);
@@ -87,8 +83,7 @@ int main(int argc, char **argv) {
 void print_argvs(int argc, char **argv) {
   printf("argc :\n\t%d\n", argc);
   printf("argvs :\n");
-  for (int i = 0; i < argc; i++)
-    printf("\t%s\n", argv[i]);
+  for (int i = 0; i < argc; i++) printf("\t%s\n", argv[i]);
 
   printf("\n");
 }

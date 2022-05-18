@@ -1,25 +1,24 @@
 
 
 //
+#include <float.h>
+
 #include "Map_engine/Plane_map_KernelFunc.cuh"
 #include "Map_engine/Plane_pixel_device_interface.cuh"
 #include "Map_engine/Voxel_device_interface.cuh"
-#include <float.h>
 
 //
-__device__ inline void
-min_max_2D_bounding_box(const My_Type::Vector2f vec,
-                        My_Type::Vector2f *bounding_box) {
+__device__ inline void min_max_2D_bounding_box(
+    const My_Type::Vector2f vec, My_Type::Vector2f *bounding_box) {
   bounding_box[0].x = min(vec.x, bounding_box[0].x);
   bounding_box[0].y = min(vec.y, bounding_box[0].y);
   bounding_box[1].x = max(vec.x, bounding_box[1].x);
   bounding_box[1].y = max(vec.y, bounding_box[1].y);
 }
 //
-__device__ inline void
-compute_2D_bounding_box(const My_Type::Vector3f &vertex,
-                        Plane_coordinate plane_coordinate,
-                        My_Type::Vector2f *bounding_box) {
+__device__ inline void compute_2D_bounding_box(
+    const My_Type::Vector3f &vertex, Plane_coordinate plane_coordinate,
+    My_Type::Vector2f *bounding_box) {
   My_Type::Vector3f temp_vertex, plane_normal;
 
   //
@@ -95,8 +94,7 @@ __global__ void build_allocate_flag_KernelFunc(
     }
 
     __syncthreads();
-    if (!is_matched_plane)
-      is_valid_entry = false;
+    if (!is_matched_plane) is_valid_entry = false;
   }
 
   //
@@ -174,7 +172,6 @@ void build_allocate_flag_CUDA(dim3 block_rect, dim3 thread_rect,
                               Plane_coordinate plane_coordinate,
                               int model_plane_id, bool *need_allocate,
                               My_Type::Vector2i *allocate_pixel_block_pos) {
-
   build_allocate_flag_KernelFunc<<<block_rect, thread_rect>>>(
       allocated_entries, voxel_block_array, plane_entries, plane_coordinate,
       model_plane_id, need_allocate, allocate_pixel_block_pos);
@@ -223,7 +220,6 @@ void allocate_plane_blocks_CUDA(
     dim3 block_rect, dim3 thread_rect, bool *need_allocate,
     const My_Type::Vector2i *allocate_pixel_block_pos,
     PlaneHashEntry *plane_entries, int *excess_counter, int *number_of_blocks) {
-
   allocate_plane_blocks_KernelFunc<<<block_rect, thread_rect>>>(
       need_allocate, allocate_pixel_block_pos, plane_entries, excess_counter,
       number_of_blocks);
@@ -243,7 +239,6 @@ void find_allocated_planar_entries_CUDA(dim3 block_rect, dim3 thread_rect,
                                         const PlaneHashEntry *entries,
                                         int *index_array,
                                         int *allocated_counter) {
-
   find_allocated_planar_entries_KernelFunc<<<block_rect, thread_rect>>>(
       entries, index_array, allocated_counter);
 }
@@ -261,8 +256,7 @@ __global__ void fusion_sdf_to_plane_KernelFunc(
 
   //
   int pixel_block_index = plane_entries[entry_id].ptr;
-  if (pixel_block_index < 0)
-    is_valid_pixel = false;
+  if (pixel_block_index < 0) is_valid_pixel = false;
 
   //
   float sdf;
@@ -298,8 +292,7 @@ __global__ void fusion_sdf_to_plane_KernelFunc(
       is_valid_pixel |=
           get_sdf_interpolated(pixel_point.x, pixel_point.y, pixel_point.z,
                                voxel_entries, voxel_block_array, sdf);
-      if (fabsf(sdf) > 0.99)
-        is_valid_pixel = false;
+      if (fabsf(sdf) > 0.99) is_valid_pixel = false;
     } else {
       is_valid_pixel = false;
     }
@@ -361,7 +354,6 @@ void fusion_sdf_to_plane_CUDA(
     const Voxel_f *voxel_block_array, const int *entries_index_list,
     Plane_info model_plane, Plane_coordinate plane_coordinate,
     PlaneHashEntry *plane_entries, Plane_pixel *plane_pixel_array) {
-
   fusion_sdf_to_plane_KernelFunc<<<block_rect, thread_rect>>>(
       allocated_entries, voxel_block_array, entries_index_list, model_plane,
       plane_coordinate, plane_entries, plane_pixel_array);
@@ -377,8 +369,7 @@ __global__ void generate_block_vertex_KernelFunc(
 
   // Load entry
   PlaneHashEntry temp_entry = entries[entry_index];
-  if (temp_entry.ptr < 0)
-    is_allocated = false;
+  if (temp_entry.ptr < 0) is_allocated = false;
 
   // Mark allocated entries
   __shared__ My_Type::Vector3f vertex_buffer[256 * 8];
@@ -468,7 +459,6 @@ void generate_block_vertex_CUDA(dim3 block_rect, dim3 thread_rect,
                                 Plane_info model_plane,
                                 My_Type::Vector3f *block_vertexs,
                                 int *number_of_blocks) {
-
   generate_block_vertex_KernelFunc<<<block_rect, thread_rect>>>(
       entries, plane_coordinate, model_plane, block_vertexs, number_of_blocks);
 }

@@ -1,8 +1,9 @@
 #include "Data_loader.h"
 
 //
-#include "OurLib/My_quaternions_interface.h"
 #include <fstream>
+
+#include "OurLib/My_quaternions_interface.h"
 
 //
 Data_loader::Data_loader() {
@@ -35,8 +36,7 @@ void Data_loader::load_ground_truth(string ground_truth_path,
     this->with_ground_truth_trajectory = true;
 
     while (getline(ifile, current_read_line)) {
-      if (current_read_line.c_str()[0] == '#')
-        continue;
+      if (current_read_line.c_str()[0] == '#') continue;
       //# index tx ty tz qw qx qy qz
       // sscanf(current_read_line.c_str(), "%lf%f%f%f%f%f%f%f",
       //	   &(temp_GT.time), &(temp_GT.tx), &(temp_GT.ty), &(temp_GT.tz),

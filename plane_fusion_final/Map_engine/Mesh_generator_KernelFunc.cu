@@ -6,10 +6,11 @@
 //
 #include "Mesh_structure.h"
 //
+#include <float.h>
+
 #include "Map_engine/Plane_pixel_device_interface.cuh"
 #include "Map_engine/Voxel_device_interface.cuh"
 #include "OurLib/device_color_table.cuh"
-#include <float.h>
 
 //
 __global__ void find_alllocated_entries_KernelFunc(
@@ -19,13 +20,11 @@ __global__ void find_alllocated_entries_KernelFunc(
   int entry_index = blockIdx.x * blockDim.x + threadIdx.x;
 
   // Validate memory access
-  if (entry_index >= max_number_of_entries)
-    is_valid_entry = false;
+  if (entry_index >= max_number_of_entries) is_valid_entry = false;
 
   // Load entry
   HashEntry temp_entry = entries[entry_index];
-  if (temp_entry.ptr < 0)
-    is_allocated = false;
+  if (temp_entry.ptr < 0) is_allocated = false;
 
   // Mark allocated entries
   __shared__ HashEntry entry_buffer[256];
@@ -58,7 +57,6 @@ void find_alllocated_entries_CUDA(dim3 block_rect, dim3 thread_rect,
                                   int max_number_of_entries,
                                   HashEntry *allocated_entries,
                                   int *number_of_allocated_entries) {
-
   find_alllocated_entries_KernelFunc<<<block_rect, thread_rect>>>(
       entries, max_number_of_entries, allocated_entries,
       number_of_allocated_entries);
@@ -92,28 +90,24 @@ __global__ void find_nonplanar_blocks_KernelFunc(
   bool is_valid_voxel = true;
   int voxel_index =
       get_voxel_index_neighbor(point_vec.x, point_vec.y, point_vec.z, entries);
-  if (voxel_index < 0)
-    is_valid_voxel = false;
+  if (voxel_index < 0) is_valid_voxel = false;
 
   //
   Voxel_f temp_voxel;
   if (is_valid_voxel) {
     temp_voxel = voxel_block_array[voxel_index];
-    if (temp_voxel.weight < MIN_RAYCAST_WEIGHT)
-      is_valid_voxel = false;
+    if (temp_voxel.weight < MIN_RAYCAST_WEIGHT) is_valid_voxel = false;
   }
   if (is_valid_voxel) {
     //
     float surface_voxel_sdf = VOXEL_SIZE / TRUNCATED_BAND * 0.707f;
-    if (fabsf(temp_voxel.sdf) >= surface_voxel_sdf)
-      is_valid_voxel = false;
+    if (fabsf(temp_voxel.sdf) >= surface_voxel_sdf) is_valid_voxel = false;
   }
 
   //
   bool is_nonplanar_voxel = true;
   if (is_valid_voxel) {
-    if (temp_voxel.plane_index != 0)
-      is_nonplanar_voxel = false;
+    if (temp_voxel.plane_index != 0) is_nonplanar_voxel = false;
   }
 
   //
@@ -136,10 +130,8 @@ __global__ void find_nonplanar_blocks_KernelFunc(
 
   //
   if (tid == 0) {
-    if (nonplanar_voxel_number[0] == 0)
-      return;
-    if (surface_voxel_number[0] == 0)
-      return;
+    if (nonplanar_voxel_number[0] == 0) return;
+    if (surface_voxel_number[0] == 0) return;
 
     //
     float nonplanar_ratio =
@@ -165,10 +157,10 @@ void find_nonplanar_blocks_CUDA(dim3 block_rect, dim3 thread_rect,
 }
 
 // Interpolate SDF value
-__device__ inline bool
-get_sdf_from_voxel_block(const HashEntry &this_entry, const HashEntry *entries,
-                         const Voxel_f *voxel_block_array,
-                         My_Type::Vector3f *sdf_position, float *sdf_value) {
+__device__ inline bool get_sdf_from_voxel_block(
+    const HashEntry &this_entry, const HashEntry *entries,
+    const Voxel_f *voxel_block_array, My_Type::Vector3f *sdf_position,
+    float *sdf_value) {
   My_Type::Vector3f block_offset;
   block_offset.x =
       (float)this_entry.position[0] * VOXEL_BLOCK_WDITH * VOXEL_SIZE;
@@ -186,8 +178,7 @@ get_sdf_from_voxel_block(const HashEntry &this_entry, const HashEntry *entries,
   is_valid_cube = get_sdf_interpolated(sdf_position[0].x, sdf_position[0].y,
                                        sdf_position[0].z, entries,
                                        voxel_block_array, sdf_value[0]);
-  if (!is_valid_cube)
-    return false;
+  if (!is_valid_cube) return false;
   // 0 0 1
   sdf_position[1].x = block_offset.x + (threadIdx.x + 1) * VOXEL_SIZE;
   sdf_position[1].y = block_offset.y + (threadIdx.y + 0) * VOXEL_SIZE;
@@ -195,8 +186,7 @@ get_sdf_from_voxel_block(const HashEntry &this_entry, const HashEntry *entries,
   is_valid_cube = get_sdf_interpolated(sdf_position[1].x, sdf_position[1].y,
                                        sdf_position[1].z, entries,
                                        voxel_block_array, sdf_value[1]);
-  if (!is_valid_cube)
-    return false;
+  if (!is_valid_cube) return false;
   // 0 1 1
   sdf_position[2].x = block_offset.x + (threadIdx.x + 1) * VOXEL_SIZE;
   sdf_position[2].y = block_offset.y + (threadIdx.y + 1) * VOXEL_SIZE;
@@ -204,8 +194,7 @@ get_sdf_from_voxel_block(const HashEntry &this_entry, const HashEntry *entries,
   is_valid_cube = get_sdf_interpolated(sdf_position[2].x, sdf_position[2].y,
                                        sdf_position[2].z, entries,
                                        voxel_block_array, sdf_value[2]);
-  if (!is_valid_cube)
-    return false;
+  if (!is_valid_cube) return false;
   // 0 1 0
   sdf_position[3].x = block_offset.x + (threadIdx.x + 0) * VOXEL_SIZE;
   sdf_position[3].y = block_offset.y + (threadIdx.y + 1) * VOXEL_SIZE;
@@ -213,8 +202,7 @@ get_sdf_from_voxel_block(const HashEntry &this_entry, const HashEntry *entries,
   is_valid_cube = get_sdf_interpolated(sdf_position[3].x, sdf_position[3].y,
                                        sdf_position[3].z, entries,
                                        voxel_block_array, sdf_value[3]);
-  if (!is_valid_cube)
-    return false;
+  if (!is_valid_cube) return false;
   // 1 0 0
   sdf_position[4].x = block_offset.x + (threadIdx.x + 0) * VOXEL_SIZE;
   sdf_position[4].y = block_offset.y + (threadIdx.y + 0) * VOXEL_SIZE;
@@ -222,8 +210,7 @@ get_sdf_from_voxel_block(const HashEntry &this_entry, const HashEntry *entries,
   is_valid_cube = get_sdf_interpolated(sdf_position[4].x, sdf_position[4].y,
                                        sdf_position[4].z, entries,
                                        voxel_block_array, sdf_value[4]);
-  if (!is_valid_cube)
-    return false;
+  if (!is_valid_cube) return false;
   // 1 0 1
   sdf_position[5].x = block_offset.x + (threadIdx.x + 1) * VOXEL_SIZE;
   sdf_position[5].y = block_offset.y + (threadIdx.y + 0) * VOXEL_SIZE;
@@ -231,8 +218,7 @@ get_sdf_from_voxel_block(const HashEntry &this_entry, const HashEntry *entries,
   is_valid_cube = get_sdf_interpolated(sdf_position[5].x, sdf_position[5].y,
                                        sdf_position[5].z, entries,
                                        voxel_block_array, sdf_value[5]);
-  if (!is_valid_cube)
-    return false;
+  if (!is_valid_cube) return false;
   // 1 1 1
   sdf_position[6].x = block_offset.x + (threadIdx.x + 1) * VOXEL_SIZE;
   sdf_position[6].y = block_offset.y + (threadIdx.y + 1) * VOXEL_SIZE;
@@ -240,8 +226,7 @@ get_sdf_from_voxel_block(const HashEntry &this_entry, const HashEntry *entries,
   is_valid_cube = get_sdf_interpolated(sdf_position[6].x, sdf_position[6].y,
                                        sdf_position[6].z, entries,
                                        voxel_block_array, sdf_value[6]);
-  if (!is_valid_cube)
-    return false;
+  if (!is_valid_cube) return false;
   // 1 1 0
   sdf_position[7].x = block_offset.x + (threadIdx.x + 0) * VOXEL_SIZE;
   sdf_position[7].y = block_offset.y + (threadIdx.y + 1) * VOXEL_SIZE;
@@ -249,23 +234,18 @@ get_sdf_from_voxel_block(const HashEntry &this_entry, const HashEntry *entries,
   is_valid_cube = get_sdf_interpolated(sdf_position[7].x, sdf_position[7].y,
                                        sdf_position[7].z, entries,
                                        voxel_block_array, sdf_value[7]);
-  if (!is_valid_cube)
-    return false;
+  if (!is_valid_cube) return false;
 
   return true;
 }
 
 //
-__device__ inline My_Type::Vector3f
-bilinear_interpolate_by_sdf(const My_Type::Vector3f &vertex_1,
-                            const My_Type::Vector3f &vertex_2, float sdf_1,
-                            float sdf_2) {
-  if (fabs(0.0f - sdf_1) < 0.00001f)
-    return vertex_1;
-  if (fabs(0.0f - sdf_2) < 0.00001f)
-    return vertex_2;
-  if (fabs(sdf_1 - sdf_2) < 0.00001f)
-    return vertex_1;
+__device__ inline My_Type::Vector3f bilinear_interpolate_by_sdf(
+    const My_Type::Vector3f &vertex_1, const My_Type::Vector3f &vertex_2,
+    float sdf_1, float sdf_2) {
+  if (fabs(0.0f - sdf_1) < 0.00001f) return vertex_1;
+  if (fabs(0.0f - sdf_2) < 0.00001f) return vertex_2;
+  if (fabs(sdf_1 - sdf_2) < 0.00001f) return vertex_1;
 
   return vertex_1 + ((0.0f - sdf_1) / (sdf_2 - sdf_1)) * (vertex_2 - vertex_1);
 }
@@ -287,24 +267,15 @@ __global__ void generate_triangle_mesh_KernelFunc(
   //
   int cube_index = 0;
   if (is_valid_cube) {
-    if (sdf_value[0] < 0)
-      cube_index |= 1;
-    if (sdf_value[1] < 0)
-      cube_index |= 2;
-    if (sdf_value[2] < 0)
-      cube_index |= 4;
-    if (sdf_value[3] < 0)
-      cube_index |= 8;
-    if (sdf_value[4] < 0)
-      cube_index |= 16;
-    if (sdf_value[5] < 0)
-      cube_index |= 32;
-    if (sdf_value[6] < 0)
-      cube_index |= 64;
-    if (sdf_value[7] < 0)
-      cube_index |= 128;
-    if (edgeTable[cube_index] == 0)
-      is_valid_cube = false;
+    if (sdf_value[0] < 0) cube_index |= 1;
+    if (sdf_value[1] < 0) cube_index |= 2;
+    if (sdf_value[2] < 0) cube_index |= 4;
+    if (sdf_value[3] < 0) cube_index |= 8;
+    if (sdf_value[4] < 0) cube_index |= 16;
+    if (sdf_value[5] < 0) cube_index |= 32;
+    if (sdf_value[6] < 0) cube_index |= 64;
+    if (sdf_value[7] < 0) cube_index |= 128;
+    if (edgeTable[cube_index] == 0) is_valid_cube = false;
   }
 
   //
@@ -372,7 +343,6 @@ void generate_triangle_mesh_CUDA(dim3 block_rect, dim3 thread_rect,
                                  My_Type::Vector3f *triangles,
                                  int *number_of_triangles,
                                  int max_number_of_triangles) {
-
   generate_triangle_mesh_KernelFunc<<<block_rect, thread_rect>>>(
       entries, allocated_entries, voxel_block_array, triangles,
       number_of_triangles, max_number_of_triangles);
@@ -393,8 +363,7 @@ __global__ void generate_vertex_normals_KernelFunc(
       interpolate_normal_by_sdf(temp_vertex.x, temp_vertex.y, temp_vertex.z,
                                 entries, voxel_block_array, normal_vector);
 
-  if (!is_valid_normal)
-    normal_vector = 0;
+  if (!is_valid_normal) normal_vector = 0;
   //
   vertex_normals[vertex_index] = normal_vector;
 }
@@ -404,20 +373,17 @@ void generate_vertex_normals_CUDA(dim3 block_rect, dim3 thread_rect,
                                   const HashEntry *entries,
                                   const Voxel_f *voxel_block_array,
                                   My_Type::Vector3f *vertex_normals) {
-
   generate_vertex_normals_KernelFunc<<<block_rect, thread_rect>>>(
       vertex_array, entries, voxel_block_array, vertex_normals);
 }
 
 //
-__global__ void
-generate_vertex_color_KernelFunc(const My_Type::Vector3f *vertex_array,
-                                 int number_of_vertex, const HashEntry *entries,
-                                 const Voxel_f *voxel_block_array,
-                                 My_Type::Vector4uc *vertex_color_array) {
+__global__ void generate_vertex_color_KernelFunc(
+    const My_Type::Vector3f *vertex_array, int number_of_vertex,
+    const HashEntry *entries, const Voxel_f *voxel_block_array,
+    My_Type::Vector4uc *vertex_color_array) {
   int vertex_index = threadIdx.x + blockDim.x * blockIdx.x;
-  if (number_of_vertex <= vertex_index)
-    return;
+  if (number_of_vertex <= vertex_index) return;
 
   //
   My_Type::Vector3f temp_vertex = vertex_array[vertex_index];
@@ -431,8 +397,7 @@ generate_vertex_color_KernelFunc(const My_Type::Vector3f *vertex_array,
   int plane_label = 0;
   if (voxel_index >= 0) {
     plane_label = voxel_block_array[voxel_index].plane_index;
-    if (plane_label > 0)
-      is_planar_voxel = true;
+    if (plane_label > 0) is_planar_voxel = true;
   }
 
   if (is_planar_voxel) {
@@ -456,21 +421,18 @@ void generate_vertex_color_CUDA(dim3 block_rect, dim3 thread_rect,
                                 int number_of_vertex, const HashEntry *entries,
                                 const Voxel_f *voxel_block_array,
                                 My_Type::Vector4uc *vertex_color_array) {
-
   generate_vertex_color_KernelFunc<<<block_rect, thread_rect>>>(
       vertex_array, number_of_vertex, entries, voxel_block_array,
       vertex_color_array);
 }
 //
-__global__ void
-generate_vertex_color_KernelFunc(const My_Type::Vector3f *vertex_array,
-                                 int number_of_vertex, const HashEntry *entries,
-                                 const Voxel_f *voxel_block_array,
-                                 const My_Type::Vector2i *plane_label_mapper,
-                                 My_Type::Vector4uc *vertex_color_array) {
+__global__ void generate_vertex_color_KernelFunc(
+    const My_Type::Vector3f *vertex_array, int number_of_vertex,
+    const HashEntry *entries, const Voxel_f *voxel_block_array,
+    const My_Type::Vector2i *plane_label_mapper,
+    My_Type::Vector4uc *vertex_color_array) {
   int vertex_index = threadIdx.x + blockDim.x * blockIdx.x;
-  if (number_of_vertex <= vertex_index)
-    return;
+  if (number_of_vertex <= vertex_index) return;
 
   //
   My_Type::Vector3f temp_vertex = vertex_array[vertex_index];
@@ -484,8 +446,7 @@ generate_vertex_color_KernelFunc(const My_Type::Vector3f *vertex_array,
   int plane_label = 0;
   if (voxel_index >= 0) {
     plane_label = voxel_block_array[voxel_index].plane_index;
-    if (plane_label > 0)
-      is_planar_voxel = true;
+    if (plane_label > 0) is_planar_voxel = true;
   }
 
   if (is_planar_voxel) {
@@ -519,7 +480,6 @@ void generate_vertex_color_CUDA(dim3 block_rect, dim3 thread_rect,
                                 const Voxel_f *voxel_block_array,
                                 const My_Type::Vector2i *plane_label_mapper,
                                 My_Type::Vector4uc *vertex_color_array) {
-
   generate_vertex_color_KernelFunc<<<block_rect, thread_rect>>>(
       vertex_array, number_of_vertex, entries, voxel_block_array,
       plane_label_mapper, vertex_color_array);
@@ -556,8 +516,7 @@ __global__ void generate_triangle_mesh_from_plane_KernelFunc(
   //
   int entry_index = blockIdx.x;
   PlaneHashEntry temp_entry = plane_entries[entry_index];
-  if (temp_entry.ptr < 0)
-    is_valid_pixel = false;
+  if (temp_entry.ptr < 0) is_valid_pixel = false;
 
   //
   int tid = threadIdx.x + threadIdx.y * blockDim.x;
@@ -569,24 +528,20 @@ __global__ void generate_triangle_mesh_from_plane_KernelFunc(
 
     //
     pixel_index_00 = get_pixel_index(u_offset, v_offset, plane_entries);
-    if (pixel_index_00 < 0)
-      is_valid_pixel = false;
+    if (pixel_index_00 < 0) is_valid_pixel = false;
     pixel_index_01 = get_pixel_index(u_offset + 1, v_offset, plane_entries);
-    if (pixel_index_01 < 0)
-      is_valid_pixel = false;
+    if (pixel_index_01 < 0) is_valid_pixel = false;
     pixel_index_10 = get_pixel_index(u_offset, v_offset + 1, plane_entries);
-    if (pixel_index_10 < 0)
-      is_valid_pixel = false;
+    if (pixel_index_10 < 0) is_valid_pixel = false;
     pixel_index_11 = get_pixel_index(u_offset + 1, v_offset + 1, plane_entries);
-    if (pixel_index_11 < 0)
-      is_valid_pixel = false;
+    if (pixel_index_11 < 0) is_valid_pixel = false;
     // if (tid == 0)printf("%d, %d = %d\n", u_offset, v_offset, pixel_index_00);
   }
 
   __shared__ int number_of_cache_triangles;
   __shared__ My_Type::Vector3f vertex_cache[PLANE_PIXEL_BLOCK_SIZE * 6];
   number_of_cache_triangles = 0;
-  __syncthreads(); //__threadfence_block()
+  __syncthreads();  //__threadfence_block()
   //
   float diff_00, diff_01, diff_10, diff_11;
   if (is_valid_pixel) {
@@ -667,7 +622,6 @@ void generate_triangle_mesh_from_plane_CUDA(
     Plane_coordinate plane_coordinate, const PlaneHashEntry *plane_entries,
     const Plane_pixel *plane_pixel_array, My_Type::Vector3f *vertex_array,
     int *triangle_counter) {
-
   generate_triangle_mesh_from_plane_KernelFunc<<<block_rect, thread_rect>>>(
       model_plane, plane_coordinate, plane_entries, plane_pixel_array,
       vertex_array, triangle_counter);
@@ -680,8 +634,7 @@ __global__ void copy_mesh_to_global_map_KernelFunc(
     const My_Type::Matrix44f submap_pose, int number_of_vertex,
     My_Type::Vector3f *dst_vertex_array, My_Type::Vector3f *dst_normal_array) {
   int vertex_id = threadIdx.x + blockIdx.x * blockDim.x;
-  if (vertex_id >= number_of_vertex)
-    return;
+  if (vertex_id >= number_of_vertex) return;
 
   // Load src_data
   My_Type::Vector3f src_vertex = src_vertex_array[vertex_id];
@@ -714,7 +667,6 @@ void copy_mesh_to_global_map_CUDA(dim3 block_rect, dim3 thread_rect,
                                   int number_of_vertex,
                                   My_Type::Vector3f *dst_vertex_array,
                                   My_Type::Vector3f *dst_normal_array) {
-
   copy_mesh_to_global_map_KernelFunc<<<block_rect, thread_rect>>>(
       src_vertex_array, src_normal_array, submap_pose, number_of_vertex,
       dst_vertex_array, dst_normal_array);

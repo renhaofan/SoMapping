@@ -47,18 +47,18 @@ Mesh_generator::Mesh_generator() {
   checkCudaErrors(
       cudaMalloc((void **)&(this->dev_triangle_normals),
                  this->max_number_of_triangle * 3 * sizeof(My_Type::Vector3f)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_triangle_color),
-                             this->max_number_of_triangle * 3 *
-                                 sizeof(My_Type::Vector4uc)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_triangle_color),
+      this->max_number_of_triangle * 3 * sizeof(My_Type::Vector4uc)));
   //
   checkCudaErrors(
       cudaMalloc((void **)&(this->dev_number_of_triangles), sizeof(int)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_allocated_entries),
-                             (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) *
-                                 sizeof(HashEntry)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_nonplanar_entries),
-                             (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) *
-                                 sizeof(HashEntry)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_allocated_entries),
+      (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(HashEntry)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_nonplanar_entries),
+      (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(HashEntry)));
   checkCudaErrors(
       cudaMalloc((void **)&(this->dev_number_of_entries), sizeof(int)));
   checkCudaErrors(cudaMalloc((void **)&(this->dev_number_of_nonplanar_blocks),
@@ -70,20 +70,20 @@ Mesh_generator::Mesh_generator() {
   checkCudaErrors(
       cudaMalloc((void **)&(this->dev_planar_triangle_normals),
                  this->max_number_of_triangle * 3 * sizeof(My_Type::Vector3f)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_planar_triangle_color),
-                             this->max_number_of_triangle * 3 *
-                                 sizeof(My_Type::Vector4uc)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_planar_triangle_color),
+      this->max_number_of_triangle * 3 * sizeof(My_Type::Vector4uc)));
   checkCudaErrors(cudaMalloc((void **)&(this->dev_number_of_planar_triangles),
                              sizeof(int)));
 
   // printf("--- Memory cost = %d + %d = %d MB\n",
   //	   this->max_number_of_triangle * 3 * (sizeof(My_Type::Vector3f) +
-  //sizeof(My_Type::Vector3f) + sizeof(My_Type::Vector4uc)) >> 20,
+  // sizeof(My_Type::Vector3f) + sizeof(My_Type::Vector4uc)) >> 20,
   //	   (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(HashEntry) >>
-  //20, 	   (this->max_number_of_triangle * 3 * (sizeof(My_Type::Vector3f) +
-  //sizeof(My_Type::Vector3f) + sizeof(My_Type::Vector4uc)) +
+  // 20, 	   (this->max_number_of_triangle * 3 * (sizeof(My_Type::Vector3f)
+  // + sizeof(My_Type::Vector3f) + sizeof(My_Type::Vector4uc)) +
   //	   (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(HashEntry)) >>
-  //20);
+  // 20);
 }
 Mesh_generator::~Mesh_generator() {
   //
@@ -456,13 +456,13 @@ void Mesh_generator::compress_mesh() {
     My_Type::Vector3f *temp_ptr = nullptr;
     // Re-allocate device memory
     // Triangle mesh vertex position array
-    checkCudaErrors(
-        cudaMalloc((void **)&(temp_ptr), this->number_of_planar_triangles * 3 *
-                                             sizeof(My_Type::Vector3f)));
-    checkCudaErrors(cudaMemcpy(temp_ptr, this->dev_planar_triangles,
-                               this->number_of_planar_triangles * 3 *
-                                   sizeof(My_Type::Vector3f),
-                               cudaMemcpyDeviceToDevice));
+    checkCudaErrors(cudaMalloc(
+        (void **)&(temp_ptr),
+        this->number_of_planar_triangles * 3 * sizeof(My_Type::Vector3f)));
+    checkCudaErrors(cudaMemcpy(
+        temp_ptr, this->dev_planar_triangles,
+        this->number_of_planar_triangles * 3 * sizeof(My_Type::Vector3f),
+        cudaMemcpyDeviceToDevice));
     checkCudaErrors(cudaFree(this->dev_triangles));
     this->dev_planar_triangles = temp_ptr;
 
@@ -535,8 +535,7 @@ void Mesh_generator::copy_triangle_mesh_from(
   dim3 block_rect, thread_rect;
   //
   My_Type::Matrix44f submap_pose_mat;
-  for (int i = 0; i < 16; i++)
-    submap_pose_mat.data[i] = submap_pose.data()[i];
+  for (int i = 0; i < 16; i++) submap_pose_mat.data[i] = submap_pose.data()[i];
 
   //
   My_Type::Vector3f *dev_point_ptr = this->dev_triangles;
@@ -623,14 +622,14 @@ void Mesh_generator::copy_triangle_mesh_from(
   normal_ptr = this->planar_triangle_normals;
   normal_ptr += this_offset * 3;
   //
-  checkCudaErrors(cudaMemcpy(point_ptr, dev_point_ptr,
-                             src_mesh->number_of_planar_triangles * 3 *
-                                 sizeof(My_Type::Vector3f),
-                             cudaMemcpyDeviceToHost));
-  checkCudaErrors(cudaMemcpy(normal_ptr, dev_normal_ptr,
-                             src_mesh->number_of_planar_triangles * 3 *
-                                 sizeof(My_Type::Vector3f),
-                             cudaMemcpyDeviceToHost));
+  checkCudaErrors(cudaMemcpy(
+      point_ptr, dev_point_ptr,
+      src_mesh->number_of_planar_triangles * 3 * sizeof(My_Type::Vector3f),
+      cudaMemcpyDeviceToHost));
+  checkCudaErrors(cudaMemcpy(
+      normal_ptr, dev_normal_ptr,
+      src_mesh->number_of_planar_triangles * 3 * sizeof(My_Type::Vector3f),
+      cudaMemcpyDeviceToHost));
   //
   //
   dev_color_ptr = this->dev_planar_triangle_color;
@@ -653,10 +652,10 @@ void Mesh_generator::copy_triangle_mesh_from(
   }
   color_ptr = this->planar_triangle_color;
   color_ptr += this_offset * 3;
-  checkCudaErrors(cudaMemcpy(color_ptr, dev_color_ptr,
-                             src_mesh->number_of_planar_triangles * 3 *
-                                 sizeof(My_Type::Vector4uc),
-                             cudaMemcpyDeviceToHost));
+  checkCudaErrors(cudaMemcpy(
+      color_ptr, dev_color_ptr,
+      src_mesh->number_of_planar_triangles * 3 * sizeof(My_Type::Vector4uc),
+      cudaMemcpyDeviceToHost));
 
   //
   checkCudaErrors(cudaFree(dev_relabel_plane_list));

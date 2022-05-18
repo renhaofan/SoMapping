@@ -1,11 +1,13 @@
 #pragma once
 
-#include "OurLib/My_matrix.h"
-#include "OurLib/My_quaternions.h"
 #include <float.h>
 #include <math.h>
-template <typename T> class My_frame {
-public:
+
+#include "OurLib/My_matrix.h"
+#include "OurLib/My_quaternions.h"
+template <typename T>
+class My_frame {
+ public:
   My_Type::Matrix44<T> mat;
   T view_distance;
 
@@ -49,7 +51,6 @@ public:
 
   //
   void print() {
-
     if ((strcmp(this->mat[0]).name(), "double")) {
       for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {

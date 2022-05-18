@@ -8,6 +8,7 @@ using namespace std;
 // OpenCV
 #include <cv.h>
 #include <highgui.h>
+
 #include <opencv2/opencv.hpp>
 
 //! Image Loader
@@ -15,7 +16,7 @@ using namespace std;
 
 */
 class Image_loader {
-public:
+ public:
   //! Enum record which kind of file can be loaded.
   /*!
 
@@ -82,7 +83,7 @@ public:
 
 */
 class Blank_image_loader : public Image_loader {
-public:
+ public:
   // --- Interface :
 
   //!
@@ -118,7 +119,7 @@ public:
 
 */
 class Offline_image_loader : public Image_loader {
-public:
+ public:
   enum DatasetMode {
     ICL,
     TUM,
@@ -215,8 +216,8 @@ public:
 
   //!
   /*!
-          \param	print_all_pathes	Flag to print all pathes of color
-     and depth images
+          \param	print_all_pathes	Flag to print all pathes of
+     color and depth images
 
           \return	void
   */

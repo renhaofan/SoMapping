@@ -6,9 +6,10 @@
 #include "Plane_detector/Plane_structure.h"
 #include "SLAM_system/SLAM_system_settings.h"
 //
-#include "OurLib/My_matrix.h"
 #include <Eigen/Dense>
 #include <unsupported/Eigen/FFT>
+
+#include "OurLib/My_matrix.h"
 //
 #include <vector>
 
@@ -18,7 +19,7 @@
 
 */
 class Mesh_generator {
-public:
+ public:
 #pragma region(Non - planar region)
   //! Triangle vertex
   My_Type::Vector3f *triangles, *dev_triangles;
@@ -65,10 +66,10 @@ public:
   /*!
 
   */
-  void
-  generate_mesh_from_voxel(HashEntry *dev_entry, Voxel_f *dev_voxel_block_array,
-                           std::vector<My_Type::Vector2i> relabel_plane_list =
-                               std::vector<My_Type::Vector2i>());
+  void generate_mesh_from_voxel(
+      HashEntry *dev_entry, Voxel_f *dev_voxel_block_array,
+      std::vector<My_Type::Vector2i> relabel_plane_list =
+          std::vector<My_Type::Vector2i>());
 
   //! Generate Non-planar triangle mesh from TSDF
   /*!
@@ -93,11 +94,10 @@ public:
 
   */
   void copy_triangle_mesh_from(Mesh_generator *src_mesh, int this_offset);
-  void
-  copy_triangle_mesh_from(Mesh_generator *src_mesh, int this_offset,
-                          Eigen::Matrix4f submap_pose, HashEntry *dev_entry,
-                          Voxel_f *dev_voxel_block_array,
-                          std::vector<My_Type::Vector2i> relabel_plane_list);
+  void copy_triangle_mesh_from(
+      Mesh_generator *src_mesh, int this_offset, Eigen::Matrix4f submap_pose,
+      HashEntry *dev_entry, Voxel_f *dev_voxel_block_array,
+      std::vector<My_Type::Vector2i> relabel_plane_list);
 
   //!
   /*!

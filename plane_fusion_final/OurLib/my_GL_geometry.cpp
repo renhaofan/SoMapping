@@ -56,7 +56,7 @@ void draw_cube_surface(float width, float height, float depth, bool side_flag) {
 
   caculate_cube_vertex(points, width, height, depth);
 
-  glEnable(GL_CULL_FACE); //
+  glEnable(GL_CULL_FACE);  //
 
   if (side_flag) {
     glBegin(GL_QUADS);

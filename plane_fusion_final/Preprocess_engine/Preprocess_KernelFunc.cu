@@ -1,8 +1,9 @@
 
 //
-#include "Preprocess_KernelFunc.cuh"
 #include <float.h>
 #include <math.h>
+
+#include "Preprocess_KernelFunc.cuh"
 
 //
 __global__ void generate_float_type_depth_KernelFunc(
@@ -44,7 +45,6 @@ void generate_float_type_depth_CUDA(dim3 block_rect, dim3 thread_rect,
                                     Sensor_params sensor_params,
                                     My_Type::Vector2i raw_depth_size,
                                     float *float_type_depth) {
-
   generate_float_type_depth_KernelFunc<<<block_rect, thread_rect>>>(
       raw_depth, sensor_params, raw_depth_size, float_type_depth);
 }
@@ -81,15 +81,13 @@ __global__ void bilateral_filter_5x5_KernelFunc(const float *src_depth,
   int image_index = u + v * image_width;
 
   // Validate pixel coordinate
-  if (u < RADIUS_5x5 || u >= (image_width - RADIUS_5x5))
-    is_valid_pixel = false;
+  if (u < RADIUS_5x5 || u >= (image_width - RADIUS_5x5)) is_valid_pixel = false;
   if (v < RADIUS_5x5 || v >= (image_height - RADIUS_5x5))
     is_valid_pixel = false;
 
   //
   float depth_value = src_depth[image_index];
-  if (depth_value == 0.0f)
-    is_valid_pixel = false;
+  if (depth_value == 0.0f) is_valid_pixel = false;
 
   //
   float filtered_depth_value = 0.0f;
@@ -99,15 +97,14 @@ __global__ void bilateral_filter_5x5_KernelFunc(const float *src_depth,
     // float sigma_z = 1.0f / (0.0012f + 0.0019f * (depth_value - 0.4f) *
     // (depth_value - 0.4f)
     //						+ 0.0001f / sqrtf(depth_value) *
-    //0.25f);
+    // 0.25f);
     float sigma_z = 1.0f / (0.01f * depth_value);
 
     //
     for (int i = -2; i <= 2; i++)
       for (int j = -2; j <= 2; j++) {
         float temp_z = src_depth[image_index + i * image_width + j];
-        if (temp_z == 0)
-          continue;
+        if (temp_z == 0) continue;
         //
         float diff_z = temp_z - depth_value;
         //
@@ -133,10 +130,9 @@ void bilateral_filter_5x5_CUDA(dim3 block_rect, dim3 thread_rect,
 }
 
 //
-__global__ void
-generate_intensity_image_KernelFunc(const RawColorType *raw_color,
-                                    My_Type::Vector2i raw_color_size,
-                                    float *aligned_intensity_image) {
+__global__ void generate_intensity_image_KernelFunc(
+    const RawColorType *raw_color, My_Type::Vector2i raw_color_size,
+    float *aligned_intensity_image) {
   //
   bool is_valid_pixel = true;
 
@@ -171,9 +167,8 @@ void generate_intensity_image_CUDA(dim3 block_rect, dim3 thread_rect,
 
 //
 #define GRADIENT_STEP 1
-__global__ void
-generate_gradient_image_KernelFunc(const float *aligned_intensity_image,
-                                   My_Type::Vector2f *gradient_image) {
+__global__ void generate_gradient_image_KernelFunc(
+    const float *aligned_intensity_image, My_Type::Vector2f *gradient_image) {
   bool is_valid_pixel = true;
   // Pixel coordinate
   int u = threadIdx.x + blockDim.x * blockIdx.x;
@@ -240,7 +235,6 @@ generate_gradient_image_KernelFunc(const float *aligned_intensity_image,
 void generate_gradient_image_CUDA(dim3 block_rect, dim3 thread_rect,
                                   const float *aligned_intensity_image,
                                   My_Type::Vector2f *gradient_image) {
-
   generate_gradient_image_KernelFunc<<<block_rect, thread_rect>>>(
       aligned_intensity_image, gradient_image);
 }
@@ -260,38 +254,31 @@ __global__ void outlier_point_filter_KernelFunc(const float *src_depth,
   int image_index = u + v * image_width;
 
   // Validate pixel coordinate
-  if (u < 3 || u >= (image_width - 3))
-    is_valid_pixel = false;
-  if (v < 3 || v >= (image_height - 3))
-    is_valid_pixel = false;
+  if (u < 3 || u >= (image_width - 3)) is_valid_pixel = false;
+  if (v < 3 || v >= (image_height - 3)) is_valid_pixel = false;
 
   float z, tmpz, dis;
 
   z = src_depth[image_index];
-  if (z <= 0.001f)
-    is_valid_pixel = false;
+  if (z <= 0.001f) is_valid_pixel = false;
 
   if (is_valid_pixel)
-    for (int i = -3; i < 3; ++i) {   // 3
-      for (int j = -3; j < 3; ++j) { // 3
-        if (i == 0 && j == 0)
-          continue;
+    for (int i = -3; i < 3; ++i) {    // 3
+      for (int j = -3; j < 3; ++j) {  // 3
+        if (i == 0 && j == 0) continue;
         tmpz = src_depth[(u + j) + (v + i) * image_width];
-        if (tmpz <= 0.001f)
-          continue;
+        if (tmpz <= 0.001f) continue;
 
         dis = tmpz - z;
         dis = dis * dis;
         if (dis <
-            0.001f) { // 0.005~0.015//多个相邻点深度接近该点深度，该点不是噪点
+            0.001f) {  // 0.005~0.015//多个相邻点深度接近该点深度，该点不是噪点
           count++;
-          if (count >= 3)
-            enable = true; // 3
+          if (count >= 3) enable = true;  // 3
           break;
         }
       }
-      if (enable)
-        break;
+      if (enable) break;
     }
 
   if (!enable) {
@@ -311,8 +298,8 @@ __global__ void bilateral_filter_KernelFunc(const float *src_depth,
   // Image size
   int image_width =
       blockDim.x *
-      gridDim.x; // TODO remove the img size computation out of the filter, for
-                 // example, input para Vector2d directly
+      gridDim.x;  // TODO remove the img size computation out of the filter, for
+                  // example, input para Vector2d directly
   int image_height = blockDim.y * gridDim.y;
   // Pixel coordinate
   int u, v;
@@ -321,43 +308,40 @@ __global__ void bilateral_filter_KernelFunc(const float *src_depth,
   int image_index = u + v * image_width;
 
   // Validate pixel coordinate
-  if (u < RADIUS || u >= (image_width - RADIUS))
-    is_valid_pixel = false;
-  if (v < RADIUS || v >= (image_height - RADIUS))
-    is_valid_pixel = false;
+  if (u < RADIUS || u >= (image_width - RADIUS)) is_valid_pixel = false;
+  if (v < RADIUS || v >= (image_height - RADIUS)) is_valid_pixel = false;
 
   //
   float depth_value = src_depth[image_index];
-  if (depth_value <= 0.001f)
-    is_valid_pixel = false;
+  if (depth_value <= 0.001f) is_valid_pixel = false;
 
   //
   float filtered_depth_value = 0.0f;
   //
   if (is_valid_pixel) {
     float weight_sum = 0.0f;
-    //		float sigma_z = 1.0f / (0.0012f + 0.0019f * (depth_value - 0.4f) *
-    //(depth_value - 0.4f)
-    //								+ 0.0001f / sqrtf(depth_value) *
-    //0.25f);
+    //		float sigma_z = 1.0f / (0.0012f + 0.0019f * (depth_value - 0.4f)
+    //* (depth_value - 0.4f)
+    //								+ 0.0001f /
+    //sqrtf(depth_value)
+    //* 0.25f);
     float sigma_z = 35.0f / 1000.0f;
 
     //
     for (int i = -RADIUS; i <= RADIUS; i++)
       for (int j = -RADIUS; j <= RADIUS; j++) {
         float temp_z = src_depth[image_index + i * image_width + j];
-        if (temp_z == 0)
-          continue;
+        if (temp_z == 0) continue;
         //
         float diff_z = temp_z - depth_value;
         diff_z = diff_z * diff_z;
 
-        if (diff_z > 0.001f)
-          continue;
+        if (diff_z > 0.001f) continue;
         //			float weight = expf(-0.5 * ((abs(i) + abs(j)) *
-        //SIGMA_L_5x5 * SIGMA_L_5x5
-        //										+ diff_z *
-        //diff_z * sigma_z * sigma_z));
+        // SIGMA_L_5x5 * SIGMA_L_5x5
+        //										+
+        //diff_z
+        //* diff_z * sigma_z * sigma_z));
         float weight = exp(-0.5f * diff_z * sigma_z * sigma_z);
         weight_sum += weight;
         filtered_depth_value += weight * temp_z;
@@ -390,10 +374,9 @@ void bilateral_filter_CUDA(dim3 block_rect, dim3 thread_rect,
 }
 
 //
-__global__ void
-generate_aligned_points_image_KernelFunc(const float *filtered_depth,
-                                         Sensor_params sensor_params,
-                                         My_Type::Vector3f *points_image) {
+__global__ void generate_aligned_points_image_KernelFunc(
+    const float *filtered_depth, Sensor_params sensor_params,
+    My_Type::Vector3f *points_image) {
   //
   bool is_valid_pixel = true;
 
@@ -406,8 +389,7 @@ generate_aligned_points_image_KernelFunc(const float *filtered_depth,
   //
   int aligned_image_index = u + v * aligned_image_width;
   float depth_value = filtered_depth[aligned_image_index];
-  if (depth_value == 0.0f)
-    is_valid_pixel = false;
+  if (depth_value == 0.0f) is_valid_pixel = false;
 
   //
   My_Type::Vector3f point(0.0f, 0.0f, 0.0f);
@@ -441,25 +423,21 @@ __global__ void generate_hierarchy_points_image_KernelFunc() {}
 // To do : Evaluate different normal generators
 // To do : filter high gradient neighbor pixels
 template <int Normal_Stride>
-inline __device__ void
-compute_normal_vector(const My_Type::Vector3f *points_image, int &image_width,
-                      int &center_index, My_Type::Vector3f &normal_vec) {
+inline __device__ void compute_normal_vector(
+    const My_Type::Vector3f *points_image, int &image_width, int &center_index,
+    My_Type::Vector3f &normal_vec) {
   //
   My_Type::Vector3f up_point, down_point;
   My_Type::Vector3f left_point, right_point;
   // Load point coordinate and validation
   up_point = points_image[center_index - Normal_Stride * image_width];
-  if (up_point.z <= FLT_EPSILON)
-    return;
+  if (up_point.z <= FLT_EPSILON) return;
   down_point = points_image[center_index + Normal_Stride * image_width];
-  if (down_point.z <= FLT_EPSILON)
-    return;
+  if (down_point.z <= FLT_EPSILON) return;
   left_point = points_image[center_index - Normal_Stride];
-  if (left_point.z <= FLT_EPSILON)
-    return;
+  if (left_point.z <= FLT_EPSILON) return;
   right_point = points_image[center_index + Normal_Stride];
-  if (right_point.z <= FLT_EPSILON)
-    return;
+  if (right_point.z <= FLT_EPSILON) return;
 
   My_Type::Vector3f vec_u2d, vec_l2r;
   // vec_u2d : Vector up_point to down_point
@@ -480,9 +458,8 @@ compute_normal_vector(const My_Type::Vector3f *points_image, int &image_width,
 #define NORMAL_STRIDE 2
 //
 template <int Normal_Stride>
-__global__ void
-compute_normals_image_KernelFunc(const My_Type::Vector3f *points_image,
-                                 My_Type::Vector3f *normals_image) {
+__global__ void compute_normals_image_KernelFunc(
+    const My_Type::Vector3f *points_image, My_Type::Vector3f *normals_image) {
   //
   bool is_valid_pixel = true;
 
@@ -545,29 +522,24 @@ __global__ void down_sample_hierarchy_layers_KernelFunc(
     T temp_T = 0;
     // (0, 0)
     temp_T = src_layer[src_u + src_v * src_layer_size.width];
-    if (temp_T == 0)
-      valid_counter--;
+    if (temp_T == 0) valid_counter--;
     T_sum += temp_T;
     // (0, 1)
     temp_T = src_layer[(src_u + 1) + src_v * src_layer_size.width];
-    if (temp_T == 0)
-      valid_counter--;
+    if (temp_T == 0) valid_counter--;
     T_sum += temp_T;
     // (1, 0)
     temp_T = src_layer[src_u + (src_v + 1) * src_layer_size.width];
-    if (temp_T == 0)
-      valid_counter--;
+    if (temp_T == 0) valid_counter--;
     T_sum += temp_T;
     // (1, 1)
     temp_T = src_layer[(src_u + 1) + (src_v + 1) * src_layer_size.width];
-    if (temp_T == 0)
-      valid_counter--;
+    if (temp_T == 0) valid_counter--;
     T_sum += temp_T;
   }
 
   //
-  if (valid_counter != 0)
-    T_sum /= (float)valid_counter;
+  if (valid_counter != 0) T_sum /= (float)valid_counter;
   dst_layer[dst_u + dst_v * blockDim.x * gridDim.x] = T_sum;
 }
 // Specialization T = My_Type::Vector3f (ToDo : copy operator for
@@ -600,29 +572,24 @@ __global__ void down_sample_hierarchy_layers_KernelFunc<My_Type::Vector3f>(
     My_Type::Vector3f temp_vec(0.0f);
     // (0, 0)
     temp_vec = src_layer[src_u + src_v * src_layer_size.width];
-    if (temp_vec == 0)
-      valid_counter--;
+    if (temp_vec == 0) valid_counter--;
     vec_sum += temp_vec;
     // (0, 1)
     temp_vec = src_layer[(src_u + 1) + src_v * src_layer_size.width];
-    if (temp_vec == 0)
-      valid_counter--;
+    if (temp_vec == 0) valid_counter--;
     vec_sum += temp_vec;
     // (1, 0)
     temp_vec = src_layer[src_u + (src_v + 1) * src_layer_size.width];
-    if (temp_vec == 0)
-      valid_counter--;
+    if (temp_vec == 0) valid_counter--;
     vec_sum += temp_vec;
     // (1, 1)
     temp_vec = src_layer[(src_u + 1) + (src_v + 1) * src_layer_size.width];
-    if (temp_vec == 0)
-      valid_counter--;
+    if (temp_vec == 0) valid_counter--;
     vec_sum += temp_vec;
   }
 
   //
-  if (valid_counter != 0)
-    vec_sum /= (float)valid_counter;
+  if (valid_counter != 0) vec_sum /= (float)valid_counter;
   dst_layer[dst_u + dst_v * blockDim.x * gridDim.x] = vec_sum;
 }
 //
@@ -656,29 +623,24 @@ __global__ void down_sample_hierarchy_layers_KernelFunc<My_Type::Vector2f>(
     My_Type::Vector2f temp_vec(0.0f);
     // (0, 0)
     temp_vec = src_layer[src_u + src_v * src_layer_size.width];
-    if (temp_vec == 0)
-      valid_counter--;
+    if (temp_vec == 0) valid_counter--;
     vec_sum += temp_vec;
     // (0, 1)
     temp_vec = src_layer[(src_u + 1) + src_v * src_layer_size.width];
-    if (temp_vec == 0)
-      valid_counter--;
+    if (temp_vec == 0) valid_counter--;
     vec_sum += temp_vec;
     // (1, 0)
     temp_vec = src_layer[src_u + (src_v + 1) * src_layer_size.width];
-    if (temp_vec == 0)
-      valid_counter--;
+    if (temp_vec == 0) valid_counter--;
     vec_sum += temp_vec;
     // (1, 1)
     temp_vec = src_layer[(src_u + 1) + (src_v + 1) * src_layer_size.width];
-    if (temp_vec == 0)
-      valid_counter--;
+    if (temp_vec == 0) valid_counter--;
     vec_sum += temp_vec;
   }
 
   //
-  if (valid_counter != 0)
-    vec_sum /= (float)valid_counter;
+  if (valid_counter != 0) vec_sum /= (float)valid_counter;
   dst_layer[dst_u + dst_v * blockDim.x * gridDim.x] = vec_sum;
 }
 void down_sample_hierarchy_layers_CUDA(dim3 block_rect, dim3 thread_rect,
@@ -720,11 +682,11 @@ void down_sample_hierarchy_layers_CUDA(dim3 block_rect, dim3 thread_rect,
 //	My_Type::Vector2i temp_vec;
 //
 //	down_sample_hierarchy_layers_CUDA<float>(block_rect, thread_rect, NULL,
-//temp_vec, NULL);
+// temp_vec, NULL);
 //	down_sample_hierarchy_layers_CUDA<My_Type::Vector2f>(block_rect,
-//thread_rect, NULL, temp_vec, NULL);
+// thread_rect, NULL, temp_vec, NULL);
 //	down_sample_hierarchy_layers_CUDA<My_Type::Vector3f>(block_rect,
-//thread_rect, NULL, temp_vec, NULL);
+// thread_rect, NULL, temp_vec, NULL);
 //}
 
 /*!
@@ -734,9 +696,8 @@ void down_sample_hierarchy_layers_CUDA(dim3 block_rect, dim3 thread_rect,
 #define LAPLACIAN_STRIDE 2
 //
 template <int Laplacian_Stride>
-__global__ void
-compute_points_laplacian_KernelFunc(const My_Type::Vector3f *points_image,
-                                    float *laplacian_image) {}
+__global__ void compute_points_laplacian_KernelFunc(
+    const My_Type::Vector3f *points_image, float *laplacian_image) {}
 //
 void compute_points_laplacian_CUDA(dim3 block_rect, dim3 thread_rect,
                                    const My_Type::Vector3f *points_image,

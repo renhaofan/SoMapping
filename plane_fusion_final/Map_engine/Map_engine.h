@@ -14,7 +14,7 @@
 
 */
 class Map_engine {
-public:
+ public:
   //! Model points position for tracking
   My_Type::Vector3f *dev_model_points;
   //! Model points position for tracking
@@ -68,11 +68,11 @@ public:
 
 */
 class Blank_map : public Map_engine {
-public:
+ public:
   Blank_map(){};
   ~Blank_map(){};
 
-private:
+ private:
   //
   void init_map() override { init_base(); }
 
@@ -99,7 +99,7 @@ private:
 
 */
 class Basic_Voxel_map : public Map_engine {
-public:
+ public:
   //!
   bool voxel_map_fusion_initialize_done = false;
   //! Basic voxel map
@@ -140,7 +140,7 @@ public:
 
 */
 class Submap_Voxel_map : public Map_engine {
-public:
+ public:
   //! Voxel map
   Voxel_map *voxel_map_ptr;
   //! Plane map

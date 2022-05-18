@@ -1,7 +1,7 @@
 
-#include "SLAM_system_settings.h"
-
 #include "SLAM_system.h"
+
+#include "SLAM_system_settings.h"
 #include "Track_engine/Solver_functor.h"
 #include "UI_engine/UI_parameters.h"
 
@@ -72,23 +72,23 @@ ProcessingState SLAM_system::process_frames() {
 
   //
   switch (this->processing_state) {
-  case ProcessingState::STOP_PROCESS:
-    break;
-  case ProcessingState::PROCESS_SINGLE_FRAME: {
-    this->processing_state = ProcessingState::STOP_PROCESS;
-    this->process_one_frame();
-    this->mesh_updated = false;
-    frame_id++;
-    break;
-  }
-  case ProcessingState::PROCESS_CONTINUOUS_FRAME: {
-    this->process_one_frame();
-    this->mesh_updated = false;
-    frame_id++;
-    break;
-  }
-  default:
-    break;
+    case ProcessingState::STOP_PROCESS:
+      break;
+    case ProcessingState::PROCESS_SINGLE_FRAME: {
+      this->processing_state = ProcessingState::STOP_PROCESS;
+      this->process_one_frame();
+      this->mesh_updated = false;
+      frame_id++;
+      break;
+    }
+    case ProcessingState::PROCESS_CONTINUOUS_FRAME: {
+      this->process_one_frame();
+      this->mesh_updated = false;
+      frame_id++;
+      break;
+    }
+    default:
+      break;
   }
 
   // End of process.
@@ -279,7 +279,6 @@ void Basic_voxel_SLAM_system::init_modules() {
 
 //
 void Basic_voxel_SLAM_system::process_one_frame() {
-
   // Load one frame (8.0 ms)
   bool load_state = this->data_engine->load_next_frame(
       this->timestamp, this->color_mat, this->depth_mat, false);
@@ -366,7 +365,6 @@ void Basic_voxel_SLAM_system::preprocess() {
 
 //
 void Basic_voxel_SLAM_system::track_camera_pose() {
-
   Basic_ICP_tracker *tracker_ptr =
       dynamic_cast<Basic_ICP_tracker *>(this->track_engine);
   tracker_ptr->track_camera_pose(
@@ -414,7 +412,6 @@ void Basic_voxel_SLAM_system::update_to_map() {
 
 // Render scene
 void Basic_voxel_SLAM_system::generate_render_info(Eigen::Matrix4f view_pose) {
-
   //
   if (SLAM_system_settings::instance()->generate_mesh_for_visualization) {
     if (!this->mesh_updated) {
@@ -736,8 +733,7 @@ void Submap_SLAM_system::update_to_map() {
     // this->processing_state = ProcessingState::STOP_PROCESS;
 
     // Optimization submaps
-    if (this->enable_optimization)
-      this->optimize_map();
+    if (this->enable_optimization) this->optimize_map();
 
     // Compress old submap
     this->submap_ptr_array.back()->compress_voxel_map();
@@ -922,8 +918,7 @@ void Submap_SLAM_system::optimize_map() {
   //
   // printf("this->keypoint_associator->all_submap_id_pair.size() = %d\n",
   // this->keypoint_associator->all_submap_id_pair.size());
-  if (this->keypoint_associator->all_submap_id_pair.size() < 1)
-    return;
+  if (this->keypoint_associator->all_submap_id_pair.size() < 1) return;
 
   // Build the problem.
   ceres::Problem problem;
@@ -1101,12 +1096,12 @@ void Submap_SLAM_system::optimize_map() {
       // Rotation
       identity_mat.setIdentity();
       rodriguez_cross_mat.setZero();
-      rodriguez_cross_mat.data()[1] = +rodriguez_vec.data()[2]; // +gamma
-      rodriguez_cross_mat.data()[2] = -rodriguez_vec.data()[1]; // -beta
-      rodriguez_cross_mat.data()[3] = -rodriguez_vec.data()[2]; // -gamma
-      rodriguez_cross_mat.data()[5] = +rodriguez_vec.data()[0]; // +alpha
-      rodriguez_cross_mat.data()[6] = +rodriguez_vec.data()[1]; // +beta
-      rodriguez_cross_mat.data()[7] = -rodriguez_vec.data()[0]; // -alpha
+      rodriguez_cross_mat.data()[1] = +rodriguez_vec.data()[2];  // +gamma
+      rodriguez_cross_mat.data()[2] = -rodriguez_vec.data()[1];  // -beta
+      rodriguez_cross_mat.data()[3] = -rodriguez_vec.data()[2];  // -gamma
+      rodriguez_cross_mat.data()[5] = +rodriguez_vec.data()[0];  // +alpha
+      rodriguez_cross_mat.data()[6] = +rodriguez_vec.data()[1];  // +beta
+      rodriguez_cross_mat.data()[7] = -rodriguez_vec.data()[0];  // -alpha
       //
       rot_mat = identity_mat + sin(theta) * rodriguez_cross_mat +
                 (1 - cos(theta)) * (rodriguez_cross_mat * rodriguez_cross_mat);
@@ -1114,12 +1109,12 @@ void Submap_SLAM_system::optimize_map() {
       // Rotation
       identity_mat.setIdentity();
       rodriguez_cross_mat.setZero();
-      rodriguez_cross_mat.data()[1] = +rodriguez_vec.data()[2]; // +gamma
-      rodriguez_cross_mat.data()[2] = -rodriguez_vec.data()[1]; // -beta
-      rodriguez_cross_mat.data()[3] = -rodriguez_vec.data()[2]; // -gamma
-      rodriguez_cross_mat.data()[5] = +rodriguez_vec.data()[0]; // +alpha
-      rodriguez_cross_mat.data()[6] = +rodriguez_vec.data()[1]; // +beta
-      rodriguez_cross_mat.data()[7] = -rodriguez_vec.data()[0]; // -alpha
+      rodriguez_cross_mat.data()[1] = +rodriguez_vec.data()[2];  // +gamma
+      rodriguez_cross_mat.data()[2] = -rodriguez_vec.data()[1];  // -beta
+      rodriguez_cross_mat.data()[3] = -rodriguez_vec.data()[2];  // -gamma
+      rodriguez_cross_mat.data()[5] = +rodriguez_vec.data()[0];  // +alpha
+      rodriguez_cross_mat.data()[6] = +rodriguez_vec.data()[1];  // +beta
+      rodriguez_cross_mat.data()[7] = -rodriguez_vec.data()[0];  // -alpha
       //
       rot_mat = identity_mat + rodriguez_cross_mat;
     }
@@ -1151,8 +1146,7 @@ void Submap_SLAM_system::optimize_map() {
 //
 void Submap_SLAM_system::end_of_process_data() {
   //
-  if (this->enable_optimization)
-    this->optimize_map();
+  if (this->enable_optimization) this->optimize_map();
   // Compress last submap
   this->submap_ptr_array.back()->compress_voxel_map();
 
@@ -1271,23 +1265,21 @@ void Submap_SLAM_system::detect_loop() {
 
   // this->keypoint_buffer_1.clear();
   // std::vector<int> & test_mapper =
-  // this->feature_map_ptr_array.back()->keyframe_feature_mapper_list.back(); for
-  // (int i = 0; i < test_mapper.size(); i++)
+  // this->feature_map_ptr_array.back()->keyframe_feature_mapper_list.back();
+  // for (int i = 0; i < test_mapper.size(); i++)
   //{
   //	int kp_id = test_mapper[i];
   //	if (kp_id < 0)	continue;
   //	keypoint_buffer_1.push_back(Eigen::Vector3f(this->feature_map_ptr_array.back()->model_keypoints[kp_id].point.x,
   //		this->feature_map_ptr_array.back()->model_keypoints[kp_id].point.y,
-  //this->feature_map_ptr_array.back()->model_keypoints[kp_id].point.z));
+  // this->feature_map_ptr_array.back()->model_keypoints[kp_id].point.z));
   //}
 
   this->keypoint_associator->prepare_for_optimization();
   this->plane_associator->prepare_for_optimization();
   //
-  if (this->feature_map_ptr_array.size() < 2)
-    return;
-  if (this->keypoint_associator->all_submap_id_pair.size() < 1)
-    return;
+  if (this->feature_map_ptr_array.size() < 2) return;
+  if (this->keypoint_associator->all_submap_id_pair.size() < 1) return;
 
   //
   int this_submap_id = this->feature_map_ptr_array.size() - 1;
@@ -1324,8 +1316,7 @@ void Submap_SLAM_system::detect_loop() {
   float max_similarity = 0;
   for (int submap_id = 0; submap_id < this->feature_map_ptr_array.size();
        submap_id++) {
-    if (associated_flag[submap_id])
-      continue;
+    if (associated_flag[submap_id]) continue;
 
     for (int keyframe_id = 0;
          keyframe_id < this->feature_map_ptr_array[submap_id]
@@ -1336,8 +1327,7 @@ void Submap_SLAM_system::detect_loop() {
               ->keyframe_weigth_centers[keyframe_id];
       // if ((check_weight_center - this_weight_center).norm() > 1.0f)
       // continue;
-      if ((check_weight_center - this_weight_center).norm() > 2.0f)
-        continue;
+      if ((check_weight_center - this_weight_center).norm() > 2.0f) continue;
       if (this->feature_map_ptr_array[submap_id]
               ->keyframe_feature_mapper_list[keyframe_id]
               .size() < 10)
@@ -1361,8 +1351,8 @@ void Submap_SLAM_system::detect_loop() {
         similarity_counter++;
 
         // printf("%d, %d -> %d, %d\n", this_submap_id, this_keyframe_id,
-        // matched_submap_id, matched_keyframe_id); std::cout << "similar_ratio =
-        // " << similar_ratio << std::endl;
+        // matched_submap_id, matched_keyframe_id); std::cout << "similar_ratio
+        // = " << similar_ratio << std::endl;
       }
     }
   }
@@ -1393,8 +1383,7 @@ void Submap_SLAM_system::detect_loop() {
     for (int mapper_id = 0; mapper_id < matched_feature_mapper.size();
          mapper_id++) {
       int model_keypoint_id = matched_feature_mapper[mapper_id];
-      if (model_keypoint_id < 0)
-        continue;
+      if (model_keypoint_id < 0) continue;
 
       //
       int valid_scale_id = -1;
@@ -1431,8 +1420,7 @@ void Submap_SLAM_system::detect_loop() {
          current_id++) {
       int current_keypoint_index =
           this->feature_detector->current_match_to_model_id[current_id];
-      if (current_keypoint_index < 0)
-        continue;
+      if (current_keypoint_index < 0) continue;
 
       My_Type::Vector3f current_position =
           this->feature_map_ptr_array[this_submap_id]
@@ -1448,8 +1436,7 @@ void Submap_SLAM_system::detect_loop() {
         My_Type::Vector3f loop_position = loop_keypoint_position[loop_id];
         cv::Mat loop_feature_row = loop_features.row(loop_id);
 
-        if ((current_position - loop_position).norm() > 0.25)
-          continue;
+        if ((current_position - loop_position).norm() > 0.25) continue;
         if (DescriptorDistance(current_feature_row, loop_feature_row) > 64)
           continue;
 
@@ -1513,10 +1500,8 @@ void Submap_SLAM_system::detect_loop() {
                                   ->plane_map_ptr->plane_list[loop_id]
                                   .d;
 
-        if (current_normal.dot(loop_normal) < 0.90f)
-          continue;
-        if (fabsf(current_distance - loop_distance) > 0.15f)
-          continue;
+        if (current_normal.dot(loop_normal) < 0.90f) continue;
+        if (fabsf(current_distance - loop_distance) > 0.15f) continue;
 
         current_plane_buffer.push_back(
             this->submap_ptr_array.back()
@@ -1535,14 +1520,14 @@ void Submap_SLAM_system::detect_loop() {
     // Iterate optimization
     // this->filter_loop_matches(current_position_buffer, loop_position_buffer,
     //						  current_plane_buffer,
-    //loop_plane_buffer, 						  is_valid_keypoint_match, is_valid_plane_match);
+    // loop_plane_buffer, 						  is_valid_keypoint_match,
+    // is_valid_plane_match);
 
     keypoint_buffer_1.clear();
     for (int i = 0;
          i < this->feature_detector->current_match_to_model_id.size(); i++) {
       int point_id = this->feature_detector->current_match_to_model_id[i];
-      if (point_id < 0)
-        continue;
+      if (point_id < 0) continue;
 
       keypoint_buffer_1.push_back(
           Eigen::Vector3f(this->feature_map_ptr_array[matched_submap_id]
@@ -1564,8 +1549,7 @@ void Submap_SLAM_system::detect_loop() {
       std::vector<int> &temp_mapper =
           this->feature_map_ptr_array[matched_submap_id]
               ->keyframe_feature_mapper_list[matched_keyframe_id];
-      if (temp_mapper[i] < 0)
-        continue;
+      if (temp_mapper[i] < 0) continue;
 
       keypoint_buffer_2.push_back(
           Eigen::Vector3f(this->feature_map_ptr_array[matched_submap_id]
@@ -1681,10 +1665,10 @@ void Submap_SLAM_system::generate_submap_to_global_plane_mapper(
       //{
       //	// Link to existed global plane
       //	int global_plane_id = std::max(first_global_id,
-      //second_global_id); 	if (first_global_id != -1)
-      //global_plane_container[global_plane_id].push_back(second_plane); 	if
-      //(second_global_id != -1)
-      //global_plane_container[global_plane_id].push_back(first_plane);
+      // second_global_id); 	if (first_global_id != -1)
+      // global_plane_container[global_plane_id].push_back(second_plane);
+      // if (second_global_id != -1)
+      // global_plane_container[global_plane_id].push_back(first_plane);
       //}
     }
   }
@@ -1795,8 +1779,7 @@ void Submap_SLAM_system::filter_loop_matches(
       Eigen::Vector3f loop_point = loop_points[point_id];
 
       float point_diff = (current_point_W - loop_point).norm();
-      if (point_diff > valid_radius)
-        continue;
+      if (point_diff > valid_radius) continue;
 
       Eigen::MatrixXf jacobian_mat(3, 6), b_mat(3, 1);
       jacobian_mat.setZero();
@@ -1909,10 +1892,8 @@ bool compute_plane_similarity(Plane_info &plane_1, Plane_info &plane_2) {
 
   My_Type::Vector3f normal_1(plane_1.nx, plane_1.ny, plane_1.nz);
   My_Type::Vector3f normal_2(plane_2.nx, plane_2.ny, plane_2.nz);
-  if (normal_1.dot(normal_2) < inner_product_threshold)
-    return false;
-  if (fabsf(plane_1.d - plane_2.d) > distance)
-    return false;
+  if (normal_1.dot(normal_2) < inner_product_threshold) return false;
+  if (fabsf(plane_1.d - plane_2.d) > distance) return false;
 
   return true;
 }
@@ -1924,8 +1905,7 @@ void Submap_SLAM_system::match_plane_by_parameter(
   //
   for (int pre_plane_id = 0; pre_plane_id < previous_map_planes.size();
        pre_plane_id++) {
-    if (!previous_map_planes[pre_plane_id].is_valid)
-      continue;
+    if (!previous_map_planes[pre_plane_id].is_valid) continue;
     bool already_matched = false;
     for (int matched_id = 0; matched_id < plane_matches.size(); matched_id++) {
       if (plane_matches[matched_id].first == pre_plane_id) {
@@ -1933,13 +1913,11 @@ void Submap_SLAM_system::match_plane_by_parameter(
         break;
       }
     }
-    if (already_matched)
-      continue;
+    if (already_matched) continue;
 
     for (int current_plane_id = 0; current_plane_id < current_map_planes.size();
          current_plane_id++) {
-      if (!current_map_planes[current_plane_id].is_valid)
-        continue;
+      if (!current_map_planes[current_plane_id].is_valid) continue;
 
       bool is_similar_plane =
           compute_plane_similarity(previous_map_planes[pre_plane_id],

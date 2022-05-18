@@ -23,6 +23,7 @@ using namespace std;
 // OpenCV
 #include <cv.h>
 #include <highgui.h>
+
 #include <opencv2/opencv.hpp>
 
 //! System run state
@@ -41,7 +42,7 @@ enum ProcessingState {
         \note	This is a base class (working as an interface)
 */
 class SLAM_system {
-public:
+ public:
   //!
   bool need_generate_mesh = false;
   //!
@@ -111,7 +112,7 @@ public:
   //! End of process data
   virtual void end_of_process_data() = 0;
 
-protected:
+ protected:
   //! Initialize SLAM system parameters
   void init_parameters(Data_engine *data_engine_ptr);
 
@@ -148,7 +149,7 @@ protected:
 
 */
 class Blank_SLAM_system : public SLAM_system {
-public:
+ public:
   //! Default constructor/destructor
   Blank_SLAM_system(){};
   ~Blank_SLAM_system(){};
@@ -156,7 +157,7 @@ public:
   //!
   void init();
 
-protected:
+ protected:
   //!
   void process_one_frame() override;
 };
@@ -167,7 +168,7 @@ protected:
 
 */
 class Ground_truth_SLAM_system : public SLAM_system {
-public:
+ public:
   //! Default constructor/destructor
   Ground_truth_SLAM_system();
   ~Ground_truth_SLAM_system();
@@ -181,7 +182,7 @@ public:
   //! End of process data
   void end_of_process_data() override;
 
-protected:
+ protected:
   //! Create modules for different kinds of SLAM system
   void init_modules() override;
 
@@ -217,7 +218,7 @@ protected:
 
 */
 class Basic_voxel_SLAM_system : public SLAM_system {
-public:
+ public:
   //! Default constructor/destructor
   Basic_voxel_SLAM_system();
   ~Basic_voxel_SLAM_system();
@@ -231,7 +232,7 @@ public:
   //! End of process data
   void end_of_process_data() override;
 
-protected:
+ protected:
   //! Create modules for different kinds of SLAM system
   void init_modules() override;
 
@@ -265,7 +266,7 @@ protected:
 
 */
 class Submap_SLAM_system : public SLAM_system {
-public:
+ public:
   //! Enable inter-submap optimization module
   bool enable_optimization = true;
   //! Enable loop detection module
@@ -305,7 +306,7 @@ public:
   //! End of process data
   void end_of_process_data() override;
 
-protected:
+ protected:
   //! Create modules for different kinds of SLAM system
   void init_modules() override;
 
@@ -333,7 +334,7 @@ protected:
   //!
   void generate_mesh() override;
 
-private:
+ private:
   //!
   void generate_submap_to_global_plane_mapper(
       std::vector<std::vector<My_Type::Vector2i>> &global_plane_container);
@@ -352,8 +353,8 @@ private:
                            std::vector<bool> &is_valid_plane_match);
 
   //!
-  void
-  match_plane_by_parameter(std::vector<Plane_info> &previous_map_planes,
-                           std::vector<Plane_info> &current_map_planes,
-                           std::vector<std::pair<int, int>> &plane_matches);
+  void match_plane_by_parameter(
+      std::vector<Plane_info> &previous_map_planes,
+      std::vector<Plane_info> &current_map_planes,
+      std::vector<std::pair<int, int>> &plane_matches);
 };

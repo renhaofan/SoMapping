@@ -10,7 +10,7 @@ using namespace std;
 
 */
 class Data_writer {
-public:
+ public:
   //!
   bool is_ICL_NUIM_dataset = false;
   //!
@@ -26,5 +26,5 @@ public:
   //! Save trajectory
   void save_trajectory(const Trajectory &estimated_trajectory);
 
-protected:
+ protected:
 };

@@ -31,7 +31,7 @@ enum NormalsSource {
 
 */
 class Render_engine {
-public:
+ public:
   //!
   My_Type::Vector2i depth_size;
   //!

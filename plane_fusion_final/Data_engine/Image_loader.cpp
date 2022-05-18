@@ -3,8 +3,9 @@
 // file operation
 #include <SLAM_system/SLAM_system_settings.h>
 #include <dirent.h>
-#include <fstream>
 #include <io.h>
+
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -46,59 +47,59 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
   printf("init offline image loader ...\n");
 
   switch (dm) {
-  case DatasetMode::ICL:
-    color_dir = dir + "/rgb/";
-    depth_dir = dir + "/depth/";
-    detect_images(color_dir, depth_dir);
-    // Read image parameters
-    this->read_calibration_parameters(cal);
-    // Print loader state
-    this->print_state(false);
+    case DatasetMode::ICL:
+      color_dir = dir + "/rgb/";
+      depth_dir = dir + "/depth/";
+      detect_images(color_dir, depth_dir);
+      // Read image parameters
+      this->read_calibration_parameters(cal);
+      // Print loader state
+      this->print_state(false);
 
-    break;
-  case DatasetMode::TUM:
-    color_dir = dir + "/";
-    depth_dir = dir + "/";
-    associate_dir = dir + "/associate.txt";
-    detect_images(associate_dir, color_dir, depth_dir, dm);
-    // Read image parameters
-    this->read_calibration_parameters(cal);
-    // Print loader state
-    this->print_state(false);
+      break;
+    case DatasetMode::TUM:
+      color_dir = dir + "/";
+      depth_dir = dir + "/";
+      associate_dir = dir + "/associate.txt";
+      detect_images(associate_dir, color_dir, depth_dir, dm);
+      // Read image parameters
+      this->read_calibration_parameters(cal);
+      // Print loader state
+      this->print_state(false);
 
-    break;
-  case DatasetMode::MyZR300:
-    color_dir = dir + "/color/";
-    depth_dir = dir + "/filtered/";
-    detect_images(associate_dir, color_dir, depth_dir, dm);
-    // Read image parameters
-    read_calibration_parameters(cal);
-    // Print loader state
-    this->print_state(false);
+      break;
+    case DatasetMode::MyZR300:
+      color_dir = dir + "/color/";
+      depth_dir = dir + "/filtered/";
+      detect_images(associate_dir, color_dir, depth_dir, dm);
+      // Read image parameters
+      read_calibration_parameters(cal);
+      // Print loader state
+      this->print_state(false);
 
-    break;
-  case DatasetMode::MyD435i:
-    color_dir = dir + "/color/";
-    depth_dir = dir + "/depth/";
-    detect_images(associate_dir, color_dir, depth_dir, dm);
-    // Read image parameters
-    this->read_calibration_parameters(cal);
-    // Print loader state
-    this->print_state(false);
+      break;
+    case DatasetMode::MyD435i:
+      color_dir = dir + "/color/";
+      depth_dir = dir + "/depth/";
+      detect_images(associate_dir, color_dir, depth_dir, dm);
+      // Read image parameters
+      this->read_calibration_parameters(cal);
+      // Print loader state
+      this->print_state(false);
 
-    break;
-  case DatasetMode::MyAzureKinect:
-    color_dir = dir + "/color/";
-    depth_dir = dir + "/depth/";
-    detect_images(associate_dir, color_dir, depth_dir, dm);
-    // Read image parameters
-    this->read_calibration_parameters(cal);
-    // Print loader state
-    this->print_state(false);
+      break;
+    case DatasetMode::MyAzureKinect:
+      color_dir = dir + "/color/";
+      depth_dir = dir + "/depth/";
+      detect_images(associate_dir, color_dir, depth_dir, dm);
+      // Read image parameters
+      this->read_calibration_parameters(cal);
+      // Print loader state
+      this->print_state(false);
 
-    break;
-  default:
-    cout << "unknown dataset" << endl;
+      break;
+    default:
+      cout << "unknown dataset" << endl;
   }
 }
 //
@@ -106,32 +107,31 @@ bool Offline_image_loader::load_next_frame(double &timestamp,
                                            cv::Mat &color_mat,
                                            cv::Mat &depth_mat) {
   // Validate frame index
-  if (!this->is_ready_to_load_next_frame())
-    return false;
+  if (!this->is_ready_to_load_next_frame()) return false;
 
   // Load timestamp and images
   timestamp = this->image_timestamp_vector[this->frame_index];
   switch (this->image_loader_mode) {
-  case ImageLoaderMode::NO_DATA:
-    return false;
-  case ImageLoaderMode::WITH_DEPTH_ONLY: {
-    depth_mat = cv::imread(this->depth_path_vector[this->frame_index].c_str(),
-                           CV_LOAD_IMAGE_UNCHANGED);
-    break;
-  }
-  case ImageLoaderMode::WITH_COLOR_AND_DEPTH: {
-    depth_mat = cv::imread(this->depth_path_vector[this->frame_index].c_str(),
-                           CV_LOAD_IMAGE_UNCHANGED);
-    cv::Mat temp =
-        cv::imread(this->color_path_vector[this->frame_index].c_str(),
-                   CV_LOAD_IMAGE_UNCHANGED);
-    cv::cvtColor(temp, color_mat, cv::COLOR_BGRA2BGR);
-    break;
-  }
-  case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES:
-    return false;
-  default:
-    break;
+    case ImageLoaderMode::NO_DATA:
+      return false;
+    case ImageLoaderMode::WITH_DEPTH_ONLY: {
+      depth_mat = cv::imread(this->depth_path_vector[this->frame_index].c_str(),
+                             CV_LOAD_IMAGE_UNCHANGED);
+      break;
+    }
+    case ImageLoaderMode::WITH_COLOR_AND_DEPTH: {
+      depth_mat = cv::imread(this->depth_path_vector[this->frame_index].c_str(),
+                             CV_LOAD_IMAGE_UNCHANGED);
+      cv::Mat temp =
+          cv::imread(this->color_path_vector[this->frame_index].c_str(),
+                     CV_LOAD_IMAGE_UNCHANGED);
+      cv::cvtColor(temp, color_mat, cv::COLOR_BGRA2BGR);
+      break;
+    }
+    case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES:
+      return false;
+    default:
+      break;
   }
 
   // To next frame
@@ -218,58 +218,56 @@ void Offline_image_loader::detect_images(string associate, string colordir,
   size_t comma2 = 0;
 
   switch (dm) {
-  case DatasetMode::TUM:
-    while (!inf.eof()) {
+    case DatasetMode::TUM:
+      while (!inf.eof()) {
+        getline(inf, line);
+
+        comma = line.find(' ', 0);
+        double timestamp = (double)atof(line.substr(0, comma).c_str());
+        if (timestamp < 1e-3) continue;
+
+        comma2 = line.find(' ', comma + 1);
+        string colorName = line.substr(comma + 1, comma2 - comma - 1).c_str();
+
+        comma = line.find(' ', comma2 + 1);
+        string temp1 = line.substr(comma2 + 1, comma - comma2 - 1);
+        timestamp = (double)atof(temp1.c_str());
+
+        comma2 = line.find('g', comma + 1);
+        string depthName = line.substr(comma + 1, comma2 - comma).c_str();
+
+        this->image_timestamp_vector.push_back(timestamp);
+        this->color_path_vector.push_back(colordir + colorName);
+        this->depth_path_vector.push_back(depthdir + depthName);
+        this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
+        this->number_of_frames = this->depth_path_vector.size();
+      }
+
+      break;
+    case DatasetMode::MyZR300:
+    case DatasetMode::MyD435i:
+    case DatasetMode::MyAzureKinect:
       getline(inf, line);
+      while (!inf.eof()) {
+        getline(inf, line);
 
-      comma = line.find(' ', 0);
-      double timestamp = (double)atof(line.substr(0, comma).c_str());
-      if (timestamp < 1e-3)
-        continue;
+        comma = line.find(',', 0);
+        string temp1 = line.substr(0, comma);
+        double timestamp = (double)atof(temp1.c_str());
+        if (timestamp < 1e-3) continue;
 
-      comma2 = line.find(' ', comma + 1);
-      string colorName = line.substr(comma + 1, comma2 - comma - 1).c_str();
-
-      comma = line.find(' ', comma2 + 1);
-      string temp1 = line.substr(comma2 + 1, comma - comma2 - 1);
-      timestamp = (double)atof(temp1.c_str());
-
-      comma2 = line.find('g', comma + 1);
-      string depthName = line.substr(comma + 1, comma2 - comma).c_str();
-
-      this->image_timestamp_vector.push_back(timestamp);
-      this->color_path_vector.push_back(colordir + colorName);
-      this->depth_path_vector.push_back(depthdir + depthName);
-      this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
-      this->number_of_frames = this->depth_path_vector.size();
-    }
-
-    break;
-  case DatasetMode::MyZR300:
-  case DatasetMode::MyD435i:
-  case DatasetMode::MyAzureKinect:
-    getline(inf, line);
-    while (!inf.eof()) {
-      getline(inf, line);
-
-      comma = line.find(',', 0);
-      string temp1 = line.substr(0, comma);
-      double timestamp = (double)atof(temp1.c_str());
-      if (timestamp < 1e-3)
-        continue;
-
-      this->image_timestamp_vector.push_back(timestamp * 1e-6);
-      comma2 = line.find('g', comma + 1);
-      string imgName = line.substr(comma + 1, comma2 - comma).c_str();
-      this->color_path_vector.push_back(colordir + imgName);
-      this->depth_path_vector.push_back(depthdir + imgName);
-      this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
-      this->number_of_frames = this->depth_path_vector.size();
-    }
-    break;
-  default
-      : // my dataset, i.e. the color and depth image have same timestamp(name).
-    break;
+        this->image_timestamp_vector.push_back(timestamp * 1e-6);
+        comma2 = line.find('g', comma + 1);
+        string imgName = line.substr(comma + 1, comma2 - comma).c_str();
+        this->color_path_vector.push_back(colordir + imgName);
+        this->depth_path_vector.push_back(depthdir + imgName);
+        this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
+        this->number_of_frames = this->depth_path_vector.size();
+      }
+      break;
+    default:  // my dataset, i.e. the color and depth image have same
+              // timestamp(name).
+      break;
   }
 
   inf.close();
@@ -277,10 +275,8 @@ void Offline_image_loader::detect_images(string associate, string colordir,
 
 //
 bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
-
   // Validate frame index
-  if (frame_id < 0 || frame_id >= this->number_of_frames)
-    return false;
+  if (frame_id < 0 || frame_id >= this->number_of_frames) return false;
   this->frame_index = frame_id;
   return true;
 
@@ -292,16 +288,16 @@ bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
   //	case ImageLoaderMode::WITH_DEPTH_ONLY:
   //	{
   //		depth_mat =
-  //imread(this->depth_path_vector[this->frame_index].c_str(),
-  //CV_LOAD_IMAGE_UNCHANGED); 		break;
+  // imread(this->depth_path_vector[this->frame_index].c_str(),
+  // CV_LOAD_IMAGE_UNCHANGED); 		break;
   //	}
   //	case ImageLoaderMode::WITH_COLOR_AND_DEPTH:
   //	{
   //		depth_mat =
-  //imread(this->depth_path_vector[this->frame_index].c_str(),
-  //CV_LOAD_IMAGE_UNCHANGED); 		color_mat =
-  //imread(this->color_path_vector[this->frame_index].c_str(),
-  //CV_LOAD_IMAGE_UNCHANGED); 		break;
+  // imread(this->depth_path_vector[this->frame_index].c_str(),
+  // CV_LOAD_IMAGE_UNCHANGED); 		color_mat =
+  // imread(this->color_path_vector[this->frame_index].c_str(),
+  // CV_LOAD_IMAGE_UNCHANGED); 		break;
   //	}
   //	case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES:
   //		return false;
@@ -313,7 +309,6 @@ bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
 //
 void Offline_image_loader::detect_images(string color_folder,
                                          string depth_folder) {
-
   /*//Color folder
   DIR *dp;
   struct dirent *dirp;
@@ -375,8 +370,7 @@ void Offline_image_loader::detect_images(string color_folder,
     while ((dirp = readdir(dp)) != NULL) {
       std::string name = std::string(dirp->d_name);
 
-      if (name != "." && name != "..")
-        this->number_of_frames++;
+      if (name != "." && name != "..") this->number_of_frames++;
     }
     closedir(dp);
   }
@@ -414,7 +408,6 @@ void Offline_image_loader::detect_images(string color_folder,
 
 //
 void Offline_image_loader::read_image_parameters() {
-
   if (this->color_path_vector.size() > 0) {
     cv::Mat temp_mat;
 
@@ -462,55 +455,57 @@ void Offline_image_loader::read_image_parameters() {
 //
 void Offline_image_loader::print_state(bool print_all_pathes) const {
   switch (this->image_loader_mode) {
-  case ImageLoaderMode::NO_DATA: {
-    printf("No color or depth image found!\n");
-    break;
-  }
-  case ImageLoaderMode::WITH_DEPTH_ONLY: {
-    printf("Only depth images found!\n %d depth images\n",
-           (int)this->depth_path_vector.size());
-
-    if (print_all_pathes) {
-      for (size_t path_id = 0; path_id < this->depth_path_vector.size();
-           path_id++) {
-        printf("%s\n", this->depth_path_vector[path_id].c_str());
-      }
+    case ImageLoaderMode::NO_DATA: {
+      printf("No color or depth image found!\n");
+      break;
     }
-    break;
-  }
-  case ImageLoaderMode::WITH_COLOR_AND_DEPTH: {
-    printf("Both color and depth images found!\n %d depth images \n %d color "
-           "images\n",
-           (int)this->depth_path_vector.size(),
-           (int)this->color_path_vector.size());
+    case ImageLoaderMode::WITH_DEPTH_ONLY: {
+      printf("Only depth images found!\n %d depth images\n",
+             (int)this->depth_path_vector.size());
 
-    if (print_all_pathes) {
-      printf("Depth image pathes:\n");
-      for (size_t path_id = 0; path_id < this->depth_path_vector.size();
-           path_id++) {
-        printf("%s\n", this->depth_path_vector[path_id].c_str());
+      if (print_all_pathes) {
+        for (size_t path_id = 0; path_id < this->depth_path_vector.size();
+             path_id++) {
+          printf("%s\n", this->depth_path_vector[path_id].c_str());
+        }
       }
-      printf("\n");
-
-      printf("Color image pathes:\n");
-      for (size_t path_id = 0; path_id < this->color_path_vector.size();
-           path_id++) {
-        printf("%s\n", this->color_path_vector[path_id].c_str());
-      }
-      printf("\n");
+      break;
     }
-    break;
-  }
-  case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES: {
-    printf("Error data format : Unequal color and depth images found!\n (%d "
-           "depth images != %d color images)\n",
-           (int)this->depth_path_vector.size(),
-           (int)this->color_path_vector.size());
-    break;
-  }
-  default: {
-    cout << "Invalid state!" << endl;
-    break;
-  }
+    case ImageLoaderMode::WITH_COLOR_AND_DEPTH: {
+      printf(
+          "Both color and depth images found!\n %d depth images \n %d color "
+          "images\n",
+          (int)this->depth_path_vector.size(),
+          (int)this->color_path_vector.size());
+
+      if (print_all_pathes) {
+        printf("Depth image pathes:\n");
+        for (size_t path_id = 0; path_id < this->depth_path_vector.size();
+             path_id++) {
+          printf("%s\n", this->depth_path_vector[path_id].c_str());
+        }
+        printf("\n");
+
+        printf("Color image pathes:\n");
+        for (size_t path_id = 0; path_id < this->color_path_vector.size();
+             path_id++) {
+          printf("%s\n", this->color_path_vector[path_id].c_str());
+        }
+        printf("\n");
+      }
+      break;
+    }
+    case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES: {
+      printf(
+          "Error data format : Unequal color and depth images found!\n (%d "
+          "depth images != %d color images)\n",
+          (int)this->depth_path_vector.size(),
+          (int)this->color_path_vector.size());
+      break;
+    }
+    default: {
+      cout << "Invalid state!" << endl;
+      break;
+    }
   }
 }

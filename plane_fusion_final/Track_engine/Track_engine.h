@@ -29,7 +29,7 @@ enum TrackingState {
 
 */
 class Track_engine {
-public:
+ public:
 #pragma region(Residual variables)
 
   //! Total hessian matrix
@@ -83,7 +83,7 @@ public:
       const Hierarchy_image<My_Type::Vector3f> &dev_model_normals_hierarchy);
 #endif
 
-protected:
+ protected:
   //! Prepare to track new frame
   /*!
               \note	Reset all ICP variable and tracking state.
@@ -109,7 +109,7 @@ protected:
 
 */
 class Basic_ICP_tracker : public Track_engine {
-public:
+ public:
   //! Increment pose matrix
   My_Type::Matrix44f cache_increment_pose;
 
@@ -134,7 +134,7 @@ public:
       const Hierarchy_image<My_Type::Vector2f> &dev_model_gradient,
       Eigen::Matrix4f &camera_pose);
 
-protected:
+ protected:
   //! Prepare to track new frame
   /*!
               \note	Reset all ICP variable and tracking state.
@@ -150,7 +150,7 @@ protected:
 
 //
 class Keypoint_ICP_tracker : public Track_engine {
-public:
+ public:
   //! Increment pose matrix
   My_Type::Matrix44f cache_increment_pose;
 
@@ -178,7 +178,7 @@ public:
       const std::vector<Eigen::Vector3f> &model_keypoints,
       Eigen::Matrix4f &camera_pose);
 
-protected:
+ protected:
   //! Prepare to track new frame
   /*!
       \note	Reset all ICP variable and tracking state.

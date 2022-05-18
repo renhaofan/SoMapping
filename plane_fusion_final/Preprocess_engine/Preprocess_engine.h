@@ -1,12 +1,14 @@
 #pragma once
 
 // OpenCV
-#include "Preprocess_KernelFunc.cuh"
 #include <cv.h>
 #include <float.h>
 #include <highgui.h>
 #include <math.h>
+
 #include <opencv2/opencv.hpp>
+
+#include "Preprocess_KernelFunc.cuh"
 //
 #include "Hierarchy_image.h"
 #include "OurLib/My_matrix.h"
@@ -19,7 +21,7 @@
 
 */
 class Preprocess_engine {
-public:
+ public:
   //!
   My_Type::Vector2i raw_color_size;
   //!
@@ -104,8 +106,8 @@ public:
 
           \param	image_alignment_width	Image alignment unit.(PIXEL)
 
-          \param	number_of_layers		Number of hierarchy image
-     layers.
+          \param	number_of_layers		Number of hierarchy
+     image layers.
 
           \return	void
   */
@@ -127,14 +129,14 @@ public:
   /*!
 
   */
-  virtual void
-  preprocess_model_points(My_Type::Vector3f *dev_model_points,
-                          My_Type::Vector3f *dev_model_normals) = 0;
+  virtual void preprocess_model_points(
+      My_Type::Vector3f *dev_model_points,
+      My_Type::Vector3f *dev_model_normals) = 0;
 
   //!
   void copy_previous_intensity_as_model();
 
-protected:
+ protected:
   //! Filter image
   /*!
 
@@ -151,7 +153,7 @@ protected:
 
 */
 class Preprocess_RGBD : public Preprocess_engine {
-public:
+ public:
   //! Default constructor/destructor
   Preprocess_RGBD(){};
   ~Preprocess_RGBD();
@@ -170,7 +172,7 @@ public:
   //!
   void generate_render_information() override;
 
-protected:
+ protected:
   //! Filter image
   void filter_image(cv::Mat &raw_color, cv::Mat &raw_depth) override;
 

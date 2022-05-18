@@ -11,6 +11,7 @@
 
 // OpenCV
 #include <cv.h>
+
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
 
@@ -42,8 +43,7 @@ typedef struct struct_Scale_layer_flag {
   int exist[MAX_LAYER_NUMBER];
 
   struct_Scale_layer_flag() {
-    for (int i = 0; i < MAX_LAYER_NUMBER; i++)
-      exist[i] = 0;
+    for (int i = 0; i < MAX_LAYER_NUMBER; i++) exist[i] = 0;
   }
 } Scale_layer_flag;
 
@@ -51,21 +51,22 @@ typedef struct struct_Scale_layer_flag {
 #define FEATRUE_BLOCK_WIDTH 0.04
 //
 namespace std {
-template <> struct hash<My_Type::Vector3i> {
+template <>
+struct hash<My_Type::Vector3i> {
   size_t operator()(const My_Type::Vector3i &vec3i) const {
     return ((((unsigned int)vec3i.x) * 73856093u) ^
             (((unsigned int)vec3i.y) * 19349669u) ^
             (((unsigned int)vec3i.z) * 83492791u));
   }
 };
-} // namespace std
+}  // namespace std
 
 //!
 /*!
 
 */
 class Feature_map {
-public:
+ public:
   //
   const int valid_observe_count = 5;
   const int outlyer_non_observe_count = valid_observe_count + 5;

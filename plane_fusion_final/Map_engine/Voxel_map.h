@@ -28,7 +28,7 @@ enum RaycastMode {
 
 */
 class Voxel_map {
-public:
+ public:
   /*! Default constructor.	*/
   Voxel_map();
   /*! Default destructor.	*/
@@ -144,8 +144,8 @@ public:
 
   //! Initialize voxel map object.
   /*!
-          \param	aligned_depth_size			Size of depth image
-     for tracking
+          \param	aligned_depth_size			Size of depth
+     image for tracking
 
           \param	max_voxel_block_number
 
@@ -156,17 +156,17 @@ public:
 
   //! Allocate voxel block by current frame points.
   /*!
-          \param	dev_current_points	CUDA device pointer. Current depth
-     frame points cloud.
+          \param	dev_current_points	CUDA device pointer. Current
+     depth frame points cloud.
 
-          \param	camera_pose			The camera pose matrix in map
-     coordinate.
+          \param	camera_pose			The camera pose matrix in
+     map coordinate.
 
-          \param	submap_pose			The submap pose matrix in
-     world coordinate.
+          \param	submap_pose			The submap pose matrix
+     in world coordinate.
 
-          \return	int					Number of voxel block
-     allocated.
+          \return	int					Number of voxel
+     block allocated.
   */
   int allocate_voxel_block(
       My_Type::Vector3f *dev_current_points, Eigen::Matrix4f camera_pose,
@@ -175,32 +175,31 @@ public:
   //       Voxel
   //! Fusion SDF value to voxel with known camera pose and current points.
   /*!
-          \param	dev_current_points	CUDA device pointer. Current depth
-     frame points cloud.
+          \param	dev_current_points	CUDA device pointer. Current
+     depth frame points cloud.
 
-          \param	dev_current_normal	CUDA device pointer. Current depth
-     frame points cloud normal vectors.
+          \param	dev_current_normal	CUDA device pointer. Current
+     depth frame points cloud normal vectors.
 
-          \param	camera_pose			The camera pose matrix in map
-     coordinate.
+          \param	camera_pose			The camera pose matrix in
+     map coordinate.
 
           \return	void
   */
-  void
-  fusion_SDF_to_voxel(My_Type::Vector3f *dev_current_points,
-                      My_Type::Vector3f *dev_current_normal,
-                      Eigen::Matrix4f camera_pose,
-                      Eigen::Matrix4f sumap_pose = Eigen::Matrix4f::Identity());
+  void fusion_SDF_to_voxel(
+      My_Type::Vector3f *dev_current_points,
+      My_Type::Vector3f *dev_current_normal, Eigen::Matrix4f camera_pose,
+      Eigen::Matrix4f sumap_pose = Eigen::Matrix4f::Identity());
   //! Fusion plane label
   /*!
-          \param	dev_current_points	CUDA device pointer. Current depth
-     frame points cloud.
+          \param	dev_current_points	CUDA device pointer. Current
+     depth frame points cloud.
 
-          \param	camera_pose			The camera pose matrix in map
-     coordinate.
+          \param	camera_pose			The camera pose matrix in
+     map coordinate.
 
-          \param	plane_img			CUDA device pointer. Current
-     plane segmentation result.(A label mask image)
+          \param	plane_img			CUDA device pointer.
+     Current plane segmentation result.(A label mask image)
 
           \return	void
   */
@@ -229,8 +228,8 @@ public:
 
   //! Raycast all information in voxel to several image matrices.
   /*!
-          \param	camera_pose			The camera pose matrix in map
-     coordinate.
+          \param	camera_pose			The camera pose matrix in
+     map coordinate.
 
           \param	mode				Raycast mode. See
      Raycast_flag.
@@ -255,10 +254,10 @@ public:
   void release_voxel_map();
 
   ////! Raycast informations for (OpenGL) rendering Voxel map and caculate
-  ///points color array.
+  /// points color array.
   ///*!
   //	\param	pose				The camera pose matrix in map
-  //coordinate.
+  // coordinate.
 
   //	\param	render_mode			Mode of render. See details.
 

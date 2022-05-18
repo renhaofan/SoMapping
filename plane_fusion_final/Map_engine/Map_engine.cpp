@@ -51,12 +51,12 @@ void Map_engine::init_base() {
   checkCudaErrors(cudaMalloc((void **)&(this->dev_model_normals),
                              ceil_depth_image_width * ceil_depth_image_height *
                                  sizeof(My_Type::Vector3f)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_model_weight),
-                             ceil_depth_image_width * ceil_depth_image_height *
-                                 sizeof(int)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_model_plane_labels),
-                             ceil_depth_image_width * ceil_depth_image_height *
-                                 sizeof(int)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_model_weight),
+      ceil_depth_image_width * ceil_depth_image_height * sizeof(int)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_model_plane_labels),
+      ceil_depth_image_width * ceil_depth_image_height * sizeof(int)));
   //
   this->scene_points = (My_Type::Vector3f *)malloc(
       ceil_viewport_width * ceil_viewport_height * sizeof(My_Type::Vector3f));
@@ -71,14 +71,10 @@ void Map_engine::init_base() {
 //
 void Map_engine::reshape_render_viewport(My_Type::Vector2i viewport_size) {
   // Release memory
-  if (this->scene_points)
-    free(this->scene_points);
-  if (this->scene_normals)
-    free(this->scene_normals);
-  if (this->scene_weight)
-    free(this->scene_weight);
-  if (this->scene_plane_labels)
-    free(this->scene_plane_labels);
+  if (this->scene_points) free(this->scene_points);
+  if (this->scene_normals) free(this->scene_normals);
+  if (this->scene_weight) free(this->scene_weight);
+  if (this->scene_plane_labels) free(this->scene_plane_labels);
 
   // Re-allocate memory
   int ceil_viewport_width = ceil_by_stride(
@@ -156,7 +152,6 @@ void Basic_Voxel_map::update_plane_map(
 
 //
 void Basic_Voxel_map::generate_plane_map() {
-
   this->plane_map_ptr->generate_plane_map(
       this->voxel_map_ptr->dev_entrise,
       this->voxel_map_ptr->dev_voxel_block_array);
@@ -253,7 +248,6 @@ void Submap_Voxel_map::update_map_form_last_map(
 void Submap_Voxel_map::update_map_after_tracking(
     My_pose &camera_pose, My_Type::Vector3f *dev_current_points,
     My_Type::Vector3f *dev_current_normals, int *dev_plane_labels) {
-
   // -------------- TODO add submap
   this->frame_counter++;
   // Allocation
@@ -365,7 +359,6 @@ void Submap_Voxel_map::release_voxel_map() {
 
 //
 void Submap_Voxel_map::generate_plane_map() {
-
   this->plane_map_ptr->generate_plane_map(
       this->voxel_map_ptr->dev_entrise,
       this->voxel_map_ptr->dev_voxel_block_array);

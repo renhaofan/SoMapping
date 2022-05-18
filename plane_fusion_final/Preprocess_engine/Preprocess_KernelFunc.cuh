@@ -1,9 +1,10 @@
 
 
 // My type
+#include <math.h>
+
 #include "Hierarchy_image.h"
 #include "OurLib/My_matrix.h"
-#include <math.h>
 //
 #include "SLAM_system/SLAM_system_settings.h"
 

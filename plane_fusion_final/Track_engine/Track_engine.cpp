@@ -13,9 +13,9 @@
 //
 #include "Solver_functor.h"
 // CUDA functions
-#include "Track_KernelFunc.cuh"
-
 #include <iostream>
+
+#include "Track_KernelFunc.cuh"
 using namespace std;
 
 //
@@ -64,15 +64,15 @@ void Track_engine::init() {
 
 void Track_engine::update_camera_pose(Eigen::Matrix4f &camera_pose) const {
   switch (this->tracking_state) {
-  case TrackingState::TRACKINE_SUCCED: {
-    camera_pose = camera_pose.eval() * this->incremental_pose;
-    break;
-  }
-  case TrackingState::BEFORE_TRACKING:
-  case TrackingState::DURING_TRACKING:
-  case TrackingState::TRACKING_FAILED:
-  default:
-    break;
+    case TrackingState::TRACKINE_SUCCED: {
+      camera_pose = camera_pose.eval() * this->incremental_pose;
+      break;
+    }
+    case TrackingState::BEFORE_TRACKING:
+    case TrackingState::DURING_TRACKING:
+    case TrackingState::TRACKING_FAILED:
+    default:
+      break;
   }
 }
 
@@ -487,7 +487,7 @@ TrackingState Keypoint_ICP_tracker::track_camera_pose(
         //	Eigen::Vector3f model_point(model_keypoints[point_id]);
         //	if (model_point.z() < 0.01)	continue;
         //	current_point = cache_increment_pose_mat.block(0, 0, 3, 3) *
-        //current_point.eval() + cache_increment_pose_mat.block(0, 3, 3, 1);
+        // current_point.eval() + cache_increment_pose_mat.block(0, 3, 3, 1);
         //	mean_value += (current_point - model_point).norm();
         //	mean_counter++;
         //}
@@ -498,8 +498,7 @@ TrackingState Keypoint_ICP_tracker::track_camera_pose(
         for (int point_id = 0; point_id < number_of_keypoints; point_id++) {
           Eigen::Vector3f current_point(current_keypoints[point_id]);
           Eigen::Vector3f model_point(model_keypoints[point_id]);
-          if (model_point.z() < 0.01)
-            continue;
+          if (model_point.z() < 0.01) continue;
 
           current_point = cache_increment_pose_mat.block(0, 0, 3, 3) *
                               current_point.eval() +

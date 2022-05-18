@@ -6,11 +6,13 @@
 #include "Plane_detector_KernelFunc.cuh"
 
 //
-#include "math.h"
+#include <float.h>
+
 #include <cstdio>
 #include <cstring>
-#include <float.h>
 #include <iostream>
+
+#include "math.h"
 
 // ---------------------------- Plane_detector (base class)
 #pragma region(Plane_detector base class)
@@ -55,15 +57,15 @@ void Plane_detector::init() {
       (int *)malloc(MAX_CURRENT_PLANES * MAX_MODEL_PLANES * sizeof(int));
 
   //
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_cell_info_mat),
-                             this->cell_mat_size.x * this->cell_mat_size.y *
-                                 sizeof(Cell_info)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_current_cell_labels),
-                             this->aligned_depth_size.x *
-                                 this->aligned_depth_size.y * sizeof(int)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_current_plane_labels),
-                             this->aligned_depth_size.x *
-                                 this->aligned_depth_size.y * sizeof(int)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_cell_info_mat),
+      this->cell_mat_size.x * this->cell_mat_size.y * sizeof(Cell_info)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_current_cell_labels),
+      this->aligned_depth_size.x * this->aligned_depth_size.y * sizeof(int)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_current_plane_labels),
+      this->aligned_depth_size.x * this->aligned_depth_size.y * sizeof(int)));
   checkCudaErrors(cudaMalloc((void **)&(this->dev_current_planes),
                              MAX_CURRENT_PLANES * sizeof(Plane_info)));
   checkCudaErrors(cudaMalloc((void **)&(this->dev_model_planes),
@@ -92,7 +94,6 @@ void Plane_detector::detect_plane(const My_Type::Vector3f *dev_current_points,
                                   const Plane_info *dev_model_planes,
                                   int *dev_previous_plane_labels,
                                   bool with_continuous_frame_tracking) {
-
   static bool first_reach = true;
   if (first_reach) {
     first_reach = false;
@@ -277,14 +278,14 @@ void Plane_detector::match_planes(const Plane_info *model_planes,
     // this->current_plane_counter; current_plane_id++)
     //{
     //	//Plane_info current_plane_info =
-    //this->current_planes[current_plane_id]; 	for (int model_plane_id = 0;
-    //model_plane_id < std::min(model_plane_number, MAX_MODEL_PLANES);
-    //model_plane_id++)
+    // this->current_planes[current_plane_id]; 	for (int model_plane_id = 0;
+    // model_plane_id < std::min(model_plane_number, MAX_MODEL_PLANES);
+    // model_plane_id++)
     //	{
     //		//Plane_info model_plane_info =
-    //this->model_planes[model_plane_id]; 		printf("%d | ",
-    //this->relative_matrix[current_plane_id * MAX_MODEL_PLANES +
-    //model_plane_id]);
+    // this->model_planes[model_plane_id]; 		printf("%d | ",
+    // this->relative_matrix[current_plane_id * MAX_MODEL_PLANES +
+    // model_plane_id]);
     //	}
     //	printf("\n");
     //}
@@ -311,8 +312,7 @@ void Plane_detector::match_planes(const Plane_info *model_planes,
         if (overlap_list.size() == 1) {
           model_plane_id = overlap_list.front().first;
           overlap_pixel_number = overlap_list.front().second;
-          if (model_plane_id == 0)
-            is_new_plane = true;
+          if (model_plane_id == 0) is_new_plane = true;
         } else if (overlap_list.size() > 1) {
           if (overlap_list.front().first == 0 &&
               overlap_list[1].second > MIN_CELLS_OF_PLANE *
@@ -356,8 +356,7 @@ void Plane_detector::match_planes(const Plane_info *model_planes,
               this->current_planes[current_plane_id].nx,
               this->current_planes[current_plane_id].ny,
               this->current_planes[current_plane_id].nz);
-          if (model_normal.dot(current_normal) < 0.9)
-            is_valid_match = false;
+          if (model_normal.dot(current_normal) < 0.9) is_valid_match = false;
           if (fabsf(model_planes[model_plane_id].d -
                     this->current_planes[current_plane_id].d) > 0.1)
             is_valid_match = false;
@@ -505,9 +504,8 @@ int cmp_function(const void *a, const void *b) {
   }
 }
 //
-std::vector<std::pair<int, int>>
-Plane_detector::find_most_overlap_model_plane(int current_plane_label,
-                                              int model_plane_counter) {
+std::vector<std::pair<int, int>> Plane_detector::find_most_overlap_model_plane(
+    int current_plane_label, int model_plane_counter) {
   std::vector<std::pair<int, int>> overlap_list;
   //
   int overlap_pixel_number = 0;
@@ -537,15 +535,15 @@ void Plane_detector::prepare_to_detect() {
   memset(this->current_planes, 0x00, MAX_CURRENT_PLANES * sizeof(Plane_info));
 
   //
-  checkCudaErrors(cudaMemset(this->dev_cell_info_mat, 0x00,
-                             this->cell_mat_size.x * this->cell_mat_size.y *
-                                 sizeof(Cell_info)));
-  checkCudaErrors(cudaMemset(this->dev_current_cell_labels, 0x00,
-                             this->aligned_depth_size.x *
-                                 this->aligned_depth_size.y * sizeof(int)));
-  checkCudaErrors(cudaMemset(this->dev_current_plane_labels, 0x00,
-                             this->aligned_depth_size.x *
-                                 this->aligned_depth_size.y * sizeof(int)));
+  checkCudaErrors(cudaMemset(
+      this->dev_cell_info_mat, 0x00,
+      this->cell_mat_size.x * this->cell_mat_size.y * sizeof(Cell_info)));
+  checkCudaErrors(cudaMemset(
+      this->dev_current_cell_labels, 0x00,
+      this->aligned_depth_size.x * this->aligned_depth_size.y * sizeof(int)));
+  checkCudaErrors(cudaMemset(
+      this->dev_current_plane_labels, 0x00,
+      this->aligned_depth_size.x * this->aligned_depth_size.y * sizeof(int)));
   checkCudaErrors(cudaMemset(this->dev_current_planes, 0x00,
                              (int)MAX_CURRENT_PLANES * sizeof(Plane_info)));
   checkCudaErrors(
@@ -872,9 +870,9 @@ void Plane_super_pixel_detector::init() {
       sizeof(bool));
 
   //
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_super_pixel_id_image),
-                             this->aligned_depth_size.x *
-                                 this->aligned_depth_size.y * sizeof(int)));
+  checkCudaErrors(cudaMalloc(
+      (void **)&(this->dev_super_pixel_id_image),
+      this->aligned_depth_size.x * this->aligned_depth_size.y * sizeof(int)));
   checkCudaErrors(
       cudaMalloc((void **)&(this->dev_super_pixel_mat),
                  this->super_pixel_mat_size.x * this->super_pixel_mat_size.y *
@@ -1132,8 +1130,7 @@ inline bool flood_fill_search_pixel(Cell_info *cell_mat,
     My_Type::Vector3f cell_normal(temp_cell.nx, temp_cell.ny, temp_cell.nz);
     My_Type::Vector3f plane_normal(plane_params.nx, plane_params.ny,
                                    plane_params.nz);
-    if (cell_normal.dot(plane_normal) < 0.95)
-      continue;
+    if (cell_normal.dot(plane_normal) < 0.95) continue;
 
     // Check position
     My_Type::Vector3f cell_position(temp_cell.x, temp_cell.y, temp_cell.z);
@@ -1223,11 +1220,9 @@ void build_adjacent_matrix_for_regions(Cell_info *cell_info_mat,
   for (int v_cell = 0; v_cell < cell_mat_size.height; v_cell++)
     for (int u_cell = 0; u_cell < cell_mat_size.width; u_cell++) {
       int center_index = u_cell + v_cell * cell_mat_size.width;
-      if (!cell_info_mat[center_index].is_valid_cell)
-        continue;
+      if (!cell_info_mat[center_index].is_valid_cell) continue;
       int center_plane_id = cell_info_mat[center_index].plane_index;
-      if (center_plane_id == 0)
-        continue;
+      if (center_plane_id == 0) continue;
       //
       for (int check_i = 0; check_i < search_window_size; check_i++) {
         int u_check = u_cell + search_window[check_i][0];
@@ -1237,13 +1232,10 @@ void build_adjacent_matrix_for_regions(Cell_info *cell_info_mat,
           continue;
         //
         int check_index = u_check + v_check * cell_mat_size.width;
-        if (!cell_info_mat[check_index].is_valid_cell)
-          continue;
+        if (!cell_info_mat[check_index].is_valid_cell) continue;
         int check_plane_id = cell_info_mat[check_index].plane_index;
-        if (check_plane_id == 0)
-          continue;
-        if (center_plane_id == check_plane_id)
-          continue;
+        if (check_plane_id == 0) continue;
+        if (center_plane_id == check_plane_id) continue;
         //
         adjacent_mat[center_plane_id + check_plane_id * number_of_regions] =
             true;
@@ -1272,19 +1264,17 @@ void generate_local_coordinate_host(Plane_coordinate &local_coordinate) {
   local_coordinate.y_vec = local_coordinate.z_vec.cross(local_coordinate.x_vec);
 }
 //
-inline void
-transform_to_local_coordinate_host(My_Type::Vector3f &src_point,
-                                   My_Type::Vector3f &dst_point,
-                                   Plane_coordinate &local_coordinate) {
+inline void transform_to_local_coordinate_host(
+    My_Type::Vector3f &src_point, My_Type::Vector3f &dst_point,
+    Plane_coordinate &local_coordinate) {
   dst_point.x = local_coordinate.x_vec.dot(src_point);
   dst_point.y = local_coordinate.y_vec.dot(src_point);
   dst_point.z = local_coordinate.z_vec.dot(src_point);
 }
 //
-inline void
-transform_from_local_coordinate_host(My_Type::Vector3f &src_point,
-                                     My_Type::Vector3f &dst_point,
-                                     Plane_coordinate &local_coordinate) {
+inline void transform_from_local_coordinate_host(
+    My_Type::Vector3f &src_point, My_Type::Vector3f &dst_point,
+    Plane_coordinate &local_coordinate) {
   dst_point = src_point.x * local_coordinate.x_vec +
               src_point.y * local_coordinate.y_vec +
               src_point.z * local_coordinate.z_vec;
@@ -1330,8 +1320,7 @@ void fit_params_for_planar_region(Cell_info *cell_info_mat,
     nabla[1] = 0;
     for (int index_id = 0; index_id < number_of_region_cells; index_id++) {
       int cell_index = planar_cell_index_list[index_id];
-      if (!cell_info_mat[cell_index].is_valid_cell)
-        continue;
+      if (!cell_info_mat[cell_index].is_valid_cell) continue;
 
       My_Type::Vector3f cell_position(cell_info_mat[cell_index].x,
                                       cell_info_mat[cell_index].y,
@@ -1386,8 +1375,7 @@ void fit_params_for_planar_region(Cell_info *cell_info_mat,
       float distance = 0;
       for (int index_id = 0; index_id < number_of_region_cells; index_id++) {
         int cell_index = planar_cell_index_list[index_id];
-        if (!cell_info_mat[cell_index].is_valid_cell)
-          continue;
+        if (!cell_info_mat[cell_index].is_valid_cell) continue;
 
         My_Type::Vector3f cell_position(cell_info_mat[cell_index].x,
                                         cell_info_mat[cell_index].y,
@@ -1450,8 +1438,7 @@ bool search_merge_region(int &base_id, int &search_id,
                                       plane_region_params[search_id].nz);
       const float normal_threshold = 0.95f;
       float inner_product = normal_base.dot(normal_search);
-      if (inner_product < normal_threshold)
-        continue;
+      if (inner_product < normal_threshold) continue;
       // TODO
       const float distance_threshold = 0.04f;
       My_Type::Vector3f plane_center(plane_region_params[search_id].x,
@@ -1466,8 +1453,7 @@ bool search_merge_region(int &base_id, int &search_id,
       //	   plane_center.x, plane_center.y, plane_center.z,
       //	   normal_base.x, normal_base.y, normal_base.z);
       // printf("%f, %f\n", inner_product, diff_dist);
-      if (diff_dist > distance_threshold)
-        continue;
+      if (diff_dist > distance_threshold) continue;
 
       return true;
     }
@@ -1917,11 +1903,11 @@ void Plane_super_pixel_detector::cluster_cells(
   // for (int plane_id = 1; plane_id < this->current_plane_counter; plane_id++)
   //{
   //	My_Type::Vector3f normal_vec(this->current_planes[plane_id].nx,
-  //this->current_planes[plane_id].ny, 								 this->current_planes[plane_id].nz);
-  //	printf("%d : %f, %f, %f, %f\n", plane_id,
-  //		   this->current_planes[plane_id].nx,
-  //this->current_planes[plane_id].ny, 		   this->current_planes[plane_id].nz,
-  //normal_vec.norm());
+  // this->current_planes[plane_id].ny,
+  // this->current_planes[plane_id].nz); 	printf("%d : %f, %f, %f, %f\n",
+  //plane_id, 		   this->current_planes[plane_id].nx,
+  // this->current_planes[plane_id].ny,
+  // this->current_planes[plane_id].nz, normal_vec.norm());
   //}
 
   // Re-label

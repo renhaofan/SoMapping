@@ -2,10 +2,10 @@
 
 // OpenCV
 #include <cv.h>
+#include <helper_functions.h>
+
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
-
-#include <helper_functions.h>
 //
 #include "Feature_detector/ORBextractor.h"
 #include "OurLib/My_matrix.h"
@@ -18,7 +18,7 @@
 #define NUMBER_OF_FEATURE_LEVEL 8
 
 class Feature_detector {
-public:
+ public:
   // ORB detector parameters
   const int aim_number_of_features = 300;
   const float orb_scale_factor = FEATURE_SCALE_FACTOR;
@@ -68,7 +68,7 @@ public:
   //
   void match_orb_features(int number_of_model_keypoints);
 
-private:
+ private:
   //
   void prepare_to_detect_features();
 };

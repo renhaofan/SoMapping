@@ -11,13 +11,12 @@
         \note	Singleton object!
 */
 class Main_engine {
-public:
+ public:
   //! The pointer to this static object.
   static Main_engine *instance_ptr;
   //! Member function for instantiating this static object.
   static Main_engine *instance(void) {
-    if (instance_ptr == nullptr)
-      instance_ptr = new Main_engine();
+    if (instance_ptr == nullptr) instance_ptr = new Main_engine();
     return instance_ptr;
   }
 
@@ -38,8 +37,8 @@ public:
 
   //! Initiate all components
   /*!
-          \param	argc					Input the frist argument
-     of main function.
+          \param	argc					Input the frist
+     argument of main function.
 
           \param	argv					Input the second
      argument of main function.

@@ -1,6 +1,7 @@
 
 
 #include "Map_engine/Feature_map.h"
+
 #include "math.h"
 
 //
@@ -146,8 +147,7 @@ void Feature_map::update_current_features(
 void Feature_map::save_keyframe(cv::Mat current_features,
                                 std::vector<int> current_match_to_model,
                                 DBoW3::Vocabulary &feature_voc) {
-  if (current_features.rows < 10)
-    return;
+  if (current_features.rows < 10) return;
 
   //
   this->keyframe_feature_mapper_list.push_back(current_match_to_model);
@@ -163,8 +163,7 @@ void Feature_map::save_keyframe(cv::Mat current_features,
   int valid_counter = 0;
   for (int point_id = 0; point_id < current_match_to_model.size(); point_id++) {
     int model_keypoint_id = current_match_to_model[point_id];
-    if (model_keypoint_id < 0)
-      continue;
+    if (model_keypoint_id < 0) continue;
 
     My_Type::Vector3f temp_point =
         this->model_keypoints[model_keypoint_id].point;
@@ -239,8 +238,7 @@ void Feature_map::get_model_keypoints(
             int model_point_index = (*point_index_iter).second;
 
             //
-            if (!this->model_keypoints[model_point_index].is_valid)
-              continue;
+            if (!this->model_keypoints[model_point_index].is_valid) continue;
             // Get keypoint position
             model_point_vec = this->model_keypoints[model_point_index].point;
             // Push back keypoints and indexes

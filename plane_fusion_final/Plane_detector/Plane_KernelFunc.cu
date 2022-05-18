@@ -10,8 +10,9 @@
 #include <helper_cuda.h>
 #include <helper_functions.h>
 //
-#include "Plane_KernelFunc.cuh"
 #include <float.h>
+
+#include "Plane_KernelFunc.cuh"
 
 // Warp Reduce
 template <typename T>
@@ -24,11 +25,10 @@ inline __device__ void block_256_reduce(volatile T *cache_T, int tid);
 //#define PI	3.1415926
 
 // Fit plane for each patch
-__global__ void
-fit_plane_for_cells_KernelFunc(const My_Type::Vector3f *current_points,
-                               const My_Type::Vector3f *current_normals,
-                               Sensor_params sensor_params,
-                               Cell_info *cell_info_mat) {
+__global__ void fit_plane_for_cells_KernelFunc(
+    const My_Type::Vector3f *current_points,
+    const My_Type::Vector3f *current_normals, Sensor_params sensor_params,
+    Cell_info *cell_info_mat) {
   // Coordinate/index of cell
   int u_cell = blockIdx.x;
   int v_cell = blockIdx.y;
@@ -42,12 +42,10 @@ fit_plane_for_cells_KernelFunc(const My_Type::Vector3f *current_points,
   bool is_valid_cell = true;
   // Load and validate point position
   My_Type::Vector3f current_point = current_points[index];
-  if (current_point.z < FLT_EPSILON)
-    is_valid_cell = false;
+  if (current_point.z < FLT_EPSILON) is_valid_cell = false;
   // Load and validate point normal vector existence
   My_Type::Vector3f current_normal = current_normals[index];
-  if (current_normal.norm() < FLT_EPSILON)
-    is_valid_cell = false;
+  if (current_normal.norm() < FLT_EPSILON) is_valid_cell = false;
 
 #pragma region(Compute position of points in this cell)
 
@@ -82,7 +80,6 @@ fit_plane_for_cells_KernelFunc(const My_Type::Vector3f *current_points,
   weight_center /= valid_num;
 
   if (tid == 0 && is_valid_cell) {
-
     // Save the weight center position
     cell_info_mat[cell_index].x = weight_center.x;
     cell_info_mat[cell_index].y = weight_center.y;
@@ -194,8 +191,7 @@ fit_plane_for_cells_KernelFunc(const My_Type::Vector3f *current_points,
   float prj_value = cell_normal.x * current_point.x +
                     cell_normal.y * current_point.y +
                     cell_normal.z * current_point.z;
-  if (fabsf(prj_value) > 1e-2f)
-    is_valid_cell = false;
+  if (fabsf(prj_value) > 1e-2f) is_valid_cell = false;
 
   // Reduce Patch
   cache_float1[tid] = 0.0f;
@@ -220,7 +216,6 @@ void fit_plane_for_cells_CUDA(dim3 block_rect, dim3 thread_rect,
                               const My_Type::Vector3f *current_normals,
                               Sensor_params sensor_params,
                               Cell_info *cell_info_mat) {
-
   fit_plane_for_cells_KernelFunc<<<block_rect, thread_rect>>>(
       current_points, current_normals, sensor_params, cell_info_mat);
 }
@@ -252,10 +247,8 @@ __global__ void histogram_PxPy_KernelFunc(const Cell_info *cell_info_mat,
     py = 2.0f * cell_info_mat[cell_index].ny /
          (1.0f - cell_info_mat[cell_index].nz);
     //
-    if ((px >= max_range) || (px <= -max_range))
-      is_valid_cell = false;
-    if ((py >= max_range) || (py <= -max_range))
-      is_valid_cell = false;
+    if ((px >= max_range) || (px <= -max_range)) is_valid_cell = false;
+    if ((py >= max_range) || (py <= -max_range)) is_valid_cell = false;
   }
 
   //
@@ -300,7 +293,6 @@ __global__ void histogram_PxPy_KernelFunc(const Cell_info *cell_info_mat,
 // Cpp call CUDA
 void histogram_PxPy_CUDA(dim3 block_rect, dim3 thread_rect,
                          Cell_info *cell_info_mat, float *hist_PxPy) {
-
   histogram_PxPy_KernelFunc<<<block_rect, thread_rect>>>(cell_info_mat,
                                                          hist_PxPy);
 }
@@ -320,15 +312,12 @@ __global__ void find_PxPy_peaks_KernelFunc(const float *hist_mat,
   //
   const float max_range = (HISTOGRAM_WIDTH / 2 - 1) * HISTOGRAM_STEP;
   //
-  if ((px >= max_range) || (px <= -max_range))
-    return;
-  if ((py >= max_range) || (py <= -max_range))
-    return;
+  if ((px >= max_range) || (px <= -max_range)) return;
+  if ((py >= max_range) || (py <= -max_range)) return;
 
   //
   float peak_value = hist_mat[index];
-  if (peak_value < MIN_CELLS_OF_DIRECTION / 4.0)
-    return;
+  if (peak_value < MIN_CELLS_OF_DIRECTION / 4.0) return;
 
   // Read neigthbor value
   float neighbor_value[3][3];
@@ -382,7 +371,6 @@ __global__ void find_PxPy_peaks_KernelFunc(const float *hist_mat,
 // Cpp call CUDA
 void find_PxPy_peaks_CUDA(dim3 block_rect, dim3 thread_rect, float *hist_mat,
                           Hist_normal *hist_normal, int *peak_counter) {
-
   find_PxPy_peaks_KernelFunc<<<block_rect, thread_rect>>>(hist_mat, hist_normal,
                                                           peak_counter);
 }
@@ -398,8 +386,7 @@ __global__ void histogram_prj_dist_KernelFunc(const Cell_info *cell_info_mat,
 
   // Validate cell
   int valid_counter = cell_info_mat[cell_index].counter;
-  if (valid_counter < MIN_VALID_POINTS_IN_CELL)
-    is_valid_cell = false;
+  if (valid_counter < MIN_VALID_POINTS_IN_CELL) is_valid_cell = false;
 
   // Compute included angle between plane normal and cell normal
   My_Type::Vector3f plane_normal;
@@ -447,7 +434,6 @@ void histogram_prj_dist_CUDA(dim3 block_rect, dim3 thread_rect,
                              const Cell_info *cell_info_mat,
                              const Hist_normal *hist_normal,
                              float *prj_dist_hist) {
-
   histogram_prj_dist_KernelFunc<<<block_rect, thread_rect>>>(
       cell_info_mat, hist_normal, prj_dist_hist);
 }
@@ -463,8 +449,7 @@ __global__ void find_prj_dist_peaks_KernelFunc(const float *prj_dist_hist,
   //
   float number_of_cells[3];
   number_of_cells[1] = prj_dist_hist[index];
-  if (number_of_cells[1] < MIN_CELLS_OF_PLANE * 0.2659)
-    is_valid_dist = false;
+  if (number_of_cells[1] < MIN_CELLS_OF_PLANE * 0.2659) is_valid_dist = false;
 
   //
   if (is_valid_dist) {
@@ -491,23 +476,20 @@ void find_prj_dist_peaks_CUDA(dim3 block_rect, dim3 thread_rect,
                               const float *prj_dist_hist,
                               const Hist_normal *hist_normal, int *peak_index,
                               Plane_info *current_planes) {
-
   find_prj_dist_peaks_KernelFunc<<<block_rect, thread_rect>>>(
       prj_dist_hist, hist_normal, peak_index, current_planes);
 }
 
 #pragma region(GPU K - means)
 // 1. Mark plane label for each cells
-__global__ void
-mark_plane_label_for_cells_KernelFunc(const Plane_info *current_plane,
-                                      Cell_info *cell_info_mat, int plane_num) {
+__global__ void mark_plane_label_for_cells_KernelFunc(
+    const Plane_info *current_plane, Cell_info *cell_info_mat, int plane_num) {
   int cell_index = threadIdx.x + blockDim.x * blockIdx.x;
   bool is_valid_cell = true;
 
   // Validate cell
   int valid_counter = cell_info_mat[cell_index].counter;
-  if (valid_counter < MIN_VALID_POINTS_IN_CELL)
-    is_valid_cell = false;
+  if (valid_counter < MIN_VALID_POINTS_IN_CELL) is_valid_cell = false;
 
   // Compute inlcuded angle
   if (is_valid_cell) {
@@ -525,8 +507,7 @@ mark_plane_label_for_cells_KernelFunc(const Plane_info *current_plane,
     int match_plane_index = 0;
     float min_para_distance = FLT_MAX;
     for (int i = 1; i < plane_num; i++) {
-      if (current_plane[i].is_valid == false)
-        continue;
+      if (current_plane[i].is_valid == false) continue;
 
       plane_nx = current_plane[i].nx;
       plane_ny = current_plane[i].ny;
@@ -544,8 +525,7 @@ mark_plane_label_for_cells_KernelFunc(const Plane_info *current_plane,
       float d_diff = fabsf(plane_d - prj_d);
 
       // 3 sigma criterion
-      if (d_diff > 2 * MIN_PLANE_DISTANCE)
-        continue;
+      if (d_diff > 2 * MIN_PLANE_DISTANCE) continue;
 
       //
       if (d_diff < min_para_distance) {
@@ -568,17 +548,15 @@ __global__ void reset_K_means_state_KernelFunc(Plane_info *current_plane) {
   current_plane[plane_index].d = 0.0;
 }
 // 3. Sum plane parameters
-__global__ void
-compute_mean_plane_para_KernelFunc(const Cell_info *cell_info_mat,
-                                   Cell_info *plane_mean_paramters,
-                                   int plane_num) {
+__global__ void compute_mean_plane_para_KernelFunc(
+    const Cell_info *cell_info_mat, Cell_info *plane_mean_paramters,
+    int plane_num) {
   int cell_index = threadIdx.x + blockDim.x * blockIdx.x;
   bool is_valid_cell = true;
 
   // Validate cell information
   int cell_pixel_number = cell_info_mat[cell_index].counter;
-  if (cell_pixel_number < MIN_VALID_POINTS_IN_CELL)
-    is_valid_cell = false;
+  if (cell_pixel_number < MIN_VALID_POINTS_IN_CELL) is_valid_cell = false;
   //
   int cell_plane_index = cell_info_mat[cell_index].plane_index;
   if (cell_plane_index >= MAX_CURRENT_PLANES || cell_plane_index == 0)
@@ -650,14 +628,12 @@ compute_mean_plane_para_KernelFunc(const Cell_info *cell_info_mat,
   }
 }
 // 3. Compute mean parameter of planes
-__global__ void
-compute_plane_mean_para_KernelFunc(Cell_info *plane_mean_paramters,
-                                   int plane_num) {
+__global__ void compute_plane_mean_para_KernelFunc(
+    Cell_info *plane_mean_paramters, int plane_num) {
   int plane_index = blockIdx.x;
   // Validate
   int cell_pixel_number = plane_mean_paramters[plane_index].counter;
-  if (cell_pixel_number == 0)
-    return;
+  if (cell_pixel_number == 0) return;
 
   // Compute mean value
   plane_mean_paramters[plane_index].x /= (float)cell_pixel_number;
@@ -676,8 +652,7 @@ __global__ void recompute_plane_normal_step1_KernelFunc(
   bool is_valid_cell = true;
   // Validate cell
   int cell_pixel_number = cell_info_mat[cell_index].counter;
-  if (cell_pixel_number < MIN_VALID_POINTS_IN_CELL)
-    is_valid_cell = false;
+  if (cell_pixel_number < MIN_VALID_POINTS_IN_CELL) is_valid_cell = false;
   // Validate plane index
   int cell_plane_index = cell_info_mat[cell_index].plane_index;
   if (cell_plane_index >= MAX_CURRENT_PLANES || cell_plane_index == 0)
@@ -728,8 +703,7 @@ __global__ void recompute_plane_normal_step1_KernelFunc(
       __syncthreads();
       cache_f[tid] = ATb[i];
       block_256_reduce(cache_f, tid);
-      if (tid == 0)
-        atomicAdd(&ATb_buffer[plane_index * 2 + i], cache_f[0]);
+      if (tid == 0) atomicAdd(&ATb_buffer[plane_index * 2 + i], cache_f[0]);
     }
 
     // Count valid cells
@@ -739,8 +713,7 @@ __global__ void recompute_plane_normal_step1_KernelFunc(
       cache_f[tid] = 0.0;
     }
     block_256_reduce(cache_f, tid);
-    if (tid == 0)
-      atomicAdd(&current_plane[plane_index].cell_num, cache_f[0]);
+    if (tid == 0) atomicAdd(&current_plane[plane_index].cell_num, cache_f[0]);
   }
 }
 // 4. Re-compute plane normal vector (step 2)
@@ -810,8 +783,7 @@ __global__ void recompute_plane_distance_step1_KernelFunc(
 
   // Validate cell
   int valid_counter = cell_info_mat[cell_index].counter;
-  if (valid_counter < MIN_VALID_POINTS_IN_CELL)
-    is_valid_cell = false;
+  if (valid_counter < MIN_VALID_POINTS_IN_CELL) is_valid_cell = false;
   // Validate plane
   int cell_plane_index = cell_info_mat[cell_index].plane_index;
   if (cell_plane_index > MAX_CURRENT_PLANES || cell_plane_index == 0)
@@ -842,13 +814,12 @@ __global__ void recompute_plane_distance_step1_KernelFunc(
     // Reduce plane distance
     cache_f[tid] = prj_distance;
     block_256_reduce(cache_f, tid);
-    if (tid == 0)
-      atomicAdd(&current_plane[plane_index].d, cache_f[0]);
+    if (tid == 0) atomicAdd(&current_plane[plane_index].d, cache_f[0]);
   }
 }
 // （2）
-__global__ void
-recompute_plane_distance_step2_KernelFunc(Plane_info *current_plane) {
+__global__ void recompute_plane_distance_step2_KernelFunc(
+    Plane_info *current_plane) {
   //
   int plane_index = blockIdx.x;
   current_plane[plane_index].d /= current_plane[plane_index].cell_num;
@@ -859,7 +830,6 @@ void K_mean_iterate_CUDA(dim3 block_rect, dim3 thread_rect,
                          Cell_info *plane_mean_paramters,
                          float *ATA_upper_buffer, float *ATb_buffer,
                          int plane_num) {
-
   // 1. Mark plane label for each cell
   mark_plane_label_for_cells_KernelFunc<<<block_rect, thread_rect>>>(
       current_plane, cell_info_mat, plane_num);
@@ -907,7 +877,6 @@ __global__ void label_current_planes_KernelFunc(const Cell_info *cell_info_mat,
 void label_current_planes_CUDA(dim3 block_rect, dim3 thread_rect,
                                const Cell_info *cell_info_mat,
                                int *current_plane_labels) {
-
   label_current_planes_KernelFunc<<<block_rect, thread_rect>>>(
       cell_info_mat, current_plane_labels);
 }
@@ -926,7 +895,6 @@ __global__ void count_planar_pixel_number_KernelFunc(const int *plane_labels,
   int tid = threadIdx.x + threadIdx.y * blockDim.x;
   // Count each plane
   for (int plane_index = 0; plane_index < plane_counter; plane_index++) {
-
     //
     if (plane_index == plane_label) {
       counter_cache[tid] = 1;
@@ -945,7 +913,6 @@ __global__ void count_planar_pixel_number_KernelFunc(const int *plane_labels,
 void count_planar_pixel_number_CUDA(dim3 block_rect, dim3 thread_rect,
                                     const int *plane_labels,
                                     Plane_info *plane_list, int plane_counter) {
-
   count_planar_pixel_number_KernelFunc<<<block_rect, thread_rect>>>(
       plane_labels, plane_list, plane_counter);
 }
@@ -989,7 +956,6 @@ void count_overlap_pxiel_number_CUDA(dim3 block_rect, dim3 thread_rect,
                                      const int *model_plane_labels,
                                      int current_plane_counter,
                                      int *relative_matrix) {
-
   count_overlap_pxiel_number_KernelFunc<<<block_rect, thread_rect>>>(
       current_plane_labels, model_plane_labels, current_plane_counter,
       relative_matrix);
@@ -999,14 +965,11 @@ void count_overlap_pxiel_number_CUDA(dim3 block_rect, dim3 thread_rect,
 template <typename T>
 inline __device__ void block_256_reduce(volatile T *cache_T, int tid) {
   __syncthreads();
-  if (tid < 128)
-    cache_T[tid] += cache_T[tid + 128];
+  if (tid < 128) cache_T[tid] += cache_T[tid + 128];
   __syncthreads();
-  if (tid < 64)
-    cache_T[tid] += cache_T[tid + 64];
+  if (tid < 64) cache_T[tid] += cache_T[tid + 64];
   __syncthreads();
-  if (tid < 32)
-    warp_reduce(cache_T, tid);
+  if (tid < 32) warp_reduce(cache_T, tid);
   __syncthreads();
 }
 

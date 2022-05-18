@@ -7,9 +7,10 @@
 #pragma once
 
 //!
-#include "My_quaternions.h"
 #include <Eigen/Dense>
 #include <unsupported/Eigen/FFT>
+
+#include "My_quaternions.h"
 
 //! Convert Eigen::Quaternion<T> to My_Type::My_quaternions<T>
 template <typename T>

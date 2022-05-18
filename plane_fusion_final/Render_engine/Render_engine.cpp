@@ -11,8 +11,9 @@
 #include <helper_functions.h>
 
 // C/C++ IO
-#include <iostream>
 #include <stdio.h>
+
+#include <iostream>
 using namespace std;
 
 //
@@ -282,38 +283,38 @@ void Render_engine::render_scene_points(MainViewportRenderMode render_mode) {
                      sizeof(My_Type::Vector4uc)));
   //
   switch (render_mode) {
-  case PHONG_RENDER: {
-    //
-    checkCudaErrors(cudaMemcpy(this->dev_scene_normals, this->scene_normals,
-                               this->scene_depth_size.width *
-                                   this->scene_depth_size.height *
-                                   sizeof(My_Type::Vector3f),
-                               cudaMemcpyHostToDevice));
+    case PHONG_RENDER: {
+      //
+      checkCudaErrors(cudaMemcpy(this->dev_scene_normals, this->scene_normals,
+                                 this->scene_depth_size.width *
+                                     this->scene_depth_size.height *
+                                     sizeof(My_Type::Vector3f),
+                                 cudaMemcpyHostToDevice));
 
-    //
-    thread_rect.x =
-        SLAM_system_settings::instance()->image_alginment_patch_width;
-    thread_rect.y =
-        SLAM_system_settings::instance()->image_alginment_patch_width;
-    thread_rect.z = 1;
-    block_rect.x = this->scene_depth_size.width / (float)thread_rect.x;
-    block_rect.y = this->scene_depth_size.height / (float)thread_rect.y;
-    block_rect.z = 1;
-    //
-    render_gypsum_CUDA(block_rect, thread_rect, this->dev_scene_normals,
-                       this->dev_scene_points_color);
-    // CUDA_CKECK_KERNEL;
+      //
+      thread_rect.x =
+          SLAM_system_settings::instance()->image_alginment_patch_width;
+      thread_rect.y =
+          SLAM_system_settings::instance()->image_alginment_patch_width;
+      thread_rect.z = 1;
+      block_rect.x = this->scene_depth_size.width / (float)thread_rect.x;
+      block_rect.y = this->scene_depth_size.height / (float)thread_rect.y;
+      block_rect.z = 1;
+      //
+      render_gypsum_CUDA(block_rect, thread_rect, this->dev_scene_normals,
+                         this->dev_scene_points_color);
+      // CUDA_CKECK_KERNEL;
 
-    break;
-  }
-  case SDF_WEIGHT_RENDER: {
-    break;
-  }
-  case SEMANTIC_PLANE_RENDER: {
-    break;
-  }
-  default:
-    break;
+      break;
+    }
+    case SDF_WEIGHT_RENDER: {
+      break;
+    }
+    case SEMANTIC_PLANE_RENDER: {
+      break;
+    }
+    default:
+      break;
   }
 
   // Copy color buffer
@@ -423,36 +424,36 @@ void Render_engine::generate_normal_segment_line(
     block_rect.y = this->scene_depth_size.height / (float)thread_rect.y;
     block_rect.z = 1;
     switch (normals_source) {
-    case NormalsSource::DEPTH_NORMAL: {
-      generate_line_segment_CUDA(
-          block_rect, thread_rect, dev_raw_aligned_points, dev_normals,
-          this->dev_current_hierarchy_normal_to_draw.data_ptrs[0]);
-      // CUDA_CKECK_KERNEL;
-      //
-      checkCudaErrors(
-          cudaMemcpy(this->current_hierarchy_normal_to_draw.data_ptrs[0],
-                     this->dev_current_hierarchy_normal_to_draw.data_ptrs[0],
-                     this->depth_size.width * this->depth_size.height *
-                         sizeof(My_Type::Line_segment),
-                     cudaMemcpyDeviceToHost));
-      break;
-    }
-    case NormalsSource::MODEL_NORMAL: {
-      generate_line_segment_CUDA(
-          block_rect, thread_rect, dev_raw_aligned_points, dev_normals,
-          this->dev_model_hierarchy_normal_to_draw.data_ptrs[0]);
-      // CUDA_CKECK_KERNEL;
-      //
-      checkCudaErrors(
-          cudaMemcpy(this->model_hierarchy_normal_to_draw.data_ptrs[0],
-                     this->dev_model_hierarchy_normal_to_draw.data_ptrs[0],
-                     this->depth_size.width * this->depth_size.height *
-                         sizeof(My_Type::Line_segment),
-                     cudaMemcpyDeviceToHost));
-      break;
-    }
-    default:
-      break;
+      case NormalsSource::DEPTH_NORMAL: {
+        generate_line_segment_CUDA(
+            block_rect, thread_rect, dev_raw_aligned_points, dev_normals,
+            this->dev_current_hierarchy_normal_to_draw.data_ptrs[0]);
+        // CUDA_CKECK_KERNEL;
+        //
+        checkCudaErrors(
+            cudaMemcpy(this->current_hierarchy_normal_to_draw.data_ptrs[0],
+                       this->dev_current_hierarchy_normal_to_draw.data_ptrs[0],
+                       this->depth_size.width * this->depth_size.height *
+                           sizeof(My_Type::Line_segment),
+                       cudaMemcpyDeviceToHost));
+        break;
+      }
+      case NormalsSource::MODEL_NORMAL: {
+        generate_line_segment_CUDA(
+            block_rect, thread_rect, dev_raw_aligned_points, dev_normals,
+            this->dev_model_hierarchy_normal_to_draw.data_ptrs[0]);
+        // CUDA_CKECK_KERNEL;
+        //
+        checkCudaErrors(
+            cudaMemcpy(this->model_hierarchy_normal_to_draw.data_ptrs[0],
+                       this->dev_model_hierarchy_normal_to_draw.data_ptrs[0],
+                       this->depth_size.width * this->depth_size.height *
+                           sizeof(My_Type::Line_segment),
+                       cudaMemcpyDeviceToHost));
+        break;
+      }
+      default:
+        break;
     }
   }
 }
@@ -470,8 +471,7 @@ void Render_engine::generate_voxel_block_lines(HashEntry *dev_entries,
   this->number_of_blocks = 0;
   for (int entry_id = 0; entry_id < number_of_entries; entry_id++) {
     HashEntry temp_entry = this->enties_buffer[entry_id];
-    if (temp_entry.ptr < 0)
-      continue;
+    if (temp_entry.ptr < 0) continue;
 
     allocated_entries.push_back(temp_entry);
     this->number_of_blocks++;

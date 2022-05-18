@@ -3,8 +3,9 @@
 #pragma once
 
 //
-#include <iostream>
 #include <math.h>
+
+#include <iostream>
 
 #if defined(__CUDACC__) && defined(__CUDA_ARCH__)
 //#if defined(__global__)
@@ -17,7 +18,8 @@
 namespace My_Type {
 
 // Vector-2 structure
-template <typename T> struct Vector2_ {
+template <typename T>
+struct Vector2_ {
   union {
     struct {
       T x, y;
@@ -33,7 +35,8 @@ template <typename T> struct Vector2_ {
 };
 
 // Vector-3 structure
-template <typename T> struct Vector3_ {
+template <typename T>
+struct Vector3_ {
   union {
     struct {
       T x, y, z;
@@ -49,7 +52,8 @@ template <typename T> struct Vector3_ {
 };
 
 // Vector-4 structure
-template <typename T> struct Vector4_ {
+template <typename T>
+struct Vector4_ {
   union {
     struct {
       T x, y, z, w;
@@ -62,11 +66,15 @@ template <typename T> struct Vector4_ {
 };
 
 // Vector-X structure
-template <typename T, int Length> struct VectorX_ { T data[Length]; };
+template <typename T, int Length>
+struct VectorX_ {
+  T data[Length];
+};
 
 //! Vector-2 template class
-template <typename T> class Vector2 : public Vector2_<T> {
-public:
+template <typename T>
+class Vector2 : public Vector2_<T> {
+ public:
   //
   _IS_CUDA_CODE_ Vector2(){};
   // explicit
@@ -260,8 +268,9 @@ public:
   }
 };
 //! Vector-3 template class
-template <typename T> class Vector3 : public Vector3_<T> {
-public:
+template <typename T>
+class Vector3 : public Vector3_<T> {
+ public:
   //
   _IS_CUDA_CODE_ Vector3(){};
   // explicit
@@ -392,29 +401,29 @@ public:
   }
   // Volatile variables ----------------------- TODO : chech this for volatile
   // variables!
-  _IS_CUDA_CODE_ inline friend volatile Vector3<T> &
-  operator+=(volatile Vector3<T> &vec_l, volatile Vector3<T> &vec_r) {
+  _IS_CUDA_CODE_ inline friend volatile Vector3<T> &operator+=(
+      volatile Vector3<T> &vec_l, volatile Vector3<T> &vec_r) {
     vec_l.x += vec_r.x;
     vec_l.y += vec_r.y;
     vec_l.z += vec_r.z;
     return vec_l;
   }
-  _IS_CUDA_CODE_ inline friend volatile Vector3<T> &
-  operator-=(volatile Vector3<T> &vec_l, volatile Vector3<T> &vec_r) {
+  _IS_CUDA_CODE_ inline friend volatile Vector3<T> &operator-=(
+      volatile Vector3<T> &vec_l, volatile Vector3<T> &vec_r) {
     vec_l.x -= vec_r.x;
     vec_l.y -= vec_r.y;
     vec_l.z -= vec_r.z;
     return vec_l;
   }
-  _IS_CUDA_CODE_ inline friend volatile Vector3<T> &
-  operator*=(volatile Vector3<T> &vec_l, volatile Vector3<T> &vec_r) {
+  _IS_CUDA_CODE_ inline friend volatile Vector3<T> &operator*=(
+      volatile Vector3<T> &vec_l, volatile Vector3<T> &vec_r) {
     vec_l.x *= vec_r.x;
     vec_l.y *= vec_r.y;
     vec_l.z *= vec_r.z;
     return vec_l;
   }
-  _IS_CUDA_CODE_ inline friend volatile Vector3<T> &
-  operator/=(volatile Vector3<T> &vec_l, volatile Vector3<T> &vec_r) {
+  _IS_CUDA_CODE_ inline friend volatile Vector3<T> &operator/=(
+      volatile Vector3<T> &vec_l, volatile Vector3<T> &vec_r) {
     vec_l.x /= vec_r.x;
     vec_l.y /= vec_r.y;
     vec_l.z /= vec_r.z;
@@ -510,8 +519,9 @@ public:
   }
 };
 //! Vector-4 template class
-template <typename T> class Vector4 : public Vector4_<T> {
-public:
+template <typename T>
+class Vector4 : public Vector4_<T> {
+ public:
   //
   _IS_CUDA_CODE_ Vector4(){};
   // explicit
@@ -741,8 +751,9 @@ public:
 };
 
 //   -X    （  ，     ，            ！）
-template <typename T, int Length> class VectorX : public VectorX_<T, Length> {
-public:
+template <typename T, int Length>
+class VectorX : public VectorX_<T, Length> {
+ public:
   //
   _IS_CUDA_CODE_ VectorX(){};
   // explicit
@@ -768,129 +779,129 @@ public:
 
   //      （    ，     ！）
   //    += -= *= /=
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &
-  operator+=(VectorX<T, Length> &vec, T value) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &operator+=(
+      VectorX<T, Length> &vec, T value) {
     for (int i = 0; i < Length; i++) {
       vec[i] += value;
     }
     return vec;
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &
-  operator-=(VectorX<T, Length> &vec, T value) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &operator-=(
+      VectorX<T, Length> &vec, T value) {
     for (int i = 0; i < Length; i++) {
       vec[i] -= value;
     }
     return vec;
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &
-  operator*=(VectorX<T, Length> &vec, T value) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &operator*=(
+      VectorX<T, Length> &vec, T value) {
     for (int i = 0; i < Length; i++) {
       vec[i] *= value;
     }
     return vec;
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &
-  operator/=(VectorX<T, Length> &vec, T value) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &operator/=(
+      VectorX<T, Length> &vec, T value) {
     for (int i = 0; i < Length; i++) {
       vec[i] /= value;
     }
     return vec;
   }
   //      （        ） += -= *= /=
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &
-  operator+=(VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &operator+=(
+      VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
     for (int i = 0; i < Length; i++) {
       vec_l[i] += vec_r[i];
     }
     return vec_l;
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &
-  operator-=(VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &operator-=(
+      VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
     for (int i = 0; i < Length; i++) {
       vec_l[i] -= vec_r[i];
     }
     return vec_l;
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &
-  operator*=(VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &operator*=(
+      VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
     for (int i = 0; i < Length; i++) {
       vec_l[i] *= vec_r[i];
     }
     return vec_l;
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &
-  operator/=(VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> &operator/=(
+      VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
     for (int i = 0; i < Length; i++) {
       vec_l[i] /= vec_r[i];
     }
     return vec_l;
   }
   //    + - * /
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator+(const VectorX<T, Length> &vec_l, T value) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator+(
+      const VectorX<T, Length> &vec_l, T value) {
     VectorX<T, Length> vec_return(vec_l);
     return (vec_return += value);
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator+(T value, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator+(
+      T value, const VectorX<T, Length> &vec_r) {
     VectorX<T, Length> vec_return(vec_r);
     return (vec_return += value);
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator-(const VectorX<T, Length> &vec_l, T value) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator-(
+      const VectorX<T, Length> &vec_l, T value) {
     VectorX<T, Length> vec_return(vec_l);
     return (vec_return -= value);
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator-(T value, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator-(
+      T value, const VectorX<T, Length> &vec_r) {
     VectorX<T, Length> vec_return(vec_r);
     return (vec_return -= value);
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator*(const VectorX<T, Length> &vec_l, T value) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator*(
+      const VectorX<T, Length> &vec_l, T value) {
     VectorX<T, Length> vec_return(vec_l);
     return (vec_return *= value);
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator*(T value, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator*(
+      T value, const VectorX<T, Length> &vec_r) {
     VectorX<T, Length> vec_return(vec_r);
     return (vec_return *= value);
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator/(const VectorX<T, Length> &vec_l, T value) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator/(
+      const VectorX<T, Length> &vec_l, T value) {
     VectorX<T, Length> vec_return(vec_l);
     return (vec_return /= value);
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator/(T value, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator/(
+      T value, const VectorX<T, Length> &vec_r) {
     VectorX<T, Length> vec_return(vec_r);
     return (vec_return /= value);
   }
   //      （        ） + - * /
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator+(const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator+(
+      const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
     VectorX<T, Length> vec_return(vec_l);
     return (vec_return += vec_r);
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator-(const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator-(
+      const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
     VectorX<T, Length> vec_return(vec_l);
     return (vec_return -= vec_r);
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator*(const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator*(
+      const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
     VectorX<T, Length> vec_return(vec_l);
     return (vec_return *= vec_r);
   }
-  _IS_CUDA_CODE_ inline friend VectorX<T, Length>
-  operator/(const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend VectorX<T, Length> operator/(
+      const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
     VectorX<T, Length> vec_return(vec_l);
     return (vec_return /= vec_r);
   }
 
   //
-  _IS_CUDA_CODE_ inline friend bool
-  operator==(const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend bool operator==(
+      const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
     bool flag = true;
     for (int i = 0; i < Length; i++) {
       if (vec_l[i] != vec_r[i]) {
@@ -900,8 +911,8 @@ public:
     }
     return flag;
   }
-  _IS_CUDA_CODE_ inline friend bool
-  operator!=(const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
+  _IS_CUDA_CODE_ inline friend bool operator!=(
+      const VectorX<T, Length> &vec_l, const VectorX<T, Length> &vec_r) {
     bool flag = false;
     for (int i = 0; i < Length; i++) {
       if (vec_l[i] != vec_r[i]) {
@@ -913,8 +924,8 @@ public:
   }
 
   //
-  _IS_CUDA_CODE_ inline friend std::ostream &
-  operator<<(std::ostream &os, const VectorX<T, Length> &vec) {
+  _IS_CUDA_CODE_ inline friend std::ostream &operator<<(
+      std::ostream &os, const VectorX<T, Length> &vec) {
     for (int i = 0; i < Length; i++) {
       os << vec[i] << ", ";
     }
@@ -923,9 +934,9 @@ public:
 };
 
 // Reference: Eigen 3.2
-#define MAKE_TYPES(Type, TypeSuffix)                                           \
-  typedef Vector2<Type> Vector2##TypeSuffix;                                   \
-  typedef Vector3<Type> Vector3##TypeSuffix;                                   \
+#define MAKE_TYPES(Type, TypeSuffix)         \
+  typedef Vector2<Type> Vector2##TypeSuffix; \
+  typedef Vector3<Type> Vector3##TypeSuffix; \
   typedef Vector4<Type> Vector4##TypeSuffix;
 
 MAKE_TYPES(float, f);
@@ -943,4 +954,4 @@ typedef struct _Line_segment {
   My_Type::Vector3f origin;
   My_Type::Vector3f dst;
 } Line_segment;
-} // namespace My_Type
+}  // namespace My_Type

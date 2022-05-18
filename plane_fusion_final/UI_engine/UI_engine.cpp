@@ -22,8 +22,7 @@ UI_engine::UI_engine() {
   this->reshape_ratio = 1.0f;
 
   //
-  for (int i = 0; i < 10; i++)
-    this->view_flag_list[i] = true;
+  for (int i = 0; i < 10; i++) this->view_flag_list[i] = true;
   //
   this->view_flag_list[0] = false;
   this->view_flag_list[1] = false;
@@ -311,8 +310,7 @@ void UI_engine::render_main_viewport() {
     Eigen::Matrix4f GL_view_pose;
     float *ptr_f = GL_view_pose.data();
     if (true) {
-      for (int i = 0; i < 16; i++)
-        ptr_f[i] = this->GL_camera_Frame.mat[i];
+      for (int i = 0; i < 16; i++) ptr_f[i] = this->GL_camera_Frame.mat[i];
     } else {
       GL_view_pose.setIdentity();
     }
@@ -789,21 +787,21 @@ void UI_engine::render_main_viewport() {
       glPointSize(1.0f);
       glLineWidth(1.0f);
       /*glBegin(GL_LINES);
-                  for (int i = 0; i <
-         this->SLAM_system_ptr->mesh_of_total_map.number_of_triangles; i++)
-                  {
-                          My_Type::Vector3f p0 =
-         this->SLAM_system_ptr->mesh_of_total_map.triangles[i * 3 + 0];
-                          My_Type::Vector3f p1 =
-         this->SLAM_system_ptr->mesh_of_total_map.triangles[i * 3 + 1];
-                          My_Type::Vector3f p2 =
-         this->SLAM_system_ptr->mesh_of_total_map.triangles[i * 3 + 2];
-                          glVertex3f(p0.x, p0.y, p0.z);	glVertex3f(p1.x, p1.y,
-         p1.z); glVertex3f(p1.x, p1.y, p1.z);	glVertex3f(p2.x, p2.y, p2.z);
-                          glVertex3f(p2.x, p2.y, p2.z);	glVertex3f(p0.x, p0.y,
-         p0.z);
-                  }
-                  glEnd();*/
+            for (int i = 0; i <
+   this->SLAM_system_ptr->mesh_of_total_map.number_of_triangles; i++)
+            {
+                    My_Type::Vector3f p0 =
+   this->SLAM_system_ptr->mesh_of_total_map.triangles[i * 3 + 0];
+                    My_Type::Vector3f p1 =
+   this->SLAM_system_ptr->mesh_of_total_map.triangles[i * 3 + 1];
+                    My_Type::Vector3f p2 =
+   this->SLAM_system_ptr->mesh_of_total_map.triangles[i * 3 + 2];
+                    glVertex3f(p0.x, p0.y, p0.z);	glVertex3f(p1.x, p1.y,
+   p1.z); glVertex3f(p1.x, p1.y, p1.z);	glVertex3f(p2.x, p2.y, p2.z);
+                    glVertex3f(p2.x, p2.y, p2.z);	glVertex3f(p0.x, p0.y,
+   p0.z);
+            }
+            glEnd();*/
 
       if (this->mesh_render_mode == 1) {
         glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -815,8 +813,7 @@ void UI_engine::render_main_viewport() {
       glEnable(GL_LIGHT0);
       glEnableClientState(GL_VERTEX_ARRAY);
       glEnableClientState(GL_NORMAL_ARRAY);
-      if (this->mesh_render_mode == 1)
-        glEnableClientState(GL_COLOR_ARRAY);
+      if (this->mesh_render_mode == 1) glEnableClientState(GL_COLOR_ARRAY);
 
       glVertexPointer(3, GL_FLOAT, sizeof(My_Type::Vector3f),
                       this->SLAM_system_ptr->mesh_of_total_map.triangles);
@@ -842,8 +839,7 @@ void UI_engine::render_main_viewport() {
 
       glDisableClientState(GL_VERTEX_ARRAY);
       glDisableClientState(GL_NORMAL_ARRAY);
-      if (this->mesh_render_mode == 1)
-        glDisableClientState(GL_COLOR_ARRAY);
+      if (this->mesh_render_mode == 1) glDisableClientState(GL_COLOR_ARRAY);
 
       glDisable(GL_LIGHT0);
       glDisable(GL_LIGHTING);
@@ -1287,11 +1283,11 @@ void UI_engine::render_main_viewport() {
       // for (int i = 0; i < slam_system_ptr->keypoint_buffer_2.size(); i++)
       //{
       //	glVertex3f(slam_system_ptr->keypoint_buffer_1[i].x(),
-      //slam_system_ptr->keypoint_buffer_1[i].y(),
-      //slam_system_ptr->keypoint_buffer_1[i].z());
+      // slam_system_ptr->keypoint_buffer_1[i].y(),
+      // slam_system_ptr->keypoint_buffer_1[i].z());
       //	glVertex3f(slam_system_ptr->keypoint_buffer_2[i].x(),
-      //slam_system_ptr->keypoint_buffer_2[i].y(),
-      //slam_system_ptr->keypoint_buffer_2[i].z());
+      // slam_system_ptr->keypoint_buffer_2[i].y(),
+      // slam_system_ptr->keypoint_buffer_2[i].z());
       //}
       // glEnd();
 
@@ -1344,8 +1340,7 @@ void UI_engine::render_main_viewport() {
         if (this->SLAM_system_ptr->feature_detector
                 ->current_match_to_model_id[keypoint_id] < 0)
           continue;
-        if (keypoint_vec.z < FLT_EPSILON)
-          continue;
+        if (keypoint_vec.z < FLT_EPSILON) continue;
 
         glTranslatef(keypoint_vec.x, keypoint_vec.y, keypoint_vec.z);
         glutWireCube(half_cube_size * 1.5f);
@@ -1361,8 +1356,7 @@ void UI_engine::render_main_viewport() {
         if (this->SLAM_system_ptr->feature_detector
                 ->current_match_to_model_id[keypoint_id] >= 0)
           continue;
-        if (keypoint_vec.z < FLT_EPSILON)
-          continue;
+        if (keypoint_vec.z < FLT_EPSILON) continue;
 
         glTranslatef(keypoint_vec.x, keypoint_vec.y, keypoint_vec.z);
         glutWireCube(half_cube_size * 1.5f);
@@ -1383,8 +1377,7 @@ void UI_engine::render_main_viewport() {
         My_Type::Vector3f check_vec =
             this->SLAM_system_ptr->feature_detector
                 ->current_keypoint_position[keypoint_id];
-        if (check_vec.z < FLT_EPSILON)
-          continue;
+        if (check_vec.z < FLT_EPSILON) continue;
 
         for (int neighbor_id = 0;
              neighbor_id < this->SLAM_system_ptr->feature_detector
@@ -1419,8 +1412,7 @@ void UI_engine::render_main_viewport() {
            current_id++) {
         int model_kp_id = this->SLAM_system_ptr->feature_detector
                               ->current_match_to_model_id[current_id];
-        if (model_kp_id < 0)
-          continue;
+        if (model_kp_id < 0) continue;
 
         My_Type::Vector3f current_kp1 =
             this->SLAM_system_ptr->feature_detector
@@ -1445,16 +1437,16 @@ void UI_engine::render_main_viewport() {
       // current_id++)
       //{
       //	int model_kp_id =
-      //this->SLAM_system_ptr->feature_detector->current_match_to_model_id[current_id];
+      // this->SLAM_system_ptr->feature_detector->current_match_to_model_id[current_id];
       //	if (model_kp_id < 0)	continue;
       //	My_Type::Vector3f current_kp1 =
-      //this->SLAM_system_ptr->feature_detector->current_keypoint_position[current_id];
+      // this->SLAM_system_ptr->feature_detector->current_keypoint_position[current_id];
       //	Eigen::Vector3f current_kp(current_kp1.x, current_kp1.y,
-      //current_kp1.z); 	current_kp = camera_pose.block(0, 0, 3, 3) *
-      //current_kp.eval() + camera_pose.block(0, 3, 3, 1);
+      // current_kp1.z); 	current_kp = camera_pose.block(0, 0, 3, 3) *
+      // current_kp.eval() + camera_pose.block(0, 3, 3, 1);
       //	glVertex3f(current_kp.x(), current_kp.y(), current_kp.z());
       //	My_Type::Vector3f model_kp =
-      //slam_system_ptr->feature_map_ptr_array.back()->model_keypoints[model_kp_id].point;
+      // slam_system_ptr->feature_map_ptr_array.back()->model_keypoints[model_kp_id].point;
       //	glVertex3f(model_kp.x, model_kp.y, model_kp.z);
       //}
       // glEnd();
@@ -1471,19 +1463,19 @@ void UI_engine::render_main_viewport() {
   if (false) {
     // Render sub-viewport-2
     switch (this->sub_viewport2_mode) {
-    case SubViewport2Mode::PSEUDO_DEPTH_IMAGE: {
-      this->render_engine.pseudo_render_depth(
-          this->SLAM_system_ptr->preprocess_engine->dev_raw_aligned_points);
-      break;
-    }
-    case SubViewport2Mode::NORMAL_IMAGE: {
-      break;
-    }
-    case SubViewport2Mode::RESIDUAL_IMAGE: {
-      break;
-    }
-    default:
-      break;
+      case SubViewport2Mode::PSEUDO_DEPTH_IMAGE: {
+        this->render_engine.pseudo_render_depth(
+            this->SLAM_system_ptr->preprocess_engine->dev_raw_aligned_points);
+        break;
+      }
+      case SubViewport2Mode::NORMAL_IMAGE: {
+        break;
+      }
+      case SubViewport2Mode::RESIDUAL_IMAGE: {
+        break;
+      }
+      default:
+        break;
     }
 
     //
@@ -1519,8 +1511,7 @@ void UI_engine::render_main_viewport() {
 //
 void UI_engine::render_sub_viewport1() {
   //
-  if (this->SLAM_system_ptr->color_mat.empty())
-    return;
+  if (this->SLAM_system_ptr->color_mat.empty()) return;
 
   if (true) {
     drawKeypoints(this->SLAM_system_ptr->color_mat.clone(),
@@ -1564,19 +1555,19 @@ void UI_engine::render_sub_viewport1() {
 void UI_engine::render_sub_viewport2() {
   // Render sub-viewport-2
   switch (this->sub_viewport2_mode) {
-  case SubViewport2Mode::PSEUDO_DEPTH_IMAGE: {
-    this->render_engine.pseudo_render_depth(
-        this->SLAM_system_ptr->preprocess_engine->dev_raw_aligned_points);
-    break;
-  }
-  case SubViewport2Mode::NORMAL_IMAGE: {
-    break;
-  }
-  case SubViewport2Mode::RESIDUAL_IMAGE: {
-    break;
-  }
-  default:
-    break;
+    case SubViewport2Mode::PSEUDO_DEPTH_IMAGE: {
+      this->render_engine.pseudo_render_depth(
+          this->SLAM_system_ptr->preprocess_engine->dev_raw_aligned_points);
+      break;
+    }
+    case SubViewport2Mode::NORMAL_IMAGE: {
+      break;
+    }
+    case SubViewport2Mode::RESIDUAL_IMAGE: {
+      break;
+    }
+    default:
+      break;
   }
 
   //
@@ -1758,7 +1749,7 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
   // 转换到 estimate camera pose
   if ('o' == key || 'O' == key) {
     /*std::cout << "GL camera extrinsic matrix inverse is :" << std::endl;
-            UI_ptr->GL_camera_Frame.print();*/
+        UI_ptr->GL_camera_Frame.print();*/
 
     Eigen::Matrix4f current_pose_mat =
         UI_ptr->SLAM_system_ptr->estimated_camera_pose.mat.eval();
@@ -1816,8 +1807,7 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
   //
   if ('r' == key || 'R' == key) {
     UI_ptr->mesh_render_mode++;
-    if (UI_ptr->mesh_render_mode >= 3)
-      UI_ptr->mesh_render_mode = 0;
+    if (UI_ptr->mesh_render_mode >= 3) UI_ptr->mesh_render_mode = 0;
   }
 
   //
@@ -1831,8 +1821,7 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
   }
 
   // exit
-  if (UI_ptr->normal_key[27] == 1)
-    exit(0);
+  if (UI_ptr->normal_key[27] == 1) exit(0);
 }
 
 //

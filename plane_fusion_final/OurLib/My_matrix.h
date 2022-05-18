@@ -13,58 +13,61 @@
 
 namespace My_Type {
 // matrix 2x2
-template <typename T> struct _Matrix22 {
+template <typename T>
+struct _Matrix22 {
   union {
     struct {
-      T m00, m10; // Index: |0, 1|  Matrix: |m00(0), m01(2)|
-      T m01, m11; //		  |2, 3|		  |m10(1), m11(3)|
+      T m00, m10;  // Index: |0, 1|  Matrix: |m00(0), m01(2)|
+      T m01, m11;  //		  |2, 3|		  |m10(1), m11(3)|
     };
     T data[4];
   };
 };
 
 // matrix 3x3
-template <typename T> struct _Matrix33 {
+template <typename T>
+struct _Matrix33 {
   union {
     struct {
-      T m00, m10, m20; // Index: |0, 1, 2|  Matrix: |m00(0), m01(3), m02(6)|
-      T m01, m11, m21; //		  |3, 4, 5|			 |m10(1),
-                       //m11(4), m12(7)|
-      T m02, m12, m22; //		  |6, 7, 8|			 |m20(2),
-                       //m21(5), m22(8)|
+      T m00, m10, m20;  // Index: |0, 1, 2|  Matrix: |m00(0), m01(3), m02(6)|
+      T m01, m11, m21;  //		  |3, 4, 5| |m10(1), m11(4), m12(7)|
+      T m02, m12, m22;  //		  |6, 7, 8| |m20(2), m21(5), m22(8)|
     };
     T data[9];
   };
 };
 
 // matrix 4x4
-template <typename T> struct _Matrix44 {
+template <typename T>
+struct _Matrix44 {
   union {
     struct {
       //
       //! cols frist order matrix
-      T m00, m10, m20, m30; // Index: |0,	1,	2,  3 |  Matrix: |m00(0), m01(4),
-                            // m02(8),  m03(12)|
-      T m01, m11, m21, m31; //		  |4,	5,	6,  7 |			 |m10(1), m11(5),
-                            //m12(9),  m13(13)|
-      T m02, m12, m22, m32; //		  |8,	9,	10, 11|			 |m20(2), m21(6),
-                            //m22(10), m23(14)|
-      T m03, m13, m23, m33; //		  |12,	13, 14, 15|			 |m30(3), m31(7),
-                            //m32(11), m33(15)|
+      T m00, m10, m20, m30;  // Index: |0,	1,	2,  3 |  Matrix:
+                             // |m00(0), m01(4), m02(8),  m03(12)|
+      T m01, m11, m21, m31;  //		  |4,	5,	6,  7 |			 |m10(1),
+                             //m11(5), m12(9),  m13(13)|
+      T m02, m12, m22, m32;  //		  |8,	9,	10, 11|			 |m20(2),
+                             //m21(6), m22(10), m23(14)|
+      T m03, m13, m23, m33;  //		  |12,	13, 14, 15|			 |m30(3),
+                             //m31(7), m32(11), m33(15)|
     };
     T data[16];
   };
 };
 
 // matrix MxN
-template <typename T> struct _MatrixMN {
+template <typename T>
+struct _MatrixMN {
   int cols, rows;
   T *data;
 };
 
 //
-template <typename T> class Matrix22 : public _Matrix22<T> {
-public:
+template <typename T>
+class Matrix22 : public _Matrix22<T> {
+ public:
   _IS_CUDA_CODE_ Matrix22() {}
   _IS_CUDA_CODE_ ~Matrix22() {}
 
@@ -77,8 +80,7 @@ public:
   }
   //! Set matrix to zero
   _IS_CUDA_CODE_ inline void set_zero() {
-    for (int i = 0; i < 4; i++)
-      this->data[i] = 0;
+    for (int i = 0; i < 4; i++) this->data[i] = 0;
   }
 
   //! Over load operator[]
@@ -92,40 +94,33 @@ public:
 
   // Over load '='
   _IS_CUDA_CODE_ Matrix22<T> &operator=(const Matrix22<T> &mat) {
-    for (int i = 0; i < 4; i++)
-      this->data[i] = mat.data[i];
+    for (int i = 0; i < 4; i++) this->data[i] = mat.data[i];
     return (*this);
   }
 
   //
   _IS_CUDA_CODE_ inline Matrix22<T> &operator+=(const T &r) {
-    for (int i = 0; i < 4; i++)
-      this->data[i] += r;
+    for (int i = 0; i < 4; i++) this->data[i] += r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix22<T> &operator-=(const T &r) {
-    for (int i = 0; i < 4; i++)
-      this->data[i] -= r;
+    for (int i = 0; i < 4; i++) this->data[i] -= r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix22<T> &operator*=(const T &r) {
-    for (int i = 0; i < 4; i++)
-      this->data[i] *= r;
+    for (int i = 0; i < 4; i++) this->data[i] *= r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix22<T> &operator/=(const T &r) {
-    for (int i = 0; i < 4; i++)
-      this->data[i] /= r;
+    for (int i = 0; i < 4; i++) this->data[i] /= r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix22<T> &operator+=(const Matrix22<T> &mat) {
-    for (int i = 0; i < 4; i++)
-      this->data[i] += mat.data[i];
+    for (int i = 0; i < 4; i++) this->data[i] += mat.data[i];
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix22<T> &operator-=(const Matrix22<T> &mat) {
-    for (int i = 0; i < 4; i++)
-      this->data[i] -= mat.data[i];
+    for (int i = 0; i < 4; i++) this->data[i] -= mat.data[i];
     return (*this);
   }
 
@@ -170,8 +165,9 @@ public:
 };
 
 //
-template <typename T> class Matrix33 : public _Matrix33<T> {
-public:
+template <typename T>
+class Matrix33 : public _Matrix33<T> {
+ public:
   _IS_CUDA_CODE_ Matrix33() {}
   _IS_CUDA_CODE_ ~Matrix33() {}
 
@@ -190,8 +186,7 @@ public:
 
   //! Set matrix to zero
   _IS_CUDA_CODE_ inline void set_zero() {
-    for (int i = 0; i < 9; i++)
-      this->data[i] = 0;
+    for (int i = 0; i < 9; i++) this->data[i] = 0;
   }
 
   //! Over load operator[]
@@ -251,39 +246,32 @@ public:
   }
 
   _IS_CUDA_CODE_ Matrix33<T> &operator=(const Matrix33<T> &mat) {
-    for (int i = 0; i < 9; i++)
-      this->data[i] = mat.data[i];
+    for (int i = 0; i < 9; i++) this->data[i] = mat.data[i];
     return (*this);
   }
 
   _IS_CUDA_CODE_ inline Matrix33<T> &operator+=(const T &r) {
-    for (int i = 0; i < 9; i++)
-      this->data[i] += r;
+    for (int i = 0; i < 9; i++) this->data[i] += r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix33<T> &operator-=(const T &r) {
-    for (int i = 0; i < 9; i++)
-      this->data[i] -= r;
+    for (int i = 0; i < 9; i++) this->data[i] -= r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix33<T> &operator*=(const T &r) {
-    for (int i = 0; i < 9; i++)
-      this->data[i] *= r;
+    for (int i = 0; i < 9; i++) this->data[i] *= r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix33<T> &operator/=(const T &r) {
-    for (int i = 0; i < 9; i++)
-      this->data[i] /= r;
+    for (int i = 0; i < 9; i++) this->data[i] /= r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix33<T> &operator+=(const Matrix33<T> &mat) {
-    for (int i = 0; i < 9; i++)
-      this->data[i] += mat.data[i];
+    for (int i = 0; i < 9; i++) this->data[i] += mat.data[i];
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix33<T> &operator-=(const Matrix33<T> &mat) {
-    for (int i = 0; i < 9; i++)
-      this->data[i] -= mat.data[i];
+    for (int i = 0; i < 9; i++) this->data[i] -= mat.data[i];
     return (*this);
   }
 
@@ -328,8 +316,9 @@ public:
 };
 
 //
-template <typename T> class Matrix44 : public _Matrix44<T> {
-public:
+template <typename T>
+class Matrix44 : public _Matrix44<T> {
+ public:
   _IS_CUDA_CODE_ Matrix44() {}
   _IS_CUDA_CODE_ ~Matrix44() {}
 
@@ -354,8 +343,7 @@ public:
   }
   //! Set matrix to zero
   _IS_CUDA_CODE_ inline void set_zero() {
-    for (int i = 0; i < 16; i++)
-      this->data[i] = 0;
+    for (int i = 0; i < 16; i++) this->data[i] = 0;
   }
 
   //! Over load operator[]
@@ -415,39 +403,32 @@ public:
   }
 
   _IS_CUDA_CODE_ Matrix44<T> &operator=(const Matrix44<T> &mat) {
-    for (int i = 0; i < 16; i++)
-      this->data[i] = mat.data[i];
+    for (int i = 0; i < 16; i++) this->data[i] = mat.data[i];
     return (*this);
   }
 
   _IS_CUDA_CODE_ inline Matrix44<T> &operator+=(const T &r) {
-    for (int i = 0; i < 16; i++)
-      this->data[i] += r;
+    for (int i = 0; i < 16; i++) this->data[i] += r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix44<T> &operator-=(const T &r) {
-    for (int i = 0; i < 16; i++)
-      this->data[i] -= r;
+    for (int i = 0; i < 16; i++) this->data[i] -= r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix44<T> &operator*=(const T &r) {
-    for (int i = 0; i < 16; i++)
-      this->data[i] *= r;
+    for (int i = 0; i < 16; i++) this->data[i] *= r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix44<T> &operator/=(const T &r) {
-    for (int i = 0; i < 16; i++)
-      this->data[i] /= r;
+    for (int i = 0; i < 16; i++) this->data[i] /= r;
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix44<T> &operator+=(const Matrix44<T> &mat) {
-    for (int i = 0; i < 16; i++)
-      this->data[i] += mat.data[i];
+    for (int i = 0; i < 16; i++) this->data[i] += mat.data[i];
     return (*this);
   }
   _IS_CUDA_CODE_ inline Matrix44<T> &operator-=(const Matrix44<T> &mat) {
-    for (int i = 0; i < 16; i++)
-      this->data[i] -= mat.data[i];
+    for (int i = 0; i < 16; i++) this->data[i] -= mat.data[i];
     return (*this);
   }
 
@@ -496,9 +477,9 @@ public:
 };
 
 // Reference: Eigen 3.2
-#define MAKE_TYPES(Type, TypeSuffix)                                           \
-  typedef Matrix22<Type> Matrix22##TypeSuffix;                                 \
-  typedef Matrix33<Type> Matrix33##TypeSuffix;                                 \
+#define MAKE_TYPES(Type, TypeSuffix)           \
+  typedef Matrix22<Type> Matrix22##TypeSuffix; \
+  typedef Matrix33<Type> Matrix33##TypeSuffix; \
   typedef Matrix44<Type> Matrix44##TypeSuffix;
 
 MAKE_TYPES(float, f);
@@ -512,4 +493,4 @@ MAKE_TYPES(unsigned int, ui);
 
 #undef MAKE_TYPES
 
-} // namespace My_Type
+}  // namespace My_Type

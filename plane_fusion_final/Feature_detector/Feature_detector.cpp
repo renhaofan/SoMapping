@@ -1,6 +1,7 @@
 
 
 #include "Feature_detector/Feature_detector.h"
+
 #include "SLAM_system/SLAM_system_settings.h"
 
 // CUDA header files
@@ -60,17 +61,16 @@ void Feature_detector::detect_orb_features(
     My_Type::Vector2i buffer_size(this->gray_image.cols, this->gray_image.rows);
     //
     if (image_size != buffer_size) {
-      if (!this->gray_image.empty())
-        this->gray_image.release();
+      if (!this->gray_image.empty()) this->gray_image.release();
       this->gray_image.create(image_size.height, image_size.width, CV_8UC1);
 
       if (this->dev_gray_image_buffer) {
         checkCudaErrors(cudaFree(this->dev_gray_image_buffer));
         this->dev_gray_image_buffer = nullptr;
       }
-      checkCudaErrors(cudaMalloc((void **)&(this->dev_gray_image_buffer),
-                                 image_size.width * image_size.height *
-                                     sizeof(unsigned char)));
+      checkCudaErrors(cudaMalloc(
+          (void **)&(this->dev_gray_image_buffer),
+          image_size.width * image_size.height * sizeof(unsigned char)));
     }
 
     //
@@ -101,7 +101,6 @@ void Feature_detector::detect_orb_features(
                                    this->current_keypoints,
                                    this->current_features);
   } else if (true) {
-
     // init
     this->current_match_to_model_id.clear();
     this->current_keypoints_2d.clear();
@@ -286,8 +285,7 @@ void Feature_detector::detect_orb_features(
     std::vector<int> match_id_buffer;
     for (int compare_id = 0, new_id = 0; compare_id < compare_buffer.size();
          compare_id++) {
-      if (new_id >= this->current_keypoints.size())
-        break;
+      if (new_id >= this->current_keypoints.size()) break;
 
       if (compare_buffer[compare_id].pt == this->current_keypoints[new_id].pt) {
         match_id_buffer.push_back(this->current_match_to_model_id[compare_id]);
@@ -400,7 +398,6 @@ int DescriptorDistance(const cv::Mat &a, const cv::Mat &b) {
 
 //
 void Feature_detector::match_orb_features(int number_of_model_keypoints) {
-
   // Match keypoint by feature distance (match to neighbor keypoint)
   int new_keypoint_id = number_of_model_keypoints;
   for (int current_id = 0; current_id < this->current_keypoints.size();
@@ -452,8 +449,8 @@ void Feature_detector::match_orb_features(int number_of_model_keypoints) {
   // Reject repetitive matches (use LK optic flow result first)
   // std::vector<int> tracked_model_id;
   // for (int tracked_id = 0; tracked_id < this->number_of_tracked_keypoints;
-  // tracked_id++) 	if (this->current_match_to_model_id[tracked_id] >= 0) 	{
-  //tracked_model_id.push_back(this->current_match_to_model_id[tracked_id]);
+  // tracked_id++) 	if (this->current_match_to_model_id[tracked_id] >= 0) {
+  // tracked_model_id.push_back(this->current_match_to_model_id[tracked_id]);
   //} std::sort(tracked_model_id.begin(), tracked_model_id.end()); for (int
   // new_detected_id = this->number_of_tracked_keypoints; new_detected_id <
   // this->current_match_to_model_id.size(); new_detected_id++)
@@ -461,10 +458,10 @@ void Feature_detector::match_orb_features(int number_of_model_keypoints) {
   //	if (this->current_match_to_model_id[new_detected_id] != -1)
   //	{
   //		bool is_find = std::binary_search(tracked_model_id.data(),
-  //tracked_model_id.data() + tracked_model_id.size(),
+  // tracked_model_id.data() + tracked_model_id.size(),
   //										  this->current_match_to_model_id[new_detected_id]);
-  //		if (is_find)	this->current_match_to_model_id[new_detected_id] =
-  //-1;
+  //		if (is_find)	this->current_match_to_model_id[new_detected_id]
+  //= -1;
   //	}
   //}
 }
@@ -497,17 +494,14 @@ std::vector<float> compute_response(const cv::Mat &img,
     int y0 = cvRound(pts[ptidx].y);
 
     bool is_valid_point = true;
-    if (x0 <= r || x0 >= (img.cols - r - 1))
-      is_valid_point = false;
-    if (y0 <= r || y0 >= (img.rows - r - 1))
-      is_valid_point = false;
+    if (x0 <= r || x0 >= (img.cols - r - 1)) is_valid_point = false;
+    if (y0 <= r || y0 >= (img.rows - r - 1)) is_valid_point = false;
 
     if (is_valid_point) {
       const uchar *ptr0 = ptr00 + (y0 - r) * step + x0 - r;
       int a = 0, b = 0, c = 0;
 
       for (int k = 0; k < blockSize * blockSize; k++) {
-
         const uchar *ptr = ptr0 + ofs[k];
         int Ix = (ptr[1] - ptr[-1]) * 2 + (ptr[-step + 1] - ptr[-step - 1]) +
                  (ptr[step + 1] - ptr[step - 1]);

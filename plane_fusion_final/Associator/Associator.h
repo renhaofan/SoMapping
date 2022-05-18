@@ -14,7 +14,7 @@ typedef enum enum_Matches_type {
 
 */
 class Associator {
-public:
+ public:
   //
   bool updated_without_optimization = false;
 
@@ -33,10 +33,10 @@ public:
   std::vector<std::vector<std::pair<int, int>>> all_matches;
 
   //
-  void
-  update_matches(const std::vector<std::pair<int, int>> &matches,
-                 const std::pair<int, int> &submap_id_pair,
-                 const Matches_type match_type = Matches_type::Tracked_Matches);
+  void update_matches(
+      const std::vector<std::pair<int, int>> &matches,
+      const std::pair<int, int> &submap_id_pair,
+      const Matches_type match_type = Matches_type::Tracked_Matches);
 
   //
   void prepare_for_optimization();

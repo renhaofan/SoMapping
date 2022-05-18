@@ -29,5 +29,5 @@ void UI_parameters::set_to_default() {
   this->GL_view_aspect = 1.33333f;
   this->GL_view_scale = 1.0f;
   this->GL_camera_fov = 53.1301f; /*! FOV = 2 * atan(cy/fy) = 2 * atan(240/480)
-                                     = 53.1301 Degree */
+                                   = 53.1301 Degree */
 }

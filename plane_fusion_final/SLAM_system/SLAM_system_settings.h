@@ -33,13 +33,12 @@ typedef struct _Sensor_params {
 
 */
 class SLAM_system_settings {
-public:
+ public:
   //! The pointer to this static object.
   static SLAM_system_settings *instance_ptr;
   //! Member function for instantiating this static object.
   static SLAM_system_settings *instance(void) {
-    if (instance_ptr == nullptr)
-      instance_ptr = new SLAM_system_settings();
+    if (instance_ptr == nullptr) instance_ptr = new SLAM_system_settings();
     return instance_ptr;
   }
 

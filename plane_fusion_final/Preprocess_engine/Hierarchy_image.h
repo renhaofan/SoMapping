@@ -17,8 +17,9 @@ typedef unsigned short RawDepthType;
 /*!
 
 */
-template <typename T> class Hierarchy_image {
-public:
+template <typename T>
+class Hierarchy_image {
+ public:
   //! Number of layers
   int number_of_layers;
   //! Image size of layer-0

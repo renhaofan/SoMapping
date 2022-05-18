@@ -465,28 +465,32 @@ void Preprocess_RGBD::generate_hierarchy_image() {
   // Generate hierarchy intensity image
   //	{
   //		for (size_t layer_id = 1; layer_id <
-  //this->dev_hierarchy_points.number_of_layers; layer_id++)
+  // this->dev_hierarchy_points.number_of_layers; layer_id++)
   //		{
   //			thread_rect.x = this->image_alignment_width;
   //			thread_rect.y = this->image_alignment_width;
   //			thread_rect.z = 1;
   //			block_rect.x =
-  //this->dev_hierarchy_intensity.size[layer_id].width / thread_rect.x;
+  // this->dev_hierarchy_intensity.size[layer_id].width / thread_rect.x;
   //			block_rect.y =
-  //this->dev_hierarchy_intensity.size[layer_id].height / thread_rect.y;
+  // this->dev_hierarchy_intensity.size[layer_id].height / thread_rect.y;
   //			block_rect.z = 1;
   //            //TODO 存在bug
   //			// Lunch kernel function (points)
   //			down_sample_hierarchy_layers_CUDA(block_rect,
-  //thread_rect, 											  this->dev_hierarchy_intensity.data_ptrs[layer_id - 1],
+  // thread_rect,
+  // this->dev_hierarchy_intensity.data_ptrs[layer_id - 1],
   //											  this->dev_hierarchy_intensity.size[layer_id
-  //- 1], 											  this->dev_hierarchy_intensity.data_ptrs[layer_id]);
+  //- 1],
+  //this->dev_hierarchy_intensity.data_ptrs[layer_id]);
   //			//CUDA_CKECK_KERNEL;
   //			// Lunch kernel function (normals)
   //			down_sample_hierarchy_layers_CUDA(block_rect,
-  //thread_rect, 											  this->dev_hierarchy_gradient.data_ptrs[layer_id - 1],
+  // thread_rect,
+  // this->dev_hierarchy_gradient.data_ptrs[layer_id - 1],
   //											  this->dev_hierarchy_gradient.size[layer_id
-  //- 1], 											  this->dev_hierarchy_gradient.data_ptrs[layer_id]);
+  //- 1],
+  //this->dev_hierarchy_gradient.data_ptrs[layer_id]);
   //			//CUDA_CKECK_KERNEL;
   //		}
   //	}

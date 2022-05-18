@@ -32,7 +32,7 @@ int main() {
       std::stringstream ss;
       ss << currentProperties.major;
       if (currentProperties.major == 2 && currentProperties.minor == 1) {
-        ss << 0; // There is no compute_21 architecture.
+        ss << 0;  // There is no compute_21 architecture.
       } else {
         ss << currentProperties.minor;
       }
@@ -46,8 +46,7 @@ int main() {
   for (std::set<std::string>::const_iterator it = computeCapabilities.begin();
        it != computeCapabilities.end(); ++it) {
     // Add a semicolon if we have already printed some output.
-    if (it != computeCapabilities.begin())
-      std::cout << ';';
+    if (it != computeCapabilities.begin()) std::cout << ';';
     std::cout << *it;
   }
 
