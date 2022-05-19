@@ -45,6 +45,16 @@ inline __device__ void block_512_reduce(volatile T *cache_T, int tid) {
   __syncthreads();
 }
 
+// GPU Warp Reduce minimum
+template <typename T>
+inline __device__ void warp_reduce_min(volatile T *cache_T, int tid) {
+    cache_T[tid] = min(cache_T[tid], cache_T[tid + 32]);
+    cache_T[tid] = min(cache_T[tid], cache_T[tid + 16]);
+    cache_T[tid] = min(cache_T[tid], cache_T[tid + 8]);
+    cache_T[tid] = min(cache_T[tid], cache_T[tid + 4]);
+    cache_T[tid] = min(cache_T[tid], cache_T[tid + 2]);
+    cache_T[tid] = min(cache_T[tid], cache_T[tid + 1]);
+}
 // Block of 256 threads Reduce minimum
 template <typename T>
 inline __device__ void block_256_reduce_min(T *cache_T, int tid) {
@@ -56,17 +66,18 @@ inline __device__ void block_256_reduce_min(T *cache_T, int tid) {
   if (tid < 32) warp_reduce_min(cache_T, tid);
   __syncthreads();
 }
-// GPU Warp Reduce minimum
-template <typename T>
-inline __device__ void warp_reduce_min(volatile T *cache_T, int tid) {
-  cache_T[tid] = min(cache_T[tid], cache_T[tid + 32]);
-  cache_T[tid] = min(cache_T[tid], cache_T[tid + 16]);
-  cache_T[tid] = min(cache_T[tid], cache_T[tid + 8]);
-  cache_T[tid] = min(cache_T[tid], cache_T[tid + 4]);
-  cache_T[tid] = min(cache_T[tid], cache_T[tid + 2]);
-  cache_T[tid] = min(cache_T[tid], cache_T[tid + 1]);
-}
 
+
+// GPU Warp Reduce maximum
+template <typename T>
+inline __device__ void warp_reduce_max(volatile T *cache_T, int tid) {
+    cache_T[tid] = max(cache_T[tid], cache_T[tid + 32]);
+    cache_T[tid] = max(cache_T[tid], cache_T[tid + 16]);
+    cache_T[tid] = max(cache_T[tid], cache_T[tid + 8]);
+    cache_T[tid] = max(cache_T[tid], cache_T[tid + 4]);
+    cache_T[tid] = max(cache_T[tid], cache_T[tid + 2]);
+    cache_T[tid] = max(cache_T[tid], cache_T[tid + 1]);
+}
 // Block of 256 threads Reduce maximum
 template <typename T>
 inline __device__ void block_256_reduce_max(T *cache_T, int tid) {
@@ -77,14 +88,4 @@ inline __device__ void block_256_reduce_max(T *cache_T, int tid) {
   __syncthreads();
   if (tid < 32) warp_reduce_max(cache_T, tid);
   __syncthreads();
-}
-// GPU Warp Reduce maximum
-template <typename T>
-inline __device__ void warp_reduce_max(volatile T *cache_T, int tid) {
-  cache_T[tid] = max(cache_T[tid], cache_T[tid + 32]);
-  cache_T[tid] = max(cache_T[tid], cache_T[tid + 16]);
-  cache_T[tid] = max(cache_T[tid], cache_T[tid + 8]);
-  cache_T[tid] = max(cache_T[tid], cache_T[tid + 4]);
-  cache_T[tid] = max(cache_T[tid], cache_T[tid + 2]);
-  cache_T[tid] = max(cache_T[tid], cache_T[tid + 1]);
 }

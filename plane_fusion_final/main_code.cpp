@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
         "Please input 'calibration file' for online input,\n or "
         "'calibration file, sequence dir, dataset "
         "mode(ICL:0,TUM:1,MyZR300:2,MyD435i:3,MyAzureKinect:4)' for offline "
-        "input.");
+        "input.\n");
     return 0;
   }
 
@@ -57,6 +57,8 @@ int main(int argc, char **argv) {
   //	Image_loader * image_loader_ptr = create_image_loader(color_folder,
   // depth_folder);
   //
+
+  // string ground_truth_path = "/home/steve/dataset/scannet0427_00/";
   // Initiation
   Main_engine::instance()->init(argc, argv, image_loader_ptr);
   // Load ground truth file
@@ -88,7 +90,6 @@ void print_argvs(int argc, char **argv) {
   printf("\n");
 }
 
-//! Create Image_loader
 // Image_loader * create_image_loader(string color_folder, string depth_folder)
 //{
 //	Image_loader * image_loader_ptr;

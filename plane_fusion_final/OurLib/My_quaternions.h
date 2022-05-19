@@ -8,7 +8,7 @@
 
 //!
 #include <iostream>
-
+#include <cmath>
 //      （CUDA   NVCC   C++   ）
 #if defined(__CUDACC__) && defined(__CUDA_ARCH__)
 #define _IS_CUDA_CODE_ __device__

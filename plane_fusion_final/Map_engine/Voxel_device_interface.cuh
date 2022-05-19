@@ -13,7 +13,8 @@
 #include <helper_functions.h>
 
 //
-#include "OurLib/reduction_KernelFunc.cuh"
+#include "../OurLib/My_vector.h"
+#include "../OurLib/reduction_KernelFunc.cuh"
 #include "math.h"
 
 // floor_by_stride、round_by_stride、ceil_by_stride         BUG！

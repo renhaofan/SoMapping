@@ -1520,8 +1520,8 @@ void Submap_SLAM_system::detect_loop() {
     // Iterate optimization
     // this->filter_loop_matches(current_position_buffer, loop_position_buffer,
     //						  current_plane_buffer,
-    // loop_plane_buffer, 						  is_valid_keypoint_match,
-    // is_valid_plane_match);
+    // loop_plane_buffer,
+    // is_valid_keypoint_match, is_valid_plane_match);
 
     keypoint_buffer_1.clear();
     for (int i = 0;

@@ -8,6 +8,12 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
 
+# specify OpenGL version
+# credit: https://blog.csdn.net/u010815558/article/details/90288869
+# credit: https://github.com/ilpincy/argos3/issues/88
+if (POLICY CMP0072)
+  set(OpenGL_GL_PREFERENCE LEGACY)
+endif()
 
 #################################
 # Add additional compiler flags #
@@ -25,22 +31,25 @@ ENDIF()
 ################################
 # Specify the libraries to use #
 ################################
-FIND_PACKAGE(OpenCV REQUIRED) #opencv 3.0.0
-FIND_PACKAGE(Eigen REQUIRED) #eigen 3.2
+# opencv 3.4.5
+SET(OpenCV_DIR "/usr/local/opencv345/share/OpenCV")
+SET(CUDA_HEADERS "${PROJECT_SOURCE_DIR}/3rdparty/cuda-samples/Common")
+
+FIND_PACKAGE(OpenCV REQUIRED)#opencv 3.4.5
+FIND_PACKAGE(Eigen REQUIRED) #eigen 3.3.7
 FIND_PACKAGE(Ceres REQUIRED) #1.14.0
-FIND_PACKAGE(OpenGL REQUIRED)#2.1.0
+FIND_PACKAGE(OpenGL REQUIRED)#4.6 `glxinfo | grep "OpenGL"`
 ADD_LIBRARY(GLEW_STATIC STATIC IMPORTED)
 FIND_PACKAGE(GLEW REQUIRED)
-FIND_PACKAGE(DBoW3 REQUIRED)
-INCLUDE_DIRECTORIES(/usr/local/include/DBoW3)
-include_directories(/usr/local/include/DBoW3)
-INCLUDE(${PROJECT_SOURCE_DIR}/cmake/UseCUDA.cmake) #9.0
-INCLUDE(${PROJECT_SOURCE_DIR}/cmake/UseGLUT.cmake) #2.8.0
+FIND_PACKAGE(DBoW3 REQUIRED) #master
+INCLUDE(${PROJECT_SOURCE_DIR}/cmake/UseCUDA.cmake) #11.6
+INCLUDE(${PROJECT_SOURCE_DIR}/cmake/UseGLUT.cmake)
 INCLUDE(${PROJECT_SOURCE_DIR}/cmake/UseGLEW.cmake)
 
 INCLUDE_DIRECTORIES(
         ${GLEW_INCLUDE_DIRS}
-        /usr/local/cuda/samples/common/inc
+        #/usr/local/cuda/samples/common/inc
+        ${CUDA_HEADERS}
         ${CMAKE_SOURCE_DIR}
         ${OpenCV_INCLUDE_DIRS}
         ${CUDA_INCLUDE_DIRS}
@@ -50,12 +59,29 @@ INCLUDE_DIRECTORIES(
         ${DBoW3_INCLUDE_DIRS}
 )
 
+message(STATUS "-------------------------------------------")
+message(STATUS "OpenCV lib")
+message(STATUS "        dir:${OpenCV_DIR}")
+message(STATUS "        version:${OpenCV_VERSION}")
+message(STATUS "        includedir:${OpenCV_INCLUDE_DIRS}")
+#message(STATUS "        libdir:${OpenCV_LIBS}")
+message(STATUS "-------------------------------------------")
+
+
 #############################
 # Specify the project files #
 #############################
 #add_executable(${PROJECT_NAME} ./Plane_detector/Plane_detector.h)
 INCLUDE(${PROJECT_SOURCE_DIR}/IncludeProjectFiles.cmake)
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OpenCV_LIBS} ${CERES_LIBRARIES} ${OPENGL_LIBRARY} ${GLUT_LIBRARY} ${GLEW_LIBRARY} ${CUDA_LIBRARIES} ${DBoW3_LIBS})
+SET(THIRD_LIB
+    ${OpenCV_LIBS}
+    ${CERES_LIBRARIES}
+    ${DBoW3_LIBS}
+    ${OPENGL_LIBRARY}
+    ${GLUT_LIBRARY}
+    ${GLEW_LIBRARY}
+    )
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CUDA_LIBRARIES} ${THIRD_LIB})
 SET(HEADERS ./Plane_detector/Plane_detector.h)
 
 ##########################################

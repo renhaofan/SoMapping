@@ -8,13 +8,9 @@ using namespace std;
 // OpenCV
 #include <cv.h>
 #include <highgui.h>
-
 #include <opencv2/opencv.hpp>
 
 //! Image Loader
-/*!
-
-*/
 class Image_loader {
  public:
   //! Enum record which kind of file can be loaded.
@@ -79,9 +75,6 @@ class Image_loader {
 };
 
 //! Blank image generator
-/*!
-
-*/
 class Blank_image_loader : public Image_loader {
  public:
   // --- Interface :
@@ -115,9 +108,6 @@ class Blank_image_loader : public Image_loader {
 };
 
 //! Offline image loader
-/*!
-
-*/
 class Offline_image_loader : public Image_loader {
  public:
   enum DatasetMode {
@@ -171,7 +161,7 @@ class Offline_image_loader : public Image_loader {
   Offline_image_loader();
   ~Offline_image_loader();
   //! Initialize parameters during construction
-  // Offline_image_loader(string color_folder, string depth_loader);
+  Offline_image_loader(string color_folder, string depth_loader);
   Offline_image_loader(string cal, string dir, int dm);
 
   //! Initiation
