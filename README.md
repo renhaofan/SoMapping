@@ -85,5 +85,5 @@ For convinence, download the packed demo dataset.
 After build the project, you should find binary executable file `FUSION` located in `/*/SoMapping/plane_fusion_final/bin`
 ```bash
 cd bin
-./FUSION ../Files/TUM/TUM1.txt /home/steve/dataset/TUM_RGBD_VSLAM/rgbd_dataset_freiburg1_xyz 1
+./FUSION /*****/Files/TUM/TUM1.txt /******/rgbd_dataset_freiburg1_xyz 1
 ```
