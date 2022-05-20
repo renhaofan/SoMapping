@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 
   //
   //	// fx = fy = 480.0f !
-  string ground_truth_path = "/home/zhuzunjie/Data/ICL/or2/groundtruth.txt";
+  //    string ground_truth_path = "/home/zhuzunjie/Data/ICL/or2/groundtruth.txt";
   //	string color_folder = "/home/zhuzunjie/Data/ICL/or2/rgb/";
   //	string depth_folder = "/home/zhuzunjie/Data/ICL/or2/depth/";
   //
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
   //	Image_loader * image_loader_ptr = create_image_loader(color_folder,
   // depth_folder);
   //
-
+  string ground_truth_path = "/home/steve/dataset/TUM_RGBD_VSLAM/rgbd_dataset_freiburg1_xyz/groundtruth.txt";
   // string ground_truth_path = "/home/steve/dataset/scannet0427_00/";
   // Initiation
   Main_engine::instance()->init(argc, argv, image_loader_ptr);

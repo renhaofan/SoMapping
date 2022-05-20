@@ -315,7 +315,7 @@ void UI_engine::render_main_viewport() {
       GL_view_pose.setIdentity();
     }
     // Note : OpenGL view pose is the inverse of OpenGL transformation matrix !
-    GL_view_pose = GL_view_pose.inverse();
+    GL_view_pose = GL_view_pose.inverse().eval();
 
     //
     Eigen::Matrix3f coordinate_change;
@@ -1767,7 +1767,7 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
         coordinate_change.inverse();
     current_pose_mat.block(0, 3, 3, 1) =
         coordinate_change * current_pose_mat.block(0, 3, 3, 1).eval();
-    current_pose_mat = current_pose_mat.inverse();
+    current_pose_mat = current_pose_mat.inverse().eval();
 
     float *ptr_f1 = UI_ptr->GL_camera_Frame.mat.data;
     //

@@ -72,14 +72,16 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
 
       break;
     case DatasetMode::TUM:
+      printf("DatasetMode TUM here\n");
       color_dir = dir + "/";
       depth_dir = dir + "/";
       associate_dir = dir + "/associate.txt";
       detect_images(associate_dir, color_dir, depth_dir, dm);
+      printf("after detect_images()\n");
       // Read image parameters
       this->read_calibration_parameters(cal);
       // Print loader state
-      this->print_state(false);
+      this->print_state(true);
 
       break;
     case DatasetMode::MyZR300:
@@ -226,7 +228,11 @@ void Offline_image_loader::detect_images(string associate, string colordir,
                                          string depthdir, int dm) {
   ifstream inf;
   inf.open(associate, ifstream::in);
-
+  if (!inf.is_open()) {
+      fprintf(stderr, "File %s, Line %d, Function %s(): Failed to open file %s\n",
+              __FILE__, __LINE__, __FUNCTION__, associate.c_str());
+      throw "Failed to open file";
+  }
   string line;
   size_t comma = 0;
   size_t comma2 = 0;

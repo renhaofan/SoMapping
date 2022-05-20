@@ -25,7 +25,7 @@ void SLAM_system_settings::set_to_default() {
   this->aligned_color_size.width = 0;
   this->aligned_color_size.height = 0;
   //
-  int calib_mode = 0;
+  int calib_mode = 1;
   if (calib_mode == 0) {
     // ICL
     this->sensor_params.sensor_fx = 480.0f;
