@@ -7,7 +7,50 @@ find plane_fusion_final -iname *.h -o -iname *.cpp | xargs clang-format -i -styl
 ```bash
 find plane_fusion_final -iname *.cuh -o -iname *.cu | xargs clang-format -i -style=Google
 ```
-## 2. environment
+## 2. GUI-Interaction
+### 2.1 Display
+<kbd>1</kbd> - OpenGL right-hand frame, red-x, green-y, blue-z.
+
+<kbd>2</kbd> - Trajectory, blue-?, red-?.
+
+<kbd>3</kbd> - Voxel, yellow color by default.
+
+<kbd>4</kbd> - Point cloud per frame, yellow color by default.
+
+<kbd>5</kbd> - Normal vectors of point cloud.
+
+<kbd>6</kbd> - TSDF map.
+
+<kbd>8</kbd> - Pesudo color point cloud per frame.
+
+<kbd>9</kbd> - Plane detection-? blue color by default.
+
+<kbd>0</kbd> - Planar supervoxel-?
+
+
+### 2.2 Observation-View 
+
+<kbd>w</kbd> - Move forward. 
+
+<kbd>s</kbd> - Move backward.
+
+<kbd>a</kbd> - Shift Left.
+
+<kbd>d</kbd> - Shift Right.
+
+<kbd>e</kbd> - Move forward-?
+
+<kbd>q</kbd> - Move backward-?
+
+<kbd>←</kbd>, <kbd>→</kbd> yaw slowly, aka rotate around self-y axis.
+
+<kbd>↑</kbd>, <kbd>↓</kbd> pitch slowly, aka rotate around self-x axis.
+
+mouse left button: rotate fast.
+
+mouse right button: translate againist z axis.
+
+## 3. environment
 Ubuntu20.04 Desktop,  CUDA Driver Version = 11.6, CUDA Runtime Version = 11.6, cudnn = 8.3.1.
 ```bash
 $ g++ --version
@@ -16,7 +59,7 @@ Copyright (C) 2019 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ```
-### 2.1 Dependency
+### Dependency
 #### 1. OpenGL
 ```bash
 sudo apt install -y libglu1-mesa-dev mesa-common-dev mesa-utils
@@ -28,7 +71,7 @@ Default version on ubuntu20.04 ppa.
 ```
 sudo apt-get install -y libeigen3-dev libeigen3-doc
 ```
-#### 2. ceres-solver 1.14.0
+#### 3. ceres-solver 1.14.0
 Install dependencies firstly.
 ```
 # CMake
@@ -53,9 +96,9 @@ $ cmake ..
 $ make -j2
 $ sudo make install
 ```
-#### 3. OpenCV 3.4.5 
+#### 4. OpenCV 3.4.5 
 OpenCV3.x should work(not fully test).
-#### 4. DBow3
+#### 5. DBow3
 If you have installed the contrib_modules, use cmake option `-DUSE_CONTRIB=ON` to enable SURF.
 ```bash
 $ git clone git@github.com:rmsalinas/DBow3.git
@@ -64,7 +107,7 @@ $ cmake \
 -D USE_CONTRIB=ON \
 ..
 ```
-#### 5. CUDA utils
+#### 6. CUDA utils
 
 ```bash
 $ git clone -b v11.6 git@github.com:NVIDIA/cuda-samples.git
