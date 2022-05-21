@@ -320,6 +320,9 @@ template <typename T>
 class Matrix44 : public _Matrix44<T> {
  public:
   _IS_CUDA_CODE_ Matrix44() {}
+  _IS_CUDA_CODE_ Matrix44(const Matrix44<T> &mat) {
+      for (int i = 0; i < 16; i++) this->data[i] = mat.data[i];
+  }
   _IS_CUDA_CODE_ ~Matrix44() {}
 
   //! Set matrix to a identity matrix.
