@@ -1,4 +1,21 @@
 # SoMapping
+## BUG
+```
+CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Preprocess_engine/Preprocess_engine.cpp:298 code=702(cudaErrorLaunchTimeout) "cudaMemcpy(this->dev_raw_depth, raw_depth.data, this->raw_depth_size.width * this->raw_depth_size.height * sizeof(RawDepthType), cudaMemcpyHostToDevice)" 
+```
+```
+
+CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Map_engine/Mesh_generator.cpp:67 code=2(cudaErrorMemoryAllocation) "cudaMalloc((void **)&(this->dev_planar_triangles), this->max_number_of_triangle * 3 * sizeof(My_Type::Vector3f))" 
+
+```
+
+### wrong calibration file will cause this BUG in offline dataset mode.
+```
+terminate called after throwing an instance of 'cv::Exception'
+  what():  OpenCV(3.4.5) /home/steve/Downloads/Source-Archive-main/OpenCV/opencv-3.4.5/modules/video/src/lkpyramid.cpp:1231: error: (-215:Assertion failed) (npoints = prevPtsMat.checkVector(2, CV_32F, true)) >= 0 in function 'calc'
+
+```
+### Fast UI_switch key 4 and 8
 ## 1. clang-format
 command clang-format for folder
 ```bash
@@ -8,6 +25,7 @@ find plane_fusion_final -iname *.h -o -iname *.cpp | xargs clang-format -i -styl
 find plane_fusion_final -iname *.cuh -o -iname *.cu | xargs clang-format -i -style=Google
 ```
 ## 2. GUI-Interaction
+<kdb>Esc</kdb> exit program.
 ### 2.1 Display
 <kbd>1</kbd> - OpenGL right-hand frame, red-x, green-y, blue-z.
 
@@ -28,7 +46,7 @@ find plane_fusion_final -iname *.cuh -o -iname *.cu | xargs clang-format -i -sty
 <kbd>0</kbd> - Planar supervoxel-?
 
 
-### 2.2 Observation-View 
+### 2.2 FreeView Control
 
 <kbd>w</kbd> - Move forward. 
 
