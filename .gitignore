@@ -3,8 +3,14 @@
 bin/*
 bin
 bin/
+
 ## build folder
 build/
+
+## doc folder
+*/doc/*
+doc/*
+doc/
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
