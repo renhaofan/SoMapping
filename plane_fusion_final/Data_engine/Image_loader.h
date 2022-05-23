@@ -83,8 +83,8 @@ class Image_loader {
 };
 
 /**
- * @brief Class that is inherited using public inheritance. In case that no data
- * expecially.
+ * @brief Class that is inherited using public inheritance. In case that Image_loader
+ * pointer is nullptr.
  */
 class Blank_image_loader : public Image_loader {
  public:

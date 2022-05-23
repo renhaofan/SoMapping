@@ -2,7 +2,7 @@
 
 #include <SLAM_system/SLAM_system_settings.h>
 
-//! file operation
+// file operation
 #include <dirent.h>
 #ifdef _WIN32
 #include <io.h>
@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-//! utils function
+// utils function
 std::string append_slash_to_dirname(std::string dirname) {
   if (dirname.empty()) {
     fprintf(stderr, "File %s, Line %d, Function %s(): Empty dirname.\n",
@@ -100,13 +100,13 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
 Offline_image_loader::~Offline_image_loader() {}
 
 void Offline_image_loader::init(string color_folder, string depth_folder) {
-  //! Detect images under folder
+  // Detect images under folder
   this->detect_images(color_folder, depth_folder);
 
-  //! Read image parameters
+  // Read image parameters
   this->read_image_parameters();
 
-  //! Print loader state
+  // Print loader state
   this->print_state(false);
 }
 
@@ -114,11 +114,11 @@ void Offline_image_loader::read_image_parameters() {
   if (this->color_path_vector.size() > 0) {
     cv::Mat temp_mat;
 
-    //! Read color images
+    // Read color images
     temp_mat =
         cv::imread(this->color_path_vector[0].c_str(), CV_LOAD_IMAGE_UNCHANGED);
 
-    //! Read parameters of color image
+    // Read parameters of color image
     this->color_width = temp_mat.cols;
     this->color_height = temp_mat.rows;
     this->color_element_size = (int)temp_mat.elemSize();
@@ -128,11 +128,11 @@ void Offline_image_loader::read_image_parameters() {
   if (this->depth_path_vector.size() > 0) {
     cv::Mat temp_mat;
 
-    //! Read depth images
+    // Read depth images
     temp_mat =
         cv::imread(this->depth_path_vector[0].c_str(), CV_LOAD_IMAGE_UNCHANGED);
 
-    //! Read parameters of depth image
+    // Read parameters of depth image
     this->depth_width = temp_mat.cols;
     this->depth_height = temp_mat.rows;
     this->depth_element_size = (int)temp_mat.elemSize();
@@ -158,7 +158,7 @@ void Offline_image_loader::read_calibration_parameters(string cal) {
   f >> fx >> fy;
   f >> cx >> cy;
 
-  //! depth2color, depth2imu
+  // depth2color, depth2imu
   My_Type::Matrix44f d2c, d2i;
 
   f >> d2c.m00 >> d2c.m10 >> d2c.m20 >> d2c.m30;
@@ -212,7 +212,7 @@ void Offline_image_loader::detect_images(string color_folder,
         (double(1.0 / 30.0) * double(count)));
   }
 
-  //! check mode of data loader
+  // check mode of data loader
   if (this->depth_path_vector.size() == 0 &&
       this->color_path_vector.size() == 0) {
     this->image_loader_mode = ImageLoaderMode::NO_DATA;
@@ -223,7 +223,7 @@ void Offline_image_loader::detect_images(string color_folder,
     this->number_of_frames = this->depth_path_vector.size();
   } else if (this->depth_path_vector.size() > 0 &&
              this->color_path_vector.size() > 0) {
-    //! Validate number of loaded frames
+    // Validate number of loaded frames
     if (this->color_path_vector.size() == this->depth_path_vector.size()) {
       this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
       this->number_of_frames = this->depth_path_vector.size();
@@ -277,7 +277,7 @@ void Offline_image_loader::detect_images(string associate, string colordir,
         this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
       }
 
-      //! check mode of data loader
+      // check mode of data loader
       if (this->depth_path_vector.size() == 0 &&
           this->color_path_vector.size() == 0) {
         this->image_loader_mode = ImageLoaderMode::NO_DATA;
@@ -288,7 +288,7 @@ void Offline_image_loader::detect_images(string associate, string colordir,
         this->number_of_frames = this->depth_path_vector.size();
       } else if (this->depth_path_vector.size() > 0 &&
                  this->color_path_vector.size() > 0) {
-        //! Validate number of loaded frames
+        // Validate number of loaded frames
         if (this->color_path_vector.size() == this->depth_path_vector.size()) {
           this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
           this->number_of_frames = this->depth_path_vector.size();
@@ -323,7 +323,7 @@ void Offline_image_loader::detect_images(string associate, string colordir,
         this->depth_path_vector.push_back(depthdir + imgName);
         this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
       }
-      //! check mode of data loader
+      // check mode of data loader
       if (this->depth_path_vector.size() == 0 &&
           this->color_path_vector.size() == 0) {
         this->image_loader_mode = ImageLoaderMode::NO_DATA;
@@ -334,7 +334,7 @@ void Offline_image_loader::detect_images(string associate, string colordir,
         this->number_of_frames = this->depth_path_vector.size();
       } else if (this->depth_path_vector.size() > 0 &&
                  this->color_path_vector.size() > 0) {
-        //! Validate number of loaded frames
+        // Validate number of loaded frames
         if (this->color_path_vector.size() == this->depth_path_vector.size()) {
           this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
           this->number_of_frames = this->depth_path_vector.size();
@@ -380,7 +380,7 @@ void Offline_image_loader::print_state(bool print_all_pathes) const {
                 "File %s, Line %d, Function %s(), Only %zu depth images found!\n",
                 __FILE__, __LINE__, __FUNCTION__, this->depth_path_vector.size());
 
-        //! print all depth image pathes
+        // print all depth image pathes
         if (print_all_pathes) {
             for (size_t path_id = 0; path_id < this->depth_path_vector.size();
                  path_id++) {
@@ -395,7 +395,7 @@ void Offline_image_loader::print_state(bool print_all_pathes) const {
             "Both color and depth images found!\n %zu depth images \n %zu color "
             "images\n",
             this->depth_path_vector.size(), this->color_path_vector.size());
-        //! print all frames pathes
+        // print all frames pathes
         if (print_all_pathes) {
             printf("Depth image pathes:\n");
             for (size_t path_id = 0; path_id < this->depth_path_vector.size();
@@ -451,7 +451,7 @@ bool Offline_image_loader::is_ready_to_load_next_frame() const {
             __FILE__, __LINE__, __FUNCTION__);
     throw "Invalid frame index!";
   } else if (this->frame_index == this->number_of_frames) {
-    //! More likely, run to the flag (End of process) rather than BUG.
+    // More likely, run to the flag (End of process) rather than BUG.
     return false;
   }
   return true;
@@ -460,10 +460,10 @@ bool Offline_image_loader::is_ready_to_load_next_frame() const {
 bool Offline_image_loader::load_next_frame(double &timestamp,
                                            cv::Mat &color_mat,
                                            cv::Mat &depth_mat) {
-  //! Validate frame index
+  // Validate frame index
   if (!this->is_ready_to_load_next_frame()) return false;
 
-  //! Load timestamp and images
+  // Load timestamp and images
   timestamp = this->image_timestamp_vector[this->frame_index];
   switch (this->image_loader_mode) {
     case ImageLoaderMode::NO_DATA:
@@ -488,7 +488,7 @@ bool Offline_image_loader::load_next_frame(double &timestamp,
       break;
   }
 
-  //! To next frame
+  // To next frame
   this->frame_index++;
   return true;
 }
