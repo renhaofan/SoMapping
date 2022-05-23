@@ -1,38 +1,45 @@
 #include "Data_loader.h"
 
-//
 #include <fstream>
 
 #include "OurLib/My_quaternions_interface.h"
 
-//
-Data_loader::Data_loader() {
-  // printf("call Data_loader %d\n", this->ground_truth_camera_pose_index);
-}
+Data_loader::Data_loader() {}
 Data_loader::~Data_loader() { delete this->image_loader; }
 
-//
-void Data_loader::init_image_loader(Image_loader *image_loader_ptr) {
-  if (image_loader_ptr == nullptr) {
-    this->image_loader = new Blank_image_loader();
-  } else {
-    this->image_loader = image_loader_ptr;
+bool Data_loader::load_next_frame(double &timestamp, cv::Mat &color_mat,
+                                  cv::Mat &depth_mat, bool show_in_opencv) {
+  // Validate this->image_loader already initialized
+  if (this->image_loader == nullptr) {
+    fprintf(stderr,
+            "File %s, Line %d, Function %s(), "
+            "Data_engine::Data_loader::Image_loader has NOT been initalized!\n",
+            __FILE__, __LINE__, __FUNCTION__);
+    return false;
   }
+
+  // Load one frame
+  bool load_state =
+      this->image_loader->load_next_frame(timestamp, color_mat, depth_mat);
+
+  // Visualization
+  if (show_in_opencv) {
+    this->show_current_frame(color_mat, depth_mat);
+  }
+
+  return load_state;
 }
 
-//
 void Data_loader::load_ground_truth(string ground_truth_path,
                                     bool is_ICL_NUIM_data) {
   ifstream ifile;
 
   ifile.open(ground_truth_path);
   if (ifile.is_open()) {
-    //
     Trajectory_node temp_GT;
-    //
+
     string current_read_line;
 
-    //
     this->with_ground_truth_trajectory = true;
 
     while (getline(ifile, current_read_line)) {
@@ -58,7 +65,10 @@ void Data_loader::load_ground_truth(string ground_truth_path,
     ifile.close();
   } else {
     this->with_ground_truth_trajectory = false;
-    printf("Can not open ground truth file!\r\n\r\n");
+    fprintf(stderr,
+            "File %s, Line %d, Function %s(), "
+            "Can not open ground truth file!\n",
+            __FILE__, __LINE__, __FUNCTION__);
   }
 
   // is_ICL_NUIM_data : Transformate from left-hand coordinate to right-hand
@@ -104,47 +114,33 @@ void Data_loader::load_ground_truth(string ground_truth_path,
   }
 }
 
-//
-bool Data_loader::load_next_frame(double &timestamp, cv::Mat &color_mat,
-                                  cv::Mat &depth_mat, bool show_in_opencv) {
-  // Validate this->image_loader already initialized
-  if (this->image_loader == nullptr) {
-    printf("Data_engine::Data_loader::Image_loader has NOT been initalized!");
-    return false;
+void Data_loader::init_image_loader(Image_loader *image_loader_ptr) {
+  if (image_loader_ptr == nullptr) {
+    this->image_loader = new Blank_image_loader();
+  } else {
+    this->image_loader = image_loader_ptr;
   }
-
-  // Load one frame
-  bool load_state =
-      this->image_loader->load_next_frame(timestamp, color_mat, depth_mat);
-
-  // Visualization
-  if (show_in_opencv) {
-    this->show_current_frame(color_mat, depth_mat);
-  }
-
-  return load_state;
 }
 
-//
 void Data_loader::show_current_frame(cv::Mat &color_mat, cv::Mat &depth_mat) {
   cv::imshow("Color image", color_mat);
 }
 
-//
 bool Data_loader::get_next_ground_truth_camera_pose(
     Trajectory_node &trajectory_node) {
-  // printf(" --------- %d------- %d\n", this->ground_truth_camera_pose_index,
-  // this->ground_truth_trajectory.size());
-
   if (this->ground_truth_camera_pose_index <
-          this->ground_truth_trajectory.size() &&
-      this->ground_truth_camera_pose_index >= 0) {
+      this->ground_truth_trajectory.size()) {
     trajectory_node =
         this->ground_truth_trajectory[this->ground_truth_camera_pose_index];
+
     this->ground_truth_camera_pose_index++;
 
     return true;
   } else {
+    fprintf(
+        stderr,
+        "File %s, Line %d, Function %s, camera pose GT index mismatch size.\n",
+        __FILE__, __LINE__, __FUNCTION__);
     return false;
   }
 }

@@ -1,11 +1,18 @@
-#pragma once
+/**
+ *  Copyright (C) All rights reserved.
+ *  @file Data_loader.h
+ *  @brief Load frame by member image_loader. And load camera pose ground truth.
+ *  In addition, some GLCamera trajectory path(not used tmp).
+ *  @author haofan ren, yqykrhf@163.com
+ *  @version beta 0.0
+ *  @date 22-5-21
+ */
 
-// C/C++ IO
+#pragma once
 #include <cstdio>
 #include <iostream>
 using namespace std;
 
-// Our lib
 #include "Image_loader.h"
 #include "OurLib/Trajectory_node.h"
 
@@ -23,125 +30,147 @@ using namespace std;
 //#endif
 //#include "DescManip.h"
 
-//! Data loader
-/*!
-
-*/
+/**
+ * @brief Load frame and ground truth of camera pose.
+ */
 class Data_loader {
  public:
-  //! Default constructor/destructor
+  /** @brief Default constructor. */
   Data_loader();
+  /** @brief Default deconstructor. */
   ~Data_loader();
 
-  //! Read next frame
-  /*!
-          \param	timestamp		timestamp of captured frame
-
-          \param	color_mat		Color image matrix. (cv::Mat)
-
-          \param	depth_mat		Depth image matrix. (cv::Mat)
-
-          \param	show_in_opencv	Show images in OpenCV windows.
-
-          \return	bool	true	-	succeed	load images
-                                          false	-	failed to load images
-  */
+  /**
+   * @brief Read color and depth frame by call function
+   *        this->image_loader->load_next_frame();
+   * @param timestamp Timestamp of captured frame.
+   * @param color_mat Color image matrix. (cv::Mat)
+   * @param depth_mat Depth image matrix. (cv::Mat)
+   * @param show_in_opencv Call function cv::imshow(color_mat) for DBUG, disable
+   *        by default.
+   * @exception this->image_loader == nullptr
+   * @return true/false, succeed/failed to load images.
+   */
   bool load_next_frame(double &timestamp, cv::Mat &color_mat,
                        cv::Mat &depth_mat, bool show_in_opencv = false);
-
-  //! Jump to begin
-
-  //!
-  /*!
-          \param	ground_truth_path	Path of ground truth file.
-
-          \return void
-  */
+  /**
+   * @brief Load camera pose ground truth.
+   * @param ground_truth_path Path of ground truth file.
+   * @param is_ICL_NUIM_data, whose GT is based on left-hand, false by default.
+   */
   void load_ground_truth(string ground_truth_path,
                          bool is_ICL_NUIM_data = false);
 
-  //! Get Image_loader
+  /**
+   * @brief Get the this->image_loader pointer.
+   * @return (Image_loader*), i.e. this->image_loader pointer.
+   */
   Image_loader *get_image_loader() const { return this->image_loader; }
-
-  //!
+  /**
+   * @brief Extract depth width and height by two variables by calling
+   *        Image_loader function.
+   * @param width Depth image width.
+   * @param height Depth image width.
+   */
   void get_depth_image_size(int &width, int &height) const {
     this->image_loader->get_depth_image_size(width, height);
   }
-
-  //!
+  /**
+   * @brief Extract color width and height by two variables by calling
+   *        Image_loader function.
+   * @param width Color image width.
+   * @param height Color image width.
+   */
   void get_color_image_size(int &width, int &height) const {
     this->image_loader->get_color_image_size(width, height);
   }
 
-  //!
+  /**
+   * @brief Camera pose index of ground truth.
+   */
   size_t ground_truth_camera_pose_index = 0;
-  //! Get next ground_truth camera pose
+  /**
+   * @brief Get cmaera pose from ground truth.
+   * @param trajectory_node Contains translation, rotation in specified
+   * timestamp.
+   * @return true/false, success/failure.
+   */
   bool get_next_ground_truth_camera_pose(Trajectory_node &trajectory_node);
 
-  //! Get ground_truth trajectory
+  /**
+   * @brief Get ground_truth trajectory.
+   * @return const Trajectory reference.
+   */
   const Trajectory &get_ground_truth_trajectory() const {
     return this->ground_truth_trajectory;
   }
-  //! Get comparison trajectory
+  /**
+   * @brief Get comparison trajectory.
+   * @return const Trajectory reference.
+   */
   const Trajectory &get_comparison_trajectory() const {
     return this->comparison_trajectory;
   }
-  //! Get OpenGL FreeView camera trajectory trajectory
+
+  /**
+   * @brief Get OpenGL FreeView camera trajectory trajectory.
+   * @return const Trajectory reference.
+   */
   const Trajectory &get_OpenGL_camera_freeview_trajectory() const {
     return this->GLcamera_freeview_trajectory;
   }
-  //! Get OpenGL key view (TopView, etc) camera pose trajectory
+  /**
+   * @brief Get OpenGL key view (TopView, etc) camera pose trajectory
+   * @return const Trajectory reference.
+   */
   const Trajectory &get_OpenGL_camera_keyview_trajectory() const {
     return this->GLcamera_keyview_trajectory;
   }
 
  protected:
-  //! Image loader
+  /** @brief Image loader pointer. */
   Image_loader *image_loader;
 
-#pragma region(Information of trajectories)
-
-  //! Whether ground_truth trajectory file exist.
+  /** @brief Whether ground_truth trajectory file exist. */
   bool with_ground_truth_trajectory = false;
-  //! Whether comparison trajectory file exist.
+  /** @brief Whether comparison trajectory file exist. */
   bool with_comparison_trajectory = false;
-  //! Whether OpenGL FreeView camera trajectory file exist.
+  /** @brief Whether OpenGL FreeView camera trajectory file exist. */
   bool with_GLcamera_freeview_trajectory = false;
-  //! Whether OpenGL key view (TopView, etc) camera pose file exist.
+  /** @brief Whether OpenGL key view (TopView, etc) camera pose file exist. */
   bool with_GLcamera_keyview_pose = false;
 
-  //! ground_truth trajectory file path.
+  /** @brief ground_truth trajectory file path. */
   string ground_truth_trajectory_path;
-  //! Comparison trajectory file path.
+  /** @brief Comparison trajectory file path. */
   string comparison_trajectory_path;
-  //! OpenGL FreeView camera trajectory file path.
+  /** @brief OpenGL FreeView camera trajectory file path. */
   string GLcamera_freeview_trajectory_path;
-  //! OpenGL key view (TopView, etc) camera pose file path.
+  /** @brief OpenGL key view (TopView, etc) camera pose file path. */
   string GLcamera_keyview_pose_path;
 
-  // Trajectories
-  //! Ground truth trajectory
+  /** @brief Ground truth trajectory. */
   Trajectory ground_truth_trajectory;
-  //! Comparison trajectory
+  /** @brief Comparison trajectory. */
   Trajectory comparison_trajectory;
-  //! OpenGL camera FreeView trajectory
+  /** @brief OpenGL camera FreeView trajectory. */
   Trajectory GLcamera_freeview_trajectory;
-  //! OpenGL camera key view (TopView, etc) trajectory
+  /** @brief OpenGL camera key view (TopView, etc) trajectory. */
   Trajectory GLcamera_keyview_trajectory;
 
-#pragma endregion
-
-  //! Initialize Image_loader
+  /**
+   * @brief Initialize the this image_loader.
+   * @param image_loader_ptr Assigned pointer for this->image_loader.
+   * @warning If param image_loader_ptr is equal to nullptr, this->image_loader
+   * will be Blank_image_loader().
+   */
   void init_image_loader(Image_loader *image_loader_ptr);
 
  private:
-  //! Show current frame
-  /*!
-          \param	color_mat	cv::Mat of color image.
-
-          \param	depth_mat	cv::Mat of depth image.
-
-          \return void
-  */
+  /**
+   * @brief Show current color and depth frame for DBUG.
+   * @param color_mat cv::Mat of color image.
+   * @param depth_mat cv::Mat of depth image.
+   */
   void show_current_frame(cv::Mat &color_mat, cv::Mat &depth_mat);
 };
