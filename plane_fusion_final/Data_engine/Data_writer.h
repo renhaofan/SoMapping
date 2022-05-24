@@ -1,7 +1,7 @@
 /**
  *  Copyright (C) All rights reserved.
  *  @file Data_writer.h
- *  @brief Set up the estimated trajectory storage path.
+ *  @brief Set up the estimated trajectory storage path. And shutdown logging.
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
@@ -37,7 +37,7 @@ class Data_writer {
   void init(string output_folder, bool _is_ICL_NUIM_dataset = false);
 
   /**
-   * @brief Save estimated trajectory.
+   * @brief Save estimated trajectory and shutdown logging.
    * @param estimated_trajectory Estimated trajectory to be saved.
    */
   void save_trajectory(const Trajectory &estimated_trajectory);
