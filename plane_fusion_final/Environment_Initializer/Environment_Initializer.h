@@ -1,33 +1,37 @@
-#pragma once
+/**
+ *  Copyright (C) All rights reserved.
+ *  @file Environment_Initializer.h
+ *  @brief class Environment_Initializer header file,
+ *         set print_detail_information variable,
+ *         check and print GPU device & CUDA infomation.
+ *         And start logging.
+ *  @author haofan ren, yqykrhf@163.com
+ *  @version beta 0.0
+ *  @date 22-5-21
+ */
 
-//! Initiate the environment.
-/*!
-
-*/
 class Environment_Initializer {
  public:
-  //! Max threads per CUDA block.
+  /** @brief Max threads per CUDA block. */
   int max_TperB;
-  //! GPU clock frequency.
+  /** @brief GPU clock frequency. */
   int GPU_clock_rate;
 
-  //
+  /** @brief Default constructor. */
   Environment_Initializer();
-  ~Environment_Initializer();
-  //! Constructor with information print flag
+  /** @brief Constructor with information print flag. */
   Environment_Initializer(bool print_detail);
+  /** @brief Default deconstructor. */
+  ~Environment_Initializer();
 
-  //! Initiate environment.
-  /*!
-          \param	argc	Input the frist argument of main function.
-
-          \param	argv	Input the second argument of main function.
-
-          \return	void
-  */
+  /**
+   * @brief Check GPU device, CUDA environment. And start logging.
+   * @param argc Input the frist argument of main() function.
+   * @param argv Input the second argument of main() function.
+   */
   void init_environment(int argc, char **argv);
 
  private:
-  //!
-  bool print_detail_informations = false;
+  /** @brief Flag about whether print detail infomation */
+  bool print_detail_information = false;
 };

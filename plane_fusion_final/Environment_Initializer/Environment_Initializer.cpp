@@ -1,17 +1,13 @@
-//
 #include "Environment_Initializer.h"
 
-// C/C++ IO
 #include <cstdio>
 #include <iostream>
-// Namespace
 using namespace std;
 
-// CUDA head files
-// For the CUDA runtime routines (prefixed with "cuda_")
+// CUDA headers, for the CUDA runtime routines (prefixed with "cuda_").
 #include <cuda.h>
 #include <cuda_runtime.h>
-// helper functions and utilities to work with CUDA
+// CUDA helper functions and utilities.
 #include <device_launch_parameters.h>
 #include <helper_cuda.h>
 #include <helper_functions.h>
@@ -20,26 +16,21 @@ using namespace std;
 #include "ceres/ceres.h"
 #include "ceres/rotation.h"
 
-// #pragma comment( \
-    lib, "C:/English_path/glog-0.4.0/glog-0.4.0-build/Release/glog.lib")
-
 Environment_Initializer::Environment_Initializer() {}
-Environment_Initializer::~Environment_Initializer() {}
-//
 Environment_Initializer::Environment_Initializer(bool print_detail) {
-  this->print_detail_informations = print_detail;
+  this->print_detail_information = print_detail;
 }
+Environment_Initializer::~Environment_Initializer() {}
 
-//
 void Environment_Initializer::init_environment(int argc, char **argv) {
-  // Initiate CUDA device
-#pragma region(Initiate CUDA device)
-
+  // <-------- Check GPU device, CUDA environment
+  //           and print concerned information.   ------->
   // Reset GPU
   cudaDeviceReset();
 
   // CUDA device ID
   int devID;
+
   // CUDA device properties
   cudaDeviceProp deviceProps;
 
@@ -51,7 +42,9 @@ void Environment_Initializer::init_environment(int argc, char **argv) {
     cudaError_t err = cudaSuccess;
     err = cudaGetDeviceProperties(&deviceProps, devID);
     if (err != cudaSuccess) {
-      fprintf(stderr, "File %s, Line %d, Function %s()\n Failed to get device properties.(error code %s)!\n",
+      fprintf(stderr,
+              "File %s, Line %d, Function %s()\n Failed to get device "
+              "properties.(error code %s)!\n",
               __FILE__, __LINE__, __FUNCTION__, cudaGetErrorString(err));
       exit(EXIT_FAILURE);
     }
@@ -60,8 +53,9 @@ void Environment_Initializer::init_environment(int argc, char **argv) {
   // Store some device paramenters
   this->max_TperB = deviceProps.maxThreadsPerBlock;
   this->GPU_clock_rate = deviceProps.clockRate * 1000;
+
   // Show detail information
-  if (this->print_detail_informations) {
+  if (this->print_detail_information) {
     cout << "CUDA device ID = " << devID << endl;
     cout << "CUDA device is \t\t" << deviceProps.name << endl;
     cout << "CUDA max Thread per Block is \t" << deviceProps.maxThreadsPerBlock
@@ -82,14 +76,11 @@ void Environment_Initializer::init_environment(int argc, char **argv) {
          << "\t" << endl;
   }
 
-#pragma endregion
-
-  // Initiate google logging.
-#pragma region(Initiate google logging)
-
+  //<------- Initiate google logging ------->
   //#ifdef _LOGGING_H_
+  FLAGS_log_dir = "./log";
   google::InitGoogleLogging(argv[0]);
+  std::cout << "FLAGS_log_dir: ";
+  std::cout << FLAGS_log_dir << std::endl;
   //#endif
-
-#pragma endregion
 }
