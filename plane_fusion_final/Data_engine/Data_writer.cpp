@@ -55,5 +55,5 @@ void Data_writer::save_trajectory(const Trajectory &estimated_trajectory) {
            (this->output_folder + "/estimate_trajectory.txt\0").c_str());
   }
 
-  google::ShutdownGoogleLogging();
+//  google::ShutdownGoogleLogging();
 }

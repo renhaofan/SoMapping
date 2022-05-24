@@ -78,9 +78,9 @@ void Environment_Initializer::init_environment(int argc, char **argv) {
 
   //<------- Initiate google logging ------->
   //#ifdef _LOGGING_H_
-  FLAGS_log_dir = "./log";
-  google::InitGoogleLogging(argv[0]);
-  std::cout << "FLAGS_log_dir: ";
-  std::cout << FLAGS_log_dir << std::endl;
+//  FLAGS_log_dir = "./log";
+//  google::InitGoogleLogging(argv[0]);
+//  std::cout << "FLAGS_log_dir: ";
+//  std::cout << FLAGS_log_dir << std::endl;
   //#endif
 }
