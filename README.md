@@ -1,4 +1,6 @@
 # SoMapping
+`string GLcamera_freeview_trajectory_path` in `Data_loader.h` ？
+ 
 ## BUG
 ```
 CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Preprocess_engine/Preprocess_engine.cpp:298 code=702(cudaErrorLaunchTimeout) "cudaMemcpy(this->dev_raw_depth, raw_depth.data, this->raw_depth_size.width * this->raw_depth_size.height * sizeof(RawDepthType), cudaMemcpyHostToDevice)" 
@@ -16,6 +18,7 @@ terminate called after throwing an instance of 'cv::Exception'
 
 ```
 ### Fast UI_switch key 4 and 8
+### Key qe && we 
 ## 1. clang-format
 command clang-format for folder
 ```bash
