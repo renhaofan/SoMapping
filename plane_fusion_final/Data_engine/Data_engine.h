@@ -5,7 +5,6 @@
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
- *  @todo comment more details after seeing Image_loader.h
  */
 
 #pragma once
