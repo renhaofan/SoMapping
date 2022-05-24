@@ -116,6 +116,10 @@ void Data_loader::load_ground_truth(string ground_truth_path,
 
 void Data_loader::init_image_loader(Image_loader *image_loader_ptr) {
   if (image_loader_ptr == nullptr) {
+    fprintf(stderr,
+            "File %s, Line %d, Function %s(), "
+            "Data_engine::Data_loader::Image_loader has NOT been initalized!\n",
+            __FILE__, __LINE__, __FUNCTION__);
     this->image_loader = new Blank_image_loader();
   } else {
     this->image_loader = image_loader_ptr;

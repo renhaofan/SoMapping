@@ -1,31 +1,25 @@
 #include "Data_writer.h"
 
-//!
 Data_writer::Data_writer() {}
 
 Data_writer::~Data_writer() {}
 
-//! Init
 void Data_writer::init(string output_folder, bool _is_ICL_NUIM_dataset) {
-  //
   this->output_folder = output_folder;
-
-  //
   this->is_ICL_NUIM_dataset = _is_ICL_NUIM_dataset;
 }
 
-//
 void Data_writer::save_trajectory(const Trajectory &estimated_trajectory) {
   // Open file
   FILE *file_pointer =
       fopen((this->output_folder + "/estimate_trajectory.txt\0").c_str(), "w+");
-  //
+
   if (file_pointer) {
-    for (int frame_counter = 0; frame_counter < estimated_trajectory.size();
+    for (size_t frame_counter = 0; frame_counter < estimated_trajectory.size();
          frame_counter++) {
       Trajectory_node node_to_save(estimated_trajectory[frame_counter]);
 
-      //! Coordinate convert
+      // Coordinate convert
       if (this->is_ICL_NUIM_dataset) {
         // ------------ Translation ------------
         node_to_save.tx = +node_to_save.tx;
@@ -41,7 +35,6 @@ void Data_writer::save_trajectory(const Trajectory &estimated_trajectory) {
         coordinate_change(1, 1) = -1;
         rot_mat =
             coordinate_change * rot_mat.eval() * coordinate_change.inverse();
-        //
         my_convert(node_to_save.quaternions, rot_mat);
       }
 
@@ -51,7 +44,7 @@ void Data_writer::save_trajectory(const Trajectory &estimated_trajectory) {
               node_to_save.quaternions.qx, node_to_save.quaternions.qy,
               node_to_save.quaternions.qz, node_to_save.quaternions.qr);
     }
-    printf("Estimate trajectory saved.(estimate with %d frame)\r\n",
+    printf("Estimate trajectory saved.(estimate with %zu frame)\r\n",
            estimated_trajectory.size());
     // Close file
     fclose(file_pointer);
