@@ -22,6 +22,14 @@ if(APPLE OR UNIX)
 else()
     file(COPY ${CMAKE_BINARY_DIR}/bin DESTINATION ${CMAKE_SOURCE_DIR})
 endif()
+
+# mkdir to store log info
+execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/log)
+# Flag whether logging
+set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -DLOGGING")
+#set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -DLOGTOSTDERR")
+
+
 # deprecate warnings, specify OpenGL version
 # credit: https://blog.csdn.net/u010815558/article/details/90288869
 if (POLICY CMP0072)
@@ -113,3 +121,12 @@ else()
 endif()
 
 target_link_libraries(FUSION ${PROJECT_NAME} ${CUDA_LIBRARY} rt cuda)
+
+## test google log
+add_executable(test_glog test_glog.cpp )
+target_link_libraries(test_glog ${CERES_LIBRARIES})
+
+## glog and gflags is depenceny of ceres, so just ceres
+#find_package(Gflags REQUIRED)
+#find_package(Glog REQUIRED)
+#include_directories(${GFLAGS_INCLUDE_DIRS} ${GLOG_INCLUDE_DIRS})

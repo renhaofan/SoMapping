@@ -22,18 +22,29 @@ using namespace std;
 void print_argvs(int argc, char **argv);
 
 int main(int argc, char **argv) {
+#ifdef LOGGING
+  FLAGS_log_dir = "./log";
+  google::InitGoogleLogging(argv[0]);
+#ifdef LOGTOSTDERR
+  FLAGS_logtostderr = true;  // log > stderr, not store file.
+#else
+  FLAGS_logtostderr = false; // generate log file
+#endif
+  LOG(INFO) << "Log file stored in " << FLAGS_log_dir;
+#endif
+
   print_argvs(argc, argv);
 
   printf("initialising ...\n");
   Image_loader *image_loader_ptr = nullptr;
 
   if (argc == 2) {
-    //! online image loader
+    // online image loader
   } else if (argc == 4) {
-    //! offline image loader
-    //! cal calibration file
-    //! dir sequence dir
-    //! dm dataset mode
+    // offline image loader
+    // cal calibration file
+    // dir sequence dir
+    // dm dataset mode
     string cal = string(argv[1]);
     string dir = string(argv[2]);
     int dm = std::atoi(argv[3]);
@@ -51,11 +62,11 @@ int main(int argc, char **argv) {
       "/home/steve/dataset/TUM_RGBD_VSLAM/"
       "rgbd_dataset_freiburg1_xyz/groundtruth.txt";
 
-  //! Initiation
+  // Initiation
   Main_engine::instance()->init(argc, argv, image_loader_ptr);
-  //! Load ground truth file
+  // Load ground truth file
   Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path, true);
-  //! Run
+  // Run
   Main_engine::instance()->run();
 
   return 0;
