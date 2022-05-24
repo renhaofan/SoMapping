@@ -15,7 +15,7 @@
 #include "UI_engine/UI_engine.h"
 
 /**
- * @brief Singleton object
+ * @brief Singleton object,
  */
 class Main_engine {
  public:
@@ -50,11 +50,13 @@ class Main_engine {
   ~Main_engine();
 
   /**
-   * @brief Initiate all components.
+   * @brief Initiate environment, data_engine, SLAM system,
+   *        render_engine, UI_engine::instance()->init;
    * @param argc Input the first argument of main() function.
    * @param argv Input the second argument of main() function.
    * @param image_loader_ptr The pointer of Image_loader.
-   * @param output_folder Output folder.(output estimated trajectory, mesh, etc.)
+   * @param output_folder Output folder.(output estimated trajectory, mesh,
+   * etc.)
    * @param _is_ICL_NUIM_dataset Dataset coordinate mode.
    */
   void init(int argc, char **argv, Image_loader *image_loader_ptr,

@@ -14,7 +14,6 @@ Main_engine::~Main_engine() {
 
 void Main_engine::init(int argc, char **argv, Image_loader *image_loader_ptr,
                        string output_folder, bool _is_ICL_NUIM_dataset) {
-
   //! <---------- Environment Initializer ---------->
   this->environment_initializer = new Environment_Initializer(true);
   this->data_engine = new Data_engine();
