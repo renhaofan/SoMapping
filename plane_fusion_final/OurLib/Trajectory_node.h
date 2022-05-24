@@ -1,55 +1,81 @@
 #pragma once
 
-// C/C++ IO
+//! C/C++ IO
 #include <cstdio>
 #include <iostream>
 #include <vector>
-//!
 
+//! Eigen
 #include <Eigen/Dense>
 #include <unsupported/Eigen/FFT>
-//!
+
+//! my quaternons
 #include "OurLib/My_quaternions.h"
 #include "OurLib/My_quaternions_interface.h"
 
-//! A templete class define trajectory node
-/*!
-        \brief
-
-        \details
-
-*/
+/**
+ * @brief A templete class define trajectory node
+ */
 class Trajectory_node {
  public:
-  //! Frame's time stamp or frame's index
+  /**
+   * @brief Frame's time stamp or frame's index.
+   */
   double time;
-  //! Translation
-  float tx, ty, tz;
-  //! Quaternions represent the rotation.
+  /**
+   * @brief The first element of translation.
+   */
+  float tx;
+  /**
+   * @brief The second element of translation.
+   */
+  float ty;
+  /**
+   * @brief The third element of translation.
+   */
+  float tz;
+  /**
+   * @brief quaternions represent the rotation.
+   */
   My_Type::My_quaternionsf quaternions;
 
-  //! Default constructor/destructor
+
+  /**
+   * @brief Default constructor.
+   */
   Trajectory_node();
-  ~Trajectory_node();
-
-  //! Construct from timestamp & TxTyTz & Quaternions
-  /*!
-
-  */
+  /**
+   * @brief Constructor from translation and rotation expressed by quaternion.
+   * @param timestamp Refer to timestamp.
+   * @param _tx The first element of translation.
+   * @param _ty The second element of translation.
+   * @param _tz The third element of translation.
+   * @param _qw Imaginary part of quaternion.
+   * @param _qx The first element of real part of quaternion.
+   * @param _qy The second element of real part of quaternion.
+   * @param _qz The third element of real part of quaternion.
+   */
   Trajectory_node(double timestamp, float _tx, float _ty, float _tz, float _qw,
                   float _qx, float _qy, float _qz);
-
-  //! Construct from timestamp & PoseMat(Eigen 4x4)
-  /*!
-
-  */
+  /**
+   * @brief Constructor from translation and rotation expressed by 4x4 pose matrix.
+   * @param time Timestamp
+   * @param pose_mat 4x4 pose matrix.
+   */
   Trajectory_node(double time, Eigen::Matrix4f pose_mat);
+  /**
+   * @brief Default destructor.
+   */
+  ~Trajectory_node();
 
-  //! override '='
-  /*
-          \note	Tips: '=','()','[]','->' must override in the class.
-                          Never override them as friend functions!
-  */
+
+//          \note	Tips: '=','()','[]','->' must override in the class.
+//                          Never override them as friend functions!
+  /**
+   * @brief Overload assignment operator '='.
+   * @param _node Assigned value.
+   * @return Trajectory_node reference.
+   */
   Trajectory_node &operator=(const Trajectory_node &_node) {
     if (this != &_node) {
       this->time = _node.time;
@@ -65,13 +91,17 @@ class Trajectory_node {
     return (*this);
   }
 
-  //! Output stream.
-  /*!
-
-  */
+  /**
+   * @brief Overload std::ostream operator <<.
+   * @param out_stream std::ostream.
+   * @param _node Trajectory_node to be printed.
+   * @return std::ostream.
+   */
   friend std::ostream &operator<<(std::ostream &out_stream,
                                   const Trajectory_node &_node);
 };
 
-// Define Trajectory
+/**
+ * @brief Define Trajectory by containers filled with Trajectory_node.
+ */
 typedef std::vector<Trajectory_node> Trajectory;
