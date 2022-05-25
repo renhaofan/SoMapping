@@ -19,6 +19,19 @@ terminate called after throwing an instance of 'cv::Exception'
 ```
 ### Fast UI_switch key 4 and 8
 ### Key qe && we 
+## Release slower than Debug
+Release exe:
+```
+CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Map_engine/Plane_map.cpp:293 code=2(cudaErrorMemoryAllocation) "cudaMalloc((void **)&temp_entry, (ORDERED_PLANE_TABLE_LENGTH + EXCESS_PLANE_TABLE_LENGTH) * sizeof(PlaneHashEntry))" 
+```
+occured.  Likely to out of memory. And
+```
+frame_id = 273
+1 : (-nan, -nan, -nan), -nan , 0.871626 , 2	true 
+2 : (-nan, -nan, -nan), -nan , 0.772893 , 2	true 
+```
+
+
 ## 1. clang-format
 command clang-format for folder
 ```bash
