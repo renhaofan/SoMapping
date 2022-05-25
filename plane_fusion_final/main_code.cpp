@@ -11,6 +11,8 @@
 
 #include <cstdio>
 #include <iostream>
+
+#include "Log.h"
 #include "Main_engine/Main_engine.h"
 using namespace std;
 
@@ -23,23 +25,19 @@ void print_argvs(int argc, char **argv);
 
 int main(int argc, char **argv) {
 #ifdef LOGGING
-  FLAGS_log_dir = "./log";
-  google::InitGoogleLogging(argv[0]);
-#ifdef LOGTOSTDERR
-  FLAGS_logtostderr = true;  // log > stderr, not store file.
-#else
-  FLAGS_logtostderr = false; // generate log file
-#endif
-  LOG(INFO) << "Log file stored in " << FLAGS_log_dir;
+  Log::init(&argc, &argv);
+  LOG_INFO("<------ Initialising ...");
 #endif
 
   print_argvs(argc, argv);
 
-  printf("initialising ...\n");
   Image_loader *image_loader_ptr = nullptr;
 
   if (argc == 2) {
     // online image loader
+#ifdef LOGGING
+    LOG_INFO("Online image loader.");
+#endif
   } else if (argc == 4) {
     // offline image loader
     // cal calibration file
@@ -49,14 +47,49 @@ int main(int argc, char **argv) {
     string dir = string(argv[2]);
     int dm = std::atoi(argv[3]);
     image_loader_ptr = new Offline_image_loader(cal, dir, dm);
+#ifdef LOGGING
+    LOG_INFO("Offline image loader.");
+    LOG_INFO("Dataset dir: " + dir);
+    switch (dm) {
+      case 0:
+        LOG_INFO("Dataset name ICL");
+        break;
+      case 1:
+        LOG_INFO("Dataset name TUM");
+        break;
+      case 2:
+        LOG_INFO("Dataset name MyZR300");
+        break;
+      case 3:
+        LOG_INFO("Dataset name MyD435i");
+        break;
+      case 4:
+        LOG_INFO("Dataset name MyAzureKinect");
+        break;
+      default:
+        LOG_FATAL("Invalid dataset option");
+        break;
+    }
+#endif
+
   } else {
     printf(
         "Please input 'calibration file' for online input,\n or "
         "'calibration file, sequence dir, dataset "
         "mode(ICL:0,TUM:1,MyZR300:2,MyD435i:3,MyAzureKinect:4)' for offline "
         "input.\n");
+#ifdef LOGGING
+    LOG_WARNING("Invalid argc and argv, check that.");
+    Log::shutdown();
+#endif
     return 0;
   }
+
+#ifdef LOGGING
+  LOG_INFO("Initialising finished ------>");
+#endif
+
+  LOG_INFO("res");
 
   string ground_truth_path =
       "/home/steve/dataset/TUM_RGBD_VSLAM/"
@@ -65,10 +98,13 @@ int main(int argc, char **argv) {
   // Initiation
   Main_engine::instance()->init(argc, argv, image_loader_ptr);
   // Load ground truth file
-  Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path, true);
+  Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path,
+                                                          true);
   // Run
   Main_engine::instance()->run();
 
+  LOG_FATAL("Abnormal exit");
+  Log::shutdown();
   return 0;
 }
 

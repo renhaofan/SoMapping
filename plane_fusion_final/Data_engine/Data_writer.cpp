@@ -1,7 +1,5 @@
 #include "Data_writer.h"
-// Ceres head files for google log.
-#include "ceres/ceres.h"
-#include "ceres/rotation.h"
+#include "Log.h"
 Data_writer::Data_writer() {}
 
 Data_writer::~Data_writer() {}
@@ -55,5 +53,5 @@ void Data_writer::save_trajectory(const Trajectory &estimated_trajectory) {
            (this->output_folder + "/estimate_trajectory.txt\0").c_str());
   }
 
-//  google::ShutdownGoogleLogging();
+  Log::shutdown();
 }
