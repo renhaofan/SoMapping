@@ -1,6 +1,9 @@
 # SoMapping
 `string GLcamera_freeview_trajectory_path` in `Data_loader.h` ？
  
+Esc 退出与右上角关闭窗口的地方，补上Log::shutdown
+
+
 ## BUG
 ```
 CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Preprocess_engine/Preprocess_engine.cpp:298 code=702(cudaErrorLaunchTimeout) "cudaMemcpy(this->dev_raw_depth, raw_depth.data, this->raw_depth_size.width * this->raw_depth_size.height * sizeof(RawDepthType), cudaMemcpyHostToDevice)" 
