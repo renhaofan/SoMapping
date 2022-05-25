@@ -7,27 +7,23 @@ using namespace std;
 
 int main(int argc, char** argv) {
 #ifdef LOGGING
-
-  FLAGS_log_dir = "./log";
+    string s = "log";
+  FLAGS_log_dir = "./" + s;
   google::InitGoogleLogging(argv[0]);
 #ifdef LOGTOSTDERR
-  FLAGS_logtostderr = true;
-#else
-  // generate log file
-  FLAGS_logtostderr = false;
+  FLAGS_alsologtostderr = true;// 设置日志消息除了日志文件之外是否输出到标准输出
 #endif
-
   FLAGS_colorlogtostderr = true;           // Set log color
   FLAGS_logbufsecs = 0;                    // Set log output speed(s)
-  FLAGS_max_log_size = 1024;               // Set max log file size
+  FLAGS_max_log_size = 16;               // Set max log file size MB
   FLAGS_stop_logging_if_full_disk = true;  // If disk is full
   LOG(INFO) << "info new";
   LOG(WARNING) << "warning new";
   LOG(ERROR) << "error new";
-  fprintf(stderr, "File %s, Line %d, Function %s(), Unknown dataset\n",
-          __FILE__, __LINE__, __FUNCTION__);
-  LOG(FATAL) << "File " << __FILE__ << ", Line " << __LINE__ << ", Function "
-             << __FUNCTION__ << "()";
+//  fprintf(stderr, "File %s, Line %d, Function %s(), Unknown dataset\n",
+//          __FILE__, __LINE__, __FUNCTION__);
+//  LOG(FATAL) << "File " << __FILE__ << ", Line " << __LINE__ << ", Function "
+//             << __FUNCTION__ << "()";
   cout << "cout " << endl;
   google::ShutdownGoogleLogging();
 #endif
