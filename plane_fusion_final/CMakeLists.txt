@@ -25,9 +25,21 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
 
 # mkdir to store log info
 execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/log)
-# Flag whether logging
+# Flag logging concerned
 set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -DLOGGING")
 #set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -DLOGTOSTDERR")
+
+
+# set utils
+file(GLOB UTILS_SOURCES
+    Log/*.cpp
+    Timer/*.cpp
+)
+include_directories(${CMAKE_SOURCE_DIR}/Log)
+include_directories(${CMAKE_SOURCE_DIR}/Timer)
+
+
+
 
 
 # deprecate warnings, specify OpenGL version
@@ -115,9 +127,9 @@ set(HEADERS ./Plane_detector/Plane_detector.h)
 include(${PROJECT_SOURCE_DIR}/cmake/Flags.cmake)
 
 if(WITH_CUDA)
-    CUDA_ADD_EXECUTABLE(FUSION main_code.cpp)
+    CUDA_ADD_EXECUTABLE(FUSION main_code.cpp ${UTILS_SOURCES})
 else()
-    add_executable(FUSION main_code.cpp )
+    add_executable(FUSION main_code.cpp ${UTILS_SOURCES})
 endif()
 
 target_link_libraries(FUSION ${PROJECT_NAME} ${CUDA_LIBRARY} rt cuda)
