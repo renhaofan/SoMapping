@@ -26,7 +26,7 @@ void print_argvs(int argc, char **argv);
 int main(int argc, char **argv) {
 #ifdef LOGGING
   Log::init(&argc, &argv);
-  LOG_INFO("<------ Initialising ...");
+  LOG_INFO("<------ Initialising video sequence ...");
 #endif
 
   print_argvs(argc, argv);
@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
     int dm = std::atoi(argv[3]);
     image_loader_ptr = new Offline_image_loader(cal, dir, dm);
 #ifdef LOGGING
-    LOG_INFO("Offline image loader.");
+    LOG_INFO("Offline image loader mode");
     LOG_INFO("Dataset dir: " + dir);
     switch (dm) {
       case 0:
@@ -86,10 +86,8 @@ int main(int argc, char **argv) {
   }
 
 #ifdef LOGGING
-  LOG_INFO("Initialising finished ------>");
+  LOG_INFO("Initialising sequence finished ------>");
 #endif
-
-  LOG_INFO("res");
 
   string ground_truth_path =
       "/home/steve/dataset/TUM_RGBD_VSLAM/"
@@ -100,6 +98,10 @@ int main(int argc, char **argv) {
   // Load ground truth file
   Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path,
                                                           true);
+#ifdef LOGGING
+  LOG_INFO("<------ Run main thread ...");
+#endif
+
   // Run
   Main_engine::instance()->run();
 

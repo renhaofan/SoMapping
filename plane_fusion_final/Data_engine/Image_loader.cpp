@@ -2,6 +2,8 @@
 
 #include <SLAM_system/SLAM_system_settings.h>
 
+#include "Log.h"
+
 // file operation
 #include <dirent.h>
 #ifdef _WIN32
@@ -42,8 +44,6 @@ Blank_image_loader::Blank_image_loader() {
 }
 Blank_image_loader::~Blank_image_loader() {}
 
-
-
 Offline_image_loader::Offline_image_loader() {}
 Offline_image_loader::Offline_image_loader(const string cal, const string dir,
                                            int dm) {
@@ -52,7 +52,9 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
   string depth_dir;
   string associate_dir = dir + "/TIMESTAMP.txt";
 
-  printf("init offline image loader ...\n");
+#ifdef LOGGING
+  LOG_INFO("<------ Initialising offline image loader ...");
+#endif
 
   switch (dm) {
     case DatasetMode::ICL:
@@ -91,10 +93,15 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
       this->read_calibration_parameters(cal);
       this->print_state(false);
       break;
+    case DatasetMode::DATASETMODE_NUMBER:
     default:
-      fprintf(stderr, "File %s, Line %d, Function %s(), Unknown dataset\n",
+#ifdef LOGGING
+      LOG_FATAL("Undefined dataset!");
+      Log::shutdown();
+#endif
+      fprintf(stderr, "File %s, Line %d, Function %s(), Undefined dataset\n",
               __FILE__, __LINE__, __FUNCTION__);
-      throw "Unknown dataset";
+      throw "Undefined dataset";
   }
 }
 Offline_image_loader::~Offline_image_loader() {}
@@ -366,84 +373,105 @@ void Offline_image_loader::detect_images(string associate, string colordir,
 }
 
 void Offline_image_loader::print_state(bool print_all_pathes) const {
-    switch (this->image_loader_mode) {
+  switch (this->image_loader_mode) {
     case ImageLoaderMode::NO_DATA: {
-        fprintf(
-            stderr,
-            "File %s, Line %d, Function %s(), No color or depth image found!\n",
-            __FILE__, __LINE__, __FUNCTION__);
-        throw "No color or depth image found!";
-        break;
+#ifdef LOGGING
+      LOG_FATAL("ImageLoaderMode: NO_DATA");
+      Log::shutdown();
+#endif
+      fprintf(
+          stderr,
+          "File %s, Line %d, Function %s(), No color or depth image found!\n",
+          __FILE__, __LINE__, __FUNCTION__);
+      throw "No color or depth image found!";
+      break;
     }
     case ImageLoaderMode::WITH_DEPTH_ONLY: {
-        fprintf(stderr,
-                "File %s, Line %d, Function %s(), Only %zu depth images found!\n",
-                __FILE__, __LINE__, __FUNCTION__, this->depth_path_vector.size());
-
-        // print all depth image pathes
-        if (print_all_pathes) {
-            for (size_t path_id = 0; path_id < this->depth_path_vector.size();
-                 path_id++) {
-                printf("%s\n", this->depth_path_vector[path_id].c_str());
-            }
+#ifdef LOGGING
+      LOG_FATAL("ImageLoaderMode: WITH_DEPTH_ONLY");
+      Log::shutdown();
+#endif
+      // print all depth image pathes
+      if (print_all_pathes) {
+        for (size_t path_id = 0; path_id < this->depth_path_vector.size();
+             path_id++) {
+          printf("%s\n", this->depth_path_vector[path_id].c_str());
         }
-        throw "Only depth images found!";
-        break;
+      }
+
+      fprintf(stderr,
+              "File %s, Line %d, Function %s(), Only %zu depth images found!\n",
+              __FILE__, __LINE__, __FUNCTION__, this->depth_path_vector.size());
+      throw "Only depth images found!";
+      break;
     }
     case ImageLoaderMode::WITH_COLOR_AND_DEPTH: {
-        printf(
-            "Both color and depth images found!\n %zu depth images \n %zu color "
-            "images\n",
-            this->depth_path_vector.size(), this->color_path_vector.size());
-        // print all frames pathes
-        if (print_all_pathes) {
-            printf("Depth image pathes:\n");
-            for (size_t path_id = 0; path_id < this->depth_path_vector.size();
-                 path_id++) {
-                printf("%s\n", this->depth_path_vector[path_id].c_str());
-            }
-            printf("\n");
-
-            printf("Color image pathes:\n");
-            for (size_t path_id = 0; path_id < this->color_path_vector.size();
-                 path_id++) {
-                printf("%s\n", this->color_path_vector[path_id].c_str());
-            }
-            printf("\n");
+#ifdef LOGGING
+      LOG_INFO("ImageLoaderMode: WITH_COLOR_AND_DEPTH");
+      LOG_INFO("Depth images " + to_string(this->depth_path_vector.size()));
+      LOG_INFO("Color images " + to_string(this->color_path_vector.size()));
+      LOG_INFO("Initialising offline image loader finished ------>");
+#endif
+      // print all frames pathes
+      if (print_all_pathes) {
+        printf("Depth image pathes:\n");
+        for (size_t path_id = 0; path_id < this->depth_path_vector.size();
+             path_id++) {
+          printf("%s\n", this->depth_path_vector[path_id].c_str());
         }
-        break;
+        printf("\n");
+
+        printf("Color image pathes:\n");
+        for (size_t path_id = 0; path_id < this->color_path_vector.size();
+             path_id++) {
+          printf("%s\n", this->color_path_vector[path_id].c_str());
+        }
+        printf("\n");
+      }
+      break;
     }
     case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES: {
-        fprintf(stderr,
-                "File %s, Line %d, Function %s(), Unequal color and depth images "
-                "found!\n (%zu depth images != %zu color images)\n",
-                __FILE__, __LINE__, __FUNCTION__, this->depth_path_vector.size(),
-                this->color_path_vector.size());
-        throw "Unequal color and depth images!";
-        break;
+#ifdef LOGGING
+      LOG_INFO("ImageLoaderMode: UNEQUAL_COLOR_AND_DEPTH_FRAMES");
+      LOG_INFO("Depth images " + to_string(this->depth_path_vector.size()));
+      LOG_FATAL("Color images " + to_string(this->color_path_vector.size()));
+      Log::shutdown();
+#endif
+      fprintf(stderr,
+              "File %s, Line %d, Function %s(), Unequal color and depth images "
+              "found!\n (%zu depth images != %zu color images)\n",
+              __FILE__, __LINE__, __FUNCTION__, this->depth_path_vector.size(),
+              this->color_path_vector.size());
+      throw "Unequal color and depth images!";
+      break;
     }
+
     case ImageLoaderMode::ILM_NUM:
     default: {
-        fprintf(stderr,
-                "File %s, Line %d, Function %s(), Invalid ImageLoaderMode.\n",
-                __FILE__, __LINE__, __FUNCTION__);
-        throw "Invalid ImageLoaderMode!";
-        break;
+#ifdef LOGGING
+      LOG_FATAL("Invalid ImageLoaderMode option!");
+      Log::shutdown();
+#endif
+
+      fprintf(stderr,
+              "File %s, Line %d, Function %s(), Invalid ImageLoaderMode.\n",
+              __FILE__, __LINE__, __FUNCTION__);
+      throw "Invalid ImageLoaderMode!";
+      break;
     }
-    }
+  }
 }
 
 bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
-    if ((frame_id < 0) ||
-        (static_cast<size_t>(frame_id) >= this->number_of_frames)) {
-        fprintf(stderr, "File %s, Line %d, Function %s(), Invalid frame id",
-                __FILE__, __LINE__, __FUNCTION__);
-        return false;
-    }
-    this->frame_index = static_cast<size_t>(frame_id);
-    return true;
+  if ((frame_id < 0) ||
+      (static_cast<size_t>(frame_id) >= this->number_of_frames)) {
+    fprintf(stderr, "File %s, Line %d, Function %s(), Invalid frame id",
+            __FILE__, __LINE__, __FUNCTION__);
+    return false;
+  }
+  this->frame_index = static_cast<size_t>(frame_id);
+  return true;
 }
-
 
 bool Offline_image_loader::is_ready_to_load_next_frame() const {
   if (this->frame_index > this->number_of_frames) {

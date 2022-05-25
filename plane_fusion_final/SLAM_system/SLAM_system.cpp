@@ -4,6 +4,7 @@
 #include "SLAM_system_settings.h"
 #include "Track_engine/Solver_functor.h"
 #include "UI_engine/UI_parameters.h"
+#include "Log.h"
 
 // ------------------------- SLAM_system (Base class)
 #pragma region(SLAM system base class)
@@ -95,6 +96,9 @@ ProcessingState SLAM_system::process_frames() {
   static bool first_reach = true;
   if (this->all_data_process_done && first_reach) {
     printf("End of process\n");
+#ifdef LOGGING
+  LOG_INFO("Finish main thread ------>");
+#endif
     first_reach = false;
     this->end_of_process_data();
   }
@@ -892,6 +896,7 @@ void Submap_SLAM_system::update_to_map() {
 
   //
   printf("frame_id = %d\n", frame_id);
+
   if ((this->frame_id % 5 == 4) && this->enable_plane_map) {
     Submap_Voxel_map *map_ptr =
         dynamic_cast<Submap_Voxel_map *>(this->submap_ptr_array.back());

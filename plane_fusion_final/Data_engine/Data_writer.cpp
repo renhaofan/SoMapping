@@ -46,12 +46,18 @@ void Data_writer::save_trajectory(const Trajectory &estimated_trajectory) {
     }
     printf("Estimate trajectory saved.(estimate with %zu frame)\r\n",
            estimated_trajectory.size());
+#ifdef LOGGING
+    LOG_INFO("Estimate trajectory .txt file saved in EXECUTABLE_OUTPUT_PATH");
+    LOG_INFO("Estimation from " + to_string(estimated_trajectory.size()) + " frames");
+#endif
+
     // Close file
     fclose(file_pointer);
   } else {
     printf("Can not open %s\r\n",
            (this->output_folder + "/estimate_trajectory.txt\0").c_str());
+#ifdef LOGGING
+    LOG_ERROR("Failed to save estimate trajectory .txt file in EXECUTABLE_OUTPUT_PATH");
+#endif
   }
-
-  Log::shutdown();
 }

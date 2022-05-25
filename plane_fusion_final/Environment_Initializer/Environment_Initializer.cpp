@@ -12,9 +12,7 @@ using namespace std;
 #include <helper_cuda.h>
 #include <helper_functions.h>
 
-// Ceres head files
-#include "ceres/ceres.h"
-#include "ceres/rotation.h"
+#include "Log.h"
 
 Environment_Initializer::Environment_Initializer() {}
 Environment_Initializer::Environment_Initializer(bool print_detail) {
@@ -25,6 +23,12 @@ Environment_Initializer::~Environment_Initializer() {}
 void Environment_Initializer::init_environment(int argc, char **argv) {
   // <-------- Check GPU device, CUDA environment
   //           and print concerned information.   ------->
+
+  // logging
+#ifdef LOGGING
+  LOG_INFO("<------ Check GPU device ... ");
+#endif
+
   // Reset GPU
   cudaDeviceReset();
 
@@ -40,8 +44,13 @@ void Environment_Initializer::init_environment(int argc, char **argv) {
   // Gather GPU information
   {
     cudaError_t err = cudaSuccess;
+    // if success, print `GPU Device 0: "Maxwell" with compute capability 5.0`
     err = cudaGetDeviceProperties(&deviceProps, devID);
     if (err != cudaSuccess) {
+#ifdef LOGGING
+      LOG_FATAL("Failed to get device properties.");
+      Log::shutdown();
+#endif
       fprintf(stderr,
               "File %s, Line %d, Function %s()\n Failed to get device "
               "properties.(error code %s)!\n",
@@ -75,12 +84,9 @@ void Environment_Initializer::init_environment(int argc, char **argv) {
     cout << "CUDA register per SM is \t" << deviceProps.regsPerMultiprocessor
          << "\t" << endl;
   }
-
-  //<------- Initiate google logging ------->
-  //#ifdef _LOGGING_H_
-//  FLAGS_log_dir = "./log";
-//  google::InitGoogleLogging(argv[0]);
-//  std::cout << "FLAGS_log_dir: ";
-//  std::cout << FLAGS_log_dir << std::endl;
-  //#endif
+#ifdef LOGGING
+  LOG_INFO("CUDA device ID = " + to_string(devID));
+  LOG_INFO("CUDA device is" + std::string(deviceProps.name));
+  LOG_INFO("Check GPU device finished ------>");
+#endif
 }
