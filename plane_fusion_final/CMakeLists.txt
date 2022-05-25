@@ -17,11 +17,11 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
 # soft link src/bin---->build/bin
 # Warnings: possible bug in windows,
 # Possible solution: set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
-if(APPLE OR UNIX)
-    execute_process(COMMAND ln -f -s ${CMAKE_BINARY_DIR}/bin WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-else()
-    file(COPY ${CMAKE_BINARY_DIR}/bin DESTINATION ${CMAKE_SOURCE_DIR})
-endif()
+#if(APPLE OR UNIX)
+#    execute_process(COMMAND ln -f -s ${CMAKE_BINARY_DIR}/bin WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+#else()
+#    file(COPY ${CMAKE_BINARY_DIR}/bin DESTINATION ${CMAKE_SOURCE_DIR})
+#endif()
 
 # mkdir to store log info
 execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/log)
