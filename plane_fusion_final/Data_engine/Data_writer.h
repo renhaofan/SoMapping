@@ -1,7 +1,7 @@
 /**
  *  Copyright (C) All rights reserved.
  *  @file Data_writer.h
- *  @brief Set up the estimated trajectory storage path. And shutdown logging.
+ *  @brief Set up the estimated trajectory storage path.
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
