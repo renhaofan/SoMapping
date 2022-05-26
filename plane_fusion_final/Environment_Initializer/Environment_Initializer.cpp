@@ -86,7 +86,7 @@ void Environment_Initializer::init_environment(int argc, char **argv) {
   }
 #ifdef LOGGING
   LOG_INFO("CUDA device ID = " + to_string(devID));
-  LOG_INFO("CUDA device is" + std::string(deviceProps.name));
+  LOG_INFO("CUDA device used is " + std::string(deviceProps.name));
   LOG_INFO("Check GPU device finished ------>");
 #endif
 }
