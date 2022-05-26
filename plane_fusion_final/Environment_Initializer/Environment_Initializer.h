@@ -1,10 +1,8 @@
 /**
  *  Copyright (C) All rights reserved.
  *  @file Environment_Initializer.h
- *  @brief class Environment_Initializer header file,
- *         set print_detail_information variable,
- *         check and print GPU device & CUDA infomation.
- *         And start logging.
+ *  @brief class Environment_Initializer header.
+ *         Check and print GPU device & CUDA infomation.
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
