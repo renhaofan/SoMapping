@@ -408,8 +408,10 @@ void Offline_image_loader::print_state(bool print_all_pathes) const {
     case ImageLoaderMode::WITH_COLOR_AND_DEPTH: {
 #ifdef LOGGING
       LOG_INFO("ImageLoaderMode: WITH_COLOR_AND_DEPTH");
-      LOG_INFO("Depth images " + to_string(this->depth_path_vector.size()));
-      LOG_INFO("Color images " + to_string(this->color_path_vector.size()));
+      LOG_INFO("Depth images number: " +
+               to_string(this->depth_path_vector.size()));
+      LOG_INFO("Color images number: " +
+               to_string(this->color_path_vector.size()));
       LOG_INFO("Initialising offline image loader finished ------>");
 #endif
       // print all frames pathes

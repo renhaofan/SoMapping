@@ -20,13 +20,9 @@ using namespace std;
  */
 class Data_engine : public Data_loader, public Data_writer {
  public:
-  /**
-   * @brief Default constructor.
-   */
+  /** @brief Default constructor. */
   Data_engine();
-  /**
-   * @brief Default destructor.
-   */
+  /** @brief Default destructor. */
   ~Data_engine();
 
   /**
