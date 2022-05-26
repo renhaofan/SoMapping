@@ -5,6 +5,8 @@ Esc 退出与右上角关闭窗口的地方，补上Log::shutdown
 
 
 ## BUG
+
+### 1. Cuda memcpy
 ```
 CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Preprocess_engine/Preprocess_engine.cpp:298 code=702(cudaErrorLaunchTimeout) "cudaMemcpy(this->dev_raw_depth, raw_depth.data, this->raw_depth_size.width * this->raw_depth_size.height * sizeof(RawDepthType), cudaMemcpyHostToDevice)" 
 ```
@@ -14,15 +16,48 @@ CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Map_engine/Me
 
 ```
 
-### wrong calibration file will cause this BUG in offline dataset mode.
+### 2. wrong calibration file will cause this BUG in offline dataset mode.
 ```
 terminate called after throwing an instance of 'cv::Exception'
   what():  OpenCV(3.4.5) /home/steve/Downloads/Source-Archive-main/OpenCV/opencv-3.4.5/modules/video/src/lkpyramid.cpp:1231: error: (-215:Assertion failed) (npoints = prevPtsMat.checkVector(2, CV_32F, true)) >= 0 in function 'calc'
 
 ```
-### Fast UI_switch key 4 and 8
-### Key qe && we 
-## Release slower than Debug
+### 3. More than one place to define macro MAX_LAYER_NUMBER 8
+BUG solved by define new macro.h
+```
+// Hierarchy_image.h
+#define MAX_LAYER_NUMBER 8
+// SLAM_system_settings.h
+#ifndef MAX_LAYER_NUMBER
+#define MAX_LAYER_NUMBER 8
+#endif
+```
+
+If simply add `#include "Preprocess_engine/Hierarchy_image.h"` in `SLAM_system_settings.h`, the following error occured:
+
+```
+
+/home/steve/code/mycode/SoMapping/plane_fusion_final/Map_engine/Voxel_device_interface.cuh:50: error: more than one instance of overloaded function "round_by_stride" matches the argument list:
+...
+/home/steve/code/mycode/SoMapping/plane_fusion_final/Map_engine/Voxel_device_interface.cuh:273: error: more than one instance of overloaded function "floor_by_stride" matches the argument list:
+```
+That caused by ADI(augument dependent lookup).
+
+`Voxel_device_interface.cuh` define function:
+```C++
+__device__ inline float round_by_stride(float &value, float &step) {
+  return (roundf(value / step) * step);
+}
+```
+`my_math_functions.h` which is included by `Preprocess_engine/Hierarchy_image.h` define the same function:
+```C++
+float round_by_stride(float value, float stride);
+```
+
+
+### 4. Fast UI_switch key 4 and 8
+### 5. Key qe && we 
+### 6. Release slower than Debug
 Release exe:
 ```
 CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Map_engine/Plane_map.cpp:293 code=2(cudaErrorMemoryAllocation) "cudaMalloc((void **)&temp_entry, (ORDERED_PLANE_TABLE_LENGTH + EXCESS_PLANE_TABLE_LENGTH) * sizeof(PlaneHashEntry))" 

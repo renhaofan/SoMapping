@@ -1,20 +1,15 @@
+
+
+
 #pragma once
 
-//
 #include "OurLib/My_matrix.h"
+// extract MAX_LAYER_NUMBER and COMPILE_DEBUG_CODE
+#include "Config.h"
 
-//
 //#define CUDA_CKECK_KERNEL
 #define CUDA_CKECK_KERNEL checkCudaErrors(cuCtxSynchronize());
 
-// Enable debug code
-#define COMPILE_DEBUG_CODE
-
-#ifndef MAX_LAYER_NUMBER
-#define MAX_LAYER_NUMBER 8
-#endif
-
-//!
 typedef struct _Sensor_params {
   //! Fx, Fy
   float sensor_fx, sensor_fy;

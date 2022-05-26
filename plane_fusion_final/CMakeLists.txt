@@ -38,7 +38,8 @@ file(GLOB UTILS_SOURCES
 include_directories(${CMAKE_SOURCE_DIR}/Log)
 include_directories(${CMAKE_SOURCE_DIR}/Timer)
 
-
+# add config.h
+include_directories(${CMAKE_SOURCE_DIR}/Config)
 
 
 
