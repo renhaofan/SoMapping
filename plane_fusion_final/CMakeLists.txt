@@ -26,7 +26,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
 # mkdir to store log info
 execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/log)
 # Flag logging concerned
-set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -DLOGGING")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLOGGING")
 #set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -DLOGTOSTDERR")
 
 
@@ -57,7 +57,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
 endif()
 if(NOT MSVC_IDE)
     set(CFLAGS_WARN "-Wall -Wextra -Wno-unused-parameter -Wno-strict-aliasing")
-    set(CMAKE_CXX_FLAGS "-fPIC -O3 ${CFLAGS_WARN} ${CMAKE_CXX_FLAGS} -std=c++11 -lstdc++")
+    set(CMAKE_CXX_FLAGS "-fPIC -O3 ${CFLAGS_WARN} ${CMAKE_CXX_FLAGS} -std=c++11 -lstdc++ -Wno-unknown-pragmas")
     # -g for gdb debug, -march=native for memory alignment such that SIMD.
     #SET(CMAKE_CXX_FLAGS "-fPIC -O3 -march=native ${CFLAGS_WARN} ${CMAKE_CXX_FLAGS} -std=c++11 -lstdc++")
     #SET(CMAKE_CXX_FLAGS "-fPIC -g ${CFLAGS_WARN} ${CMAKE_CXX_FLAGS}")
