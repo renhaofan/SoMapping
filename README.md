@@ -13,7 +13,10 @@ CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Preprocess_en
 ```
 
 CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Map_engine/Mesh_generator.cpp:67 code=2(cudaErrorMemoryAllocation) "cudaMalloc((void **)&(this->dev_planar_triangles), this->max_number_of_triangle * 3 * sizeof(My_Type::Vector3f))" 
+```
 
+```
+CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Preprocess_engine/Preprocess_engine.cpp:313 code=702(cudaErrorLaunchTimeout) "cudaMemcpy(this->dev_raw_depth, raw_depth.data, this->raw_depth_size.width * this->raw_depth_size.height * sizeof(RawDepthType), cudaMemcpyHostToDevice)" 
 ```
 
 ### 2. wrong calibration file will cause this BUG in offline dataset mode.
