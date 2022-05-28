@@ -28,6 +28,10 @@
 // utils function
 std::string append_slash_to_dirname(std::string dirname) {
   if (dirname.empty()) {
+#ifdef LOGGING
+    LOG_FATAL("Empty dirname: " + dirname);
+    Log::shutdown();
+#endif
     fprintf(stderr, "File %s, Line %d, Function %s(): Empty dirname.\n",
             __FILE__, __LINE__, __FUNCTION__);
     throw "Empty dirname!";
@@ -58,37 +62,48 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
 
   switch (dm) {
     case DatasetMode::ICL:
-      color_dir = dir + "/rgb/";
-      depth_dir = dir + "/depth/";
+      //      color_dir = dir + "/rgb/";
+      //      depth_dir = dir + "/depth/";
+      color_dir = append_slash_to_dirname(dir) + "rgb/";
+      depth_dir = append_slash_to_dirname(dir) + "depth/";
       detect_images(color_dir, depth_dir);
       this->read_calibration_parameters(cal);
       this->print_state(false);
       break;
     case DatasetMode::TUM:
-      color_dir = dir + "/";
-      depth_dir = dir + "/";
-      associate_dir = dir + "/associate.txt";
+      //      color_dir = dir + "/";
+      //      depth_dir = dir + "/";
+      color_dir = append_slash_to_dirname(dir);
+      depth_dir = append_slash_to_dirname(dir);
+      //      associate_dir = dir + "/associate.txt";
+      associate_dir = append_slash_to_dirname(dir) + "associate.txt";
       detect_images(associate_dir, color_dir, depth_dir, dm);
       this->read_calibration_parameters(cal);
       this->print_state(false);
       break;
     case DatasetMode::MyZR300:
-      color_dir = dir + "/color/";
-      depth_dir = dir + "/filtered/";
+      //      color_dir = dir + "/color/";
+      //      depth_dir = dir + "/filtered/";
+      color_dir = append_slash_to_dirname(dir) + "color/";
+      depth_dir = append_slash_to_dirname(dir) + "filtered/";
       detect_images(associate_dir, color_dir, depth_dir, dm);
       read_calibration_parameters(cal);
       this->print_state(false);
       break;
     case DatasetMode::MyD435i:
-      color_dir = dir + "/color/";
-      depth_dir = dir + "/depth/";
+//      color_dir = dir + "/color/";
+//      depth_dir = dir + "/depth/";
+      color_dir = append_slash_to_dirname(dir) + "color/";
+      depth_dir = append_slash_to_dirname(dir) + "depth/";
       detect_images(associate_dir, color_dir, depth_dir, dm);
       this->read_calibration_parameters(cal);
       this->print_state(false);
       break;
     case DatasetMode::MyAzureKinect:
-      color_dir = dir + "/color/";
-      depth_dir = dir + "/depth/";
+//      color_dir = dir + "/color/";
+//      depth_dir = dir + "/depth/";
+      color_dir = append_slash_to_dirname(dir) + "color/";
+      depth_dir = append_slash_to_dirname(dir) + "depth/";
       detect_images(associate_dir, color_dir, depth_dir, dm);
       this->read_calibration_parameters(cal);
       this->print_state(false);
@@ -149,6 +164,10 @@ void Offline_image_loader::read_image_parameters() {
 
 void Offline_image_loader::read_calibration_parameters(string cal) {
   if (cal.empty() || cal.length() == 0) {
+#ifdef LOGGING
+    LOG_WARNING(
+        "Calibration filename not specified. Using default parameters.");
+#endif
     printf("Calibration filename not specified. Using default parameters.\n");
     return;
   }
@@ -235,13 +254,17 @@ void Offline_image_loader::detect_images(string color_folder,
       this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
       this->number_of_frames = this->depth_path_vector.size();
     } else {
+      this->image_loader_mode = ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES;
+      this->number_of_frames = 0;
+#ifdef LOGGING
+      LOG_FATAL("Error occured when read dataset.");
+      Log::shutdown();
+#endif
       fprintf(stderr,
               "File %s, Line %d, Function %s(): Error occured when read "
               "dataset.\n",
               __FILE__, __LINE__, __FUNCTION__);
-      this->image_loader_mode = ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES;
-      this->number_of_frames = 0;
-      throw "Error occured when read TUM dataset!";
+      throw "Error occured when read dataset!";
     }
   }
 }
@@ -251,6 +274,10 @@ void Offline_image_loader::detect_images(string associate, string colordir,
   ifstream inf;
   inf.open(associate, ifstream::in);
   if (!inf.is_open()) {
+#ifdef LOGGING
+    LOG_FATAL("Failed to open associate file: " + associate);
+    Log::shutdown();
+#endif
     fprintf(stderr, "File %s, Line %d, Function %s(): Failed to open file %s\n",
             __FILE__, __LINE__, __FUNCTION__, associate.c_str());
     throw "Failed to open file";
@@ -300,13 +327,17 @@ void Offline_image_loader::detect_images(string associate, string colordir,
           this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
           this->number_of_frames = this->depth_path_vector.size();
         } else {
+          this->image_loader_mode =
+              ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES;
+          this->number_of_frames = 0;
+#ifdef LOGGING
+          LOG_FATAL("Error occured when read dataset.");
+          Log::shutdown();
+#endif
           fprintf(stderr,
                   "File %s, Line %d, Function %s(): Error occured when read "
                   "dataset.\n",
                   __FILE__, __LINE__, __FUNCTION__);
-          this->image_loader_mode =
-              ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES;
-          this->number_of_frames = 0;
           throw "Error occured when read dataset!";
         }
       }
@@ -346,13 +377,17 @@ void Offline_image_loader::detect_images(string associate, string colordir,
           this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
           this->number_of_frames = this->depth_path_vector.size();
         } else {
+          this->image_loader_mode =
+              ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES;
+          this->number_of_frames = 0;
+#ifdef LOGGING
+          LOG_FATAL("Error occured when read dataset.");
+          Log::shutdown();
+#endif
           fprintf(stderr,
                   "File %s, Line %d, Function %s(): Error occured when read "
                   "dataset.\n",
                   __FILE__, __LINE__, __FUNCTION__);
-          this->image_loader_mode =
-              ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES;
-          this->number_of_frames = 0;
           throw "Error occured when read dataset!";
         }
       }
@@ -360,12 +395,16 @@ void Offline_image_loader::detect_images(string associate, string colordir,
       break;
     case DATASETMODE_NUMBER:
     default:
+#ifdef LOGGING
+      LOG_FATAL("Invalid dataset option.");
+      Log::shutdown();
+#endif
       fprintf(stderr,
-              "File %s, Line %d, Function %s(): Invalid option for dataset "
+              "File %s, Line %d, Function %s(): Invalid dataset "
               "option. Valid option from 0 to %d. \n",
               __FILE__, __LINE__, __FUNCTION__,
               DatasetMode::DATASETMODE_NUMBER - 1);
-      throw "Invalid option for dataset option.";
+      throw "Invalid dataset option.";
       break;
   }
 
@@ -467,6 +506,9 @@ void Offline_image_loader::print_state(bool print_all_pathes) const {
 bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
   if ((frame_id < 0) ||
       (static_cast<size_t>(frame_id) >= this->number_of_frames)) {
+#ifdef LOGGING
+    LOG_ERROR("Invalid frame id: " + std::to_string(frame_id));
+#endif
     fprintf(stderr, "File %s, Line %d, Function %s(), Invalid frame id",
             __FILE__, __LINE__, __FUNCTION__);
     return false;
@@ -477,6 +519,9 @@ bool Offline_image_loader::jump_to_specific_frame(int frame_id) {
 
 bool Offline_image_loader::is_ready_to_load_next_frame() const {
   if (this->frame_index > this->number_of_frames) {
+#ifdef LOGGING
+    LOG_ERROR("Invalid frame id: " + std::to_string(this->frame_index));
+#endif
     fprintf(stderr, "File %s, Line %d, Function %s(), Invalid frame index.\n",
             __FILE__, __LINE__, __FUNCTION__);
     throw "Invalid frame index!";
