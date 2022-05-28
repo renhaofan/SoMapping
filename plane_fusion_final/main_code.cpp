@@ -52,34 +52,35 @@ int main(int argc, char **argv) {
     LOG_INFO("Dataset dir: " + dir);
     switch (dm) {
       case 0:
-        LOG_INFO("Dataset name ICL");
+        LOG_INFO("Dataset name: ICL");
         break;
       case 1:
-        LOG_INFO("Dataset name TUM");
+        LOG_INFO("Dataset name: TUM");
         break;
       case 2:
-        LOG_INFO("Dataset name MyZR300");
+        LOG_INFO("Dataset name: MyZR300");
         break;
       case 3:
-        LOG_INFO("Dataset name MyD435i");
+        LOG_INFO("Dataset name: MyD435i");
         break;
       case 4:
-        LOG_INFO("Dataset name MyAzureKinect");
+        LOG_INFO("Dataset name: MyAzureKinect");
         break;
       default:
         LOG_FATAL("Invalid dataset option");
+        Log::shutdown();
         break;
     }
 #endif
-
   } else {
     printf(
         "Please input 'calibration file' for online input,\n or "
         "'calibration file, sequence dir, dataset "
         "mode(ICL:0,TUM:1,MyZR300:2,MyD435i:3,MyAzureKinect:4)' for offline "
         "input.\n");
+
 #ifdef LOGGING
-    LOG_WARNING("Invalid argc and argv, check that.");
+    LOG_ERROR("Invalid argc and argv, check that.");
     Log::shutdown();
 #endif
     return 0;
