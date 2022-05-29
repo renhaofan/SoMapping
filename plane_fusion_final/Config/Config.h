@@ -15,7 +15,8 @@
  */
 #define MAX_LAYER_NUMBER 8
 
-/** @brief Flag whether enable SLAM debug code for
+/**
+ *  @brief Flag whether enable SLAM debug code for
  *  @details Used directly by SLAM_system_settings.h
  */
 #define COMPILE_DEBUG_CODE
