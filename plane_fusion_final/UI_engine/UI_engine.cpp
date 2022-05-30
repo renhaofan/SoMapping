@@ -1,29 +1,27 @@
 #include "UI_engine.h"
 
-// Our lib
 #include "OurLib/my_GL_functions.h"
 #include "OurLib/my_GL_geometry.h"
 
-//! The pointer to this static object.
+// using std::to_string()
+#include <iostream>
+#include <string>
+
 UI_engine *UI_engine::instance_ptr = nullptr;
 
-//
-void screen_shoot(string &save_folder, int frame_id);
+void screen_shot(string &save_folder, int frame_id);
 
-//
 UI_engine::UI_engine() {
   // Initialize flags
   this->mouse_LeftDown = false;
   this->mouse_RightDown = false;
   this->show_reference_object = false;
-  //
+
   this->system_induced_reshape = false;
   this->need_to_fix_window_aspect = false;
   this->reshape_ratio = 1.0f;
 
-  //
   for (int i = 0; i < 10; i++) this->view_flag_list[i] = true;
-  //
   this->view_flag_list[0] = false;
   this->view_flag_list[1] = false;
   this->view_flag_list[2] = false;
@@ -34,38 +32,53 @@ UI_engine::UI_engine() {
   this->view_flag_list[7] = false;
   // this->view_flag_list[8] = false;
   this->view_flag_list[9] = false;
-  //
+
   this->sub_viewport2_mode = SubViewport2Mode::PSEUDO_DEPTH_IMAGE;
   this->main_viewport_render_mode = MainViewportRenderMode::PHONG_RENDER;
   this->render_object_id = 1;
   this->render_match_list_id = 0;
 
-  //
   this->data_engine_ptr = nullptr;
 }
 UI_engine::~UI_engine() {}
 
-// UI_engine initialization
 int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
                     SLAM_system *SLAM_system, Render_engine *render_engine) {
+#if __unix__
+#pragma region "Get module pointer" {
+#elif _WIN32
 #pragma region(Get module pointer)
+#endif
+
   // Get data_engine
   if (data_engine != nullptr) {
     this->data_engine_ptr = data_engine;
   } else {
-    fprintf(stderr, "UI_Engine error : invlid data_engine_ptr !\r\n");
-    exit(0);
+#ifdef LOGGING
+    LOG_FATAL("UI_Engine error: invlid data_engine_ptr!");
+    Log::shutdown();
+#endif
+    fprintf(stderr, "UI_Engine error: invlid data_engine_ptr !\r\n");
+    exit(1);
   }
 
   // Get SLAM_system
   if (SLAM_system != nullptr) {
     this->SLAM_system_ptr = SLAM_system;
   } else {
+#ifdef LOGGING
+    LOG_FATAL("UI_Engine error : invlid SLAM_system_ptr!");
+    Log::shutdown();
+#endif
     fprintf(stderr, "UI_Engine error : invlid SLAM_system_ptr !\r\n");
-    exit(0);
+    exit(1);
   }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
   // Set window size
   this->window_width = UI_parameters::instance()->main_viewport_size.width +
@@ -82,14 +95,19 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
   this->sub_viewport_height = this->main_viewport_height / 2;
 
   // Initialize render engine
-  My_Type::Vector2i scene_viewport_size(this->main_viewport_width,
-                                        this->main_viewport_height);
+  //  My_Type::Vector2i scene_viewport_size(this->main_viewport_width,
+  //                                        this->main_viewport_height);
   My_Type::Vector2i depth_size;
   this->data_engine_ptr->get_depth_image_size(depth_size.width,
                                               depth_size.height);
   this->render_engine.init(depth_size, depth_size);
 
+#if __unix__
+#pragma region "OpenGL Initialization" {
+#elif _WIN32
 #pragma region(OpenGL Initialization)
+#endif
+
   // OpenGL initialization
   glutInit(&main_argc, main_argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
@@ -119,10 +137,18 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
   // Initialize GLEW environment (must do this after initialization of glut)
   GLenum err = glewInit();
   if (err != GLEW_OK) {
+#ifdef LOGGING
+    LOG_FATAL(glewGetErrorString(err));
+    Log::shutdown();
+#endif
     fprintf(stderr, "%s\n", glewGetErrorString(err));
     return -1;
   }
   if (!glewIsSupported("GL_VERSION_2_0")) {
+#ifdef LOGGING
+    LOG_FATAL("Support for necessary OpengGL extensions missing.");
+    Log::shutdown();
+#endif
     fprintf(stderr, "ERROR: Support for necessary OpengGL extensions missing.");
     return -1;
   }
@@ -131,7 +157,6 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
   memset(normal_key, 0, 256 * sizeof(GLchar));
   memset(special_key, 0, 256 * sizeof(GLchar));
 
-  //
   int width, height;
   // Generate PBO
   glGenBuffers(1, &(this->main_viewport_PBO));
@@ -140,7 +165,7 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
                UI_parameters::instance()->main_viewport_size.width *
                    UI_parameters::instance()->main_viewport_size.height * 3,
                NULL, GL_STREAM_COPY);
-  glBindBuffer(GL_ARRAY_BUFFER, NULL);
+  glBindBuffer(GL_ARRAY_BUFFER, GLuint(NULL));
   // Generate Texture
   glGenTextures(1, &(this->main_viewport_texture));
   glBindTexture(GL_TEXTURE_2D, this->main_viewport_texture);
@@ -150,8 +175,8 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
                GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glBindTexture(GL_TEXTURE_2D, NULL);
-  //   ʼ
+  glBindTexture(GL_TEXTURE_2D, GLuint(NULL));
+
   this->data_engine_ptr->get_color_image_size(width, height);
   glGenTextures(1, &(this->sub1_viewport_texture));
   glBindTexture(GL_TEXTURE_2D, this->sub1_viewport_texture);
@@ -159,8 +184,8 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
                GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glBindTexture(GL_TEXTURE_2D, NULL);
-  //   ʼ
+  glBindTexture(GL_TEXTURE_2D, GLuint(NULL));
+
   this->data_engine_ptr->get_depth_image_size(width, height);
   glGenTextures(1, &(this->sub2_viewport_texture));
   glBindTexture(GL_TEXTURE_2D, this->sub2_viewport_texture);
@@ -168,9 +193,13 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
                GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glBindTexture(GL_TEXTURE_2D, NULL);
+  glBindTexture(GL_TEXTURE_2D, GLuint(NULL));
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
   // Initialize GL camera view pose
   this->GL_camera_Frame.set_Identity();
@@ -184,10 +213,8 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
   return 0;
 }
 
-// UI_engine OpenGL main loop
 void UI_engine::run() { glutMainLoop(); }
 
-//
 void UI_engine::OpenGL_DisplayFunction() {
   UI_engine *UI_ptr = UI_engine::instance();
 
@@ -208,7 +235,6 @@ void UI_engine::OpenGL_DisplayFunction() {
   glutSwapBuffers();
 }
 
-//
 void UI_engine::OpenGL_IdleFunction() {
   UI_engine *UI_ptr = UI_engine::instance();
 
@@ -227,9 +253,11 @@ void UI_engine::OpenGL_IdleFunction() {
     UI_ptr->SLAM_system_ptr->need_generate_mesh = true;
   else
     UI_ptr->SLAM_system_ptr->need_generate_mesh = false;
-  // UI_ptr->SLAM_system_ptr->processing_state =
-  // ProcessingState::PROCESS_CONTINUOUS_FRAME;
+
   ProcessingState current_state = UI_ptr->SLAM_system_ptr->process_frames();
+  // check status, if necessary.
+  if (current_state) {
+  }
 
   if (UI_ptr->record_continuous && UI_ptr->SLAM_system_ptr->processing_state !=
                                        ProcessingState::STOP_PROCESS) {
@@ -244,7 +272,6 @@ void UI_engine::OpenGL_IdleFunction() {
       coordinate_change(1, 1) = -1;
       coordinate_change(2, 2) = -1;
 
-      //
       current_pose_mat.block(0, 0, 3, 3) =
           coordinate_change * current_pose_mat.block(0, 0, 3, 3).eval() *
           coordinate_change.inverse();
@@ -263,26 +290,23 @@ void UI_engine::OpenGL_IdleFunction() {
       }
     }
 
-    // Screen shoot counter
-    static int screen_shoot_counter = 0;
-    string screen_shoot_path = "C:/Users/gongb/Desktop/record/";
+    // Screen shot counter
+    static int screen_shot_counter = 0;
+    string screen_shot_path = "main_viewport_screenshot";
 
     //
-    screen_shoot(screen_shoot_path, screen_shoot_counter);
+    screen_shot(screen_shot_path, screen_shot_counter);
 
-    // to next shoot counter
-    screen_shoot_counter++;
+    // to next shot counter
+    screen_shot_counter++;
   }
 
-  //
   glutPostRedisplay();
 }
 
-//
 void UI_engine::OpenGL_ReshapeFunction(int width, int height) {
   UI_engine *UI_ptr = UI_engine::instance();
 
-  //
   if (UI_ptr->system_induced_reshape) {
     UI_ptr->system_induced_reshape = false;
     UI_ptr->need_to_fix_window_aspect = false;
@@ -296,13 +320,16 @@ void UI_engine::OpenGL_ReshapeFunction(int width, int height) {
       (float)(width) /
       (float)(UI_parameters::instance()->main_viewport_size.width +
               UI_parameters::instance()->sub_viewport_size.width);
-  // if (0.01f < fabs((float)(width) / (float)(height)-(float)(MAIN_VIEWPORT_W +
-  // SUB_VIEWPORT_W) / (float)(MAIN_VIEWPORT_H)))
+  //  if (0.01f < fabs((float)(width) / (float)(height)-(float)(MAIN_VIEWPORT_W
+  //  + SUB_VIEWPORT_W) / (float)(MAIN_VIEWPORT_H))) printf("Reshape : (%d,
+  //  %d)\r\n", width, height);
 
-  printf("Reshape : (%d, %d)\r\n", width, height);
+#ifdef LOGGING
+  LOG_INFO("Call OpenGL reshape function, windows size(w, h): (" +
+           to_string(width) + ", " + to_string(height) + ")");
+#endif
 }
 
-// Main viewport
 void UI_engine::render_main_viewport() {
   // CUDA render scene
   //
@@ -396,7 +423,7 @@ void UI_engine::render_main_viewport() {
       glColor4f(0.5, 0.5, 1.0, 0.5);
       glLineWidth(5.0f);
       glBegin(GL_LINES);
-      for (size_t trajectory_id = 1;
+      for (int trajectory_id = 1;
            trajectory_id < min(this->SLAM_system_ptr->frame_id,
                                (int)ground_truth_trajectory.size());
            trajectory_id++) {
@@ -421,7 +448,7 @@ void UI_engine::render_main_viewport() {
       glColor4f(1.0, 0.5, 0.5, 0.5);
       glLineWidth(5.0f);
       glBegin(GL_LINES);
-      for (size_t trajectory_id = 1;
+      for (int trajectory_id = 1;
            trajectory_id < min(this->SLAM_system_ptr->frame_id,
                                (int)estimated_trajectory.size());
            trajectory_id++) {
@@ -525,7 +552,7 @@ void UI_engine::render_main_viewport() {
     My_Type::Vector2i points_image_size =
         this->SLAM_system_ptr->preprocess_engine->hierarchy_points
             .size[layer_id];
-    glDrawArrays(GL_POINTS, NULL,
+    glDrawArrays(GL_POINTS, GLint(NULL),
                  points_image_size.width * points_image_size.height);
 
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -556,7 +583,7 @@ void UI_engine::render_main_viewport() {
       My_Type::Vector2i points_image_size =
           this->SLAM_system_ptr->preprocess_engine->hierarchy_model_points
               .size[layer_id];
-      glDrawArrays(GL_POINTS, NULL,
+      glDrawArrays(GL_POINTS, GLint(NULL),
                    points_image_size.width * points_image_size.height);
 
       glDisableClientState(GL_VERTEX_ARRAY);
@@ -584,7 +611,7 @@ void UI_engine::render_main_viewport() {
       My_Type::Vector2i points_image_size =
           this->SLAM_system_ptr->preprocess_engine->hierarchy_model_points
               .size[0];
-      glDrawArrays(GL_LINES, NULL,
+      glDrawArrays(GL_LINES, GLint(NULL),
                    points_image_size.width * points_image_size.height * 2);
 
       glDisableClientState(GL_VERTEX_ARRAY);
@@ -608,7 +635,7 @@ void UI_engine::render_main_viewport() {
 
       My_Type::Vector2i points_image_size =
           this->render_engine.model_hierarchy_normal_to_draw.size[0];
-      glDrawArrays(GL_LINES, NULL,
+      glDrawArrays(GL_LINES, GLint(NULL),
                    points_image_size.width * points_image_size.height * 2);
 
       glDisableClientState(GL_VERTEX_ARRAY);
@@ -641,7 +668,7 @@ void UI_engine::render_main_viewport() {
 
       My_Type::Vector2i points_image_size =
           this->render_engine.current_hierarchy_normal_to_draw.size[0];
-      glDrawArrays(GL_LINES, NULL,
+      glDrawArrays(GL_LINES, GLint(NULL),
                    points_image_size.width * points_image_size.height * 2);
 
       glDisableClientState(GL_VERTEX_ARRAY);
@@ -695,7 +722,7 @@ void UI_engine::render_main_viewport() {
       // printf("number_of_planar_triangles = %d\n",
       // this->SLAM_system_ptr->mesh_of_total_map.number_of_planar_triangles);
       glDrawArrays(
-          GL_TRIANGLES, NULL,
+          GL_TRIANGLES, GLint(NULL),
           this->SLAM_system_ptr->mesh_of_total_map.number_of_planar_triangles *
               3);
       // glDrawArrays(GL_POINTS, NULL,
@@ -827,7 +854,7 @@ void UI_engine::render_main_viewport() {
       // glDrawArrays(GL_TRIANGLES, NULL,
       // this->SLAM_system_ptr->mesh_of_total_map.number_of_triangles * 3);
       glDrawArrays(
-          GL_TRIANGLES, NULL,
+          GL_TRIANGLES, GLint(NULL),
           this->SLAM_system_ptr->mesh_of_total_map.number_of_triangles * 3);
       // glDrawArrays(GL_TRIANGLES, NULL, (SUBMAP_VOXEL_BLOCK_NUM *
       // VOXEL_BLOCK_SIZE / 2 * 3));
@@ -889,7 +916,7 @@ void UI_engine::render_main_viewport() {
       glColorPointer(4, GL_UNSIGNED_BYTE, 0,
                      this->render_engine.scene_points_color);
 
-      glDrawArrays(GL_POINTS, NULL, 640 * 480);
+      glDrawArrays(GL_POINTS, GLint(NULL), 640 * 480);
 
       glDisableClientState(GL_VERTEX_ARRAY);
       glDisableClientState(GL_COLOR_ARRAY);
@@ -928,7 +955,7 @@ void UI_engine::render_main_viewport() {
 
       My_Type::Vector2i points_image_size =
           this->SLAM_system_ptr->preprocess_engine->hierarchy_points.size[0];
-      glDrawArrays(GL_POINTS, NULL,
+      glDrawArrays(GL_POINTS, GLint(NULL),
                    points_image_size.width * points_image_size.height);
 
       glDisableClientState(GL_COLOR_ARRAY);
@@ -1070,7 +1097,7 @@ void UI_engine::render_main_viewport() {
       Basic_Voxel_map *map_ptr =
           dynamic_cast<Basic_Voxel_map *>(this->SLAM_system_ptr->map_engine);
       glVertexPointer(3, GL_FLOAT, 0, map_ptr->plane_map_ptr->block_vertexs);
-      glDrawArrays(GL_LINES, NULL,
+      glDrawArrays(GL_LINES, GLint(NULL),
                    map_ptr->plane_map_ptr->number_of_pixel_blocks * 8);
       // glDrawArrays(GL_POINTS, NULL,
       // map_ptr->plane_map_ptr->number_of_pixel_blocks * 8);
@@ -1102,7 +1129,7 @@ void UI_engine::render_main_viewport() {
       glEnableClientState(GL_VERTEX_ARRAY);
 
       glVertexPointer(3, GL_FLOAT, 0, map_ptr->plane_map_ptr->block_vertexs);
-      glDrawArrays(GL_LINES, NULL,
+      glDrawArrays(GL_LINES, GLint(NULL),
                    map_ptr->plane_map_ptr->number_of_pixel_blocks * 8);
       // glDrawArrays(GL_POINTS, NULL,
       // map_ptr->plane_map_ptr->number_of_pixel_blocks * 8);
@@ -1508,7 +1535,6 @@ void UI_engine::render_main_viewport() {
   }
 }
 
-//
 void UI_engine::render_sub_viewport1() {
   //
   if (this->SLAM_system_ptr->color_mat.empty()) return;
@@ -1520,11 +1546,9 @@ void UI_engine::render_sub_viewport1() {
                   cv::DrawMatchesFlags::DEFAULT);
   }
 
-  //
   glViewport(this->main_viewport_width, this->sub_viewport_height,
              this->sub_viewport_width, this->sub_viewport_height);
 
-  //
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glMatrixMode(GL_MODELVIEW);
@@ -1551,7 +1575,6 @@ void UI_engine::render_sub_viewport1() {
   glDisable(GL_TEXTURE_2D);
 }
 
-//
 void UI_engine::render_sub_viewport2() {
   // Render sub-viewport-2
   switch (this->sub_viewport2_mode) {
@@ -1599,9 +1622,12 @@ void UI_engine::render_sub_viewport2() {
   glDisable(GL_TEXTURE_2D);
 }
 
+#if __unix__
+#pragma region "OpenGL draw coordinate transformation" {
+#elif _WIN32
 #pragma region(OpenGL draw coordinate transformation)
+#endif
 
-//
 void UI_engine::OpenGL_draw_in_OpenGL_camera_coordinate() {
   glMatrixMode(GL_MODELVIEW);
   // Transform to current OpenGL view camera coordinate (current screen)
@@ -1609,14 +1635,12 @@ void UI_engine::OpenGL_draw_in_OpenGL_camera_coordinate() {
   glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
 }
 
-//
 void UI_engine::OpenGL_draw_in_OpenGL_world_coordinate() {
   glMatrixMode(GL_MODELVIEW);
   // Transform to OpenGL world coordinate
   my_load_frame(this->GL_camera_Frame);
 }
 
-//
 void UI_engine::OpenGL_draw_in_SLAM_world_coordinate() {
   glMatrixMode(GL_MODELVIEW);
   // Transform to OpenGL world coordinate
@@ -1625,7 +1649,6 @@ void UI_engine::OpenGL_draw_in_SLAM_world_coordinate() {
   glRotatef(180.0f, 1.0f, 0.0f, 0.0f);
 }
 
-//
 void UI_engine::OpenGL_draw_in_some_camera_coordinate(
     Eigen::Matrix4f camera_pose) {
   glMatrixMode(GL_MODELVIEW);
@@ -1638,11 +1661,18 @@ void UI_engine::OpenGL_draw_in_some_camera_coordinate(
   glMultMatrixf(camera_pose.data());
 }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
+#if __unix__
+#pragma region "OpenGL user interactive events" {
+#elif _WIN32
 #pragma region(OpenGL user interactive events)
+#endif
 
-//
 void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
   UI_engine *UI_ptr = UI_engine::instance();
 
@@ -1651,45 +1681,57 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
   // Show object of reference
   UI_ptr->show_reference_object = true;
 
-  //
-  if (UI_ptr->normal_key['1'] == 1 || UI_ptr->normal_key['!'] == 1)
+  if (UI_ptr->normal_key[uchar('1')] == 1 ||
+      UI_ptr->normal_key[uchar('!')] == 1)
     UI_ptr->view_flag_list[1] = !UI_ptr->view_flag_list[1];
-  if (UI_ptr->normal_key['2'] == 1 || UI_ptr->normal_key['@'] == 1)
+  if (UI_ptr->normal_key[uchar('2')] == 1 ||
+      UI_ptr->normal_key[uchar('@')] == 1)
     UI_ptr->view_flag_list[2] = !UI_ptr->view_flag_list[2];
-  if (UI_ptr->normal_key['3'] == 1 || UI_ptr->normal_key['#'] == 1)
+  if (UI_ptr->normal_key[uchar('3')] == 1 ||
+      UI_ptr->normal_key[uchar('#')] == 1)
     UI_ptr->view_flag_list[3] = !UI_ptr->view_flag_list[3];
-  if (UI_ptr->normal_key['4'] == 1 || UI_ptr->normal_key['$'] == 1)
+  if (UI_ptr->normal_key[uchar('4')] == 1 ||
+      UI_ptr->normal_key[uchar('$')] == 1)
     UI_ptr->view_flag_list[4] = !UI_ptr->view_flag_list[4];
-  if (UI_ptr->normal_key['5'] == 1 || UI_ptr->normal_key['%'] == 1)
+  if (UI_ptr->normal_key[uchar('5')] == 1 ||
+      UI_ptr->normal_key[uchar('%')] == 1)
     UI_ptr->view_flag_list[5] = !UI_ptr->view_flag_list[5];
-  if (UI_ptr->normal_key['6'] == 1 || UI_ptr->normal_key['^'] == 1)
+  if (UI_ptr->normal_key[uchar('6')] == 1 ||
+      UI_ptr->normal_key[uchar('^')] == 1)
     UI_ptr->view_flag_list[6] = !UI_ptr->view_flag_list[6];
-  if (UI_ptr->normal_key['7'] == 1 || UI_ptr->normal_key['&'] == 1)
+  if (UI_ptr->normal_key[uchar('7')] == 1 ||
+      UI_ptr->normal_key[uchar('&')] == 1)
     UI_ptr->view_flag_list[7] = !UI_ptr->view_flag_list[7];
-  if (UI_ptr->normal_key['8'] == 1 || UI_ptr->normal_key['*'] == 1)
+  if (UI_ptr->normal_key[uchar('8')] == 1 ||
+      UI_ptr->normal_key[uchar('*')] == 1)
     UI_ptr->view_flag_list[8] = !UI_ptr->view_flag_list[8];
-  if (UI_ptr->normal_key['9'] == 1 || UI_ptr->normal_key['('] == 1)
+  if (UI_ptr->normal_key[uchar('9')] == 1 ||
+      UI_ptr->normal_key[uchar('(')] == 1)
     UI_ptr->view_flag_list[9] = !UI_ptr->view_flag_list[9];
-  if (UI_ptr->normal_key['0'] == 1 || UI_ptr->normal_key[')'] == 1)
+  if (UI_ptr->normal_key[uchar('0')] == 1 ||
+      UI_ptr->normal_key[uchar(')')] == 1)
     UI_ptr->view_flag_list[0] = !UI_ptr->view_flag_list[0];
 
   // Sub viewport2 render mode
-  if (UI_ptr->normal_key['`'] == 1 || UI_ptr->normal_key['~'] == 1) {
+  if (UI_ptr->normal_key[uchar('`')] == 1 ||
+      UI_ptr->normal_key[uchar('~')] == 1) {
     UI_ptr->sub_viewport2_mode =
         (SubViewport2Mode)((int)UI_ptr->sub_viewport2_mode + 1);
-    if (UI_ptr->sub_viewport2_mode >= sizeof(SubViewport2Mode))
+      if (UI_ptr->sub_viewport2_mode >= SubViewport2Mode::SVP2MODE_NUM)
       UI_ptr->sub_viewport2_mode = SubViewport2Mode::PSEUDO_DEPTH_IMAGE;
   }
   // Main viewport render mode
-  if (UI_ptr->normal_key['r'] == 1 || UI_ptr->normal_key['R'] == 1) {
+  if (UI_ptr->normal_key[uchar('r')] == 1 ||
+      UI_ptr->normal_key[uchar('R')] == 1) {
     UI_ptr->main_viewport_render_mode =
         (MainViewportRenderMode)((int)UI_ptr->main_viewport_render_mode + 1);
-    if (UI_ptr->main_viewport_render_mode >= sizeof(MainViewportRenderMode))
+      if (UI_ptr->main_viewport_render_mode >= MainViewportRenderMode::MVPRMODE_NUM)
       UI_ptr->main_viewport_render_mode = MainViewportRenderMode::PHONG_RENDER;
   }
 
-  //
-  if (UI_ptr->normal_key['t'] == 1 || UI_ptr->normal_key['T'] == 1) {
+  // Do nothing.
+  if (UI_ptr->normal_key[uchar('t')] == 1 ||
+      UI_ptr->normal_key[uchar('T')] == 1) {
     // if (UI_ptr->render_object_id <
     // main_engine_ptr->map_engine_ptr->fragment_index + 1)
     //{
@@ -1701,9 +1743,10 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
     //}
   }
 
-  //    match list
-  if (UI_ptr->normal_key['g'] == 1 || UI_ptr->normal_key['G'] == 1) {
-    ////
+  // Do nothing.
+  if (UI_ptr->normal_key[uchar('g')] == 1 ||
+      UI_ptr->normal_key[uchar('G')] == 1) {
+    //// match list
     // if (UI_ptr->render_match_list_id <
     // main_engine_ptr->map_engine_ptr->feature_map_match_graph.size() - 1)
     //{
@@ -1715,13 +1758,15 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
     //}
   }
 
+
+  // Print info for DGBUG.
   if ('p' == key || 'P' == key) {
     std::cout << "GL camera transfer matrix is :" << std::endl;
     // UI_ptr->GL_camera_Frame.print();
-
     // cout << main_engine_ptr->pose_estimate.mat << endl;
   }
 
+  // Not sure.
   if (';' == key || ':' == key) {
     Eigen::Matrix4f temp_pose;
     static int view_pose_id = 0;
@@ -1746,7 +1791,7 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
     }
   }
 
-  // 转换到 estimate camera pose
+  // switch estimate camera pose BUGS
   if ('o' == key || 'O' == key) {
     /*std::cout << "GL camera extrinsic matrix inverse is :" << std::endl;
         UI_ptr->GL_camera_Frame.print();*/
@@ -1780,51 +1825,55 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
     }
   }
 
-  // Force to stop
+  // Force to stop WITH BUGS
   if ('i' == key || 'I' == key) {
     UI_ptr->SLAM_system_ptr->all_data_process_done = true;
     UI_ptr->SLAM_system_ptr->end_of_process_data();
   }
 
-  // Screen shoot one frame
+  // Screen shot one frame
   if ('l' == key || 'L' == key) {
-    // Screen shoot counter
-    static int screen_shoot_counter = 0;
-    string screen_shoot_path = "C:/Users/gongb/Desktop/record/";
+    // Screen shot counter
+    static int screen_shot_counter = 0;
+    string screen_shot_path = "main_viewport_screenshot";
+    screen_shot(screen_shot_path, screen_shot_counter);
 
-    //
-    screen_shoot(screen_shoot_path, screen_shoot_counter);
-
-    // to next shoot counter
-    screen_shoot_counter++;
+    // to next shot counter
+    screen_shot_counter++;
   }
 
-  // Screen record
+  // Screen shot contious frame from current frame.
   if ('k' == key || 'K' == key) {
     UI_ptr->record_continuous = !UI_ptr->record_continuous;
   }
 
-  //
+  // Mesh render mode, draw plane with color.
   if ('r' == key || 'R' == key) {
     UI_ptr->mesh_render_mode++;
     if (UI_ptr->mesh_render_mode >= 3) UI_ptr->mesh_render_mode = 0;
   }
 
-  //
+  // GLCamera fov--
   if ('[' == key || '{' == key) {
     if (UI_parameters::instance()->GL_camera_fov >= 10.0f)
       UI_parameters::instance()->GL_camera_fov -= 5.0f;
   }
+
+  // GLCamera fov++
   if (']' == key || '}' == key) {
     if (UI_parameters::instance()->GL_camera_fov >= 10.0f)
       UI_parameters::instance()->GL_camera_fov += 5.0f;
   }
 
-  // exit
-  if (UI_ptr->normal_key[27] == 1) exit(0);
+  // Key Esc, exit.
+  if (UI_ptr->normal_key[27] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Exit by key Esc pressed event");
+#endif
+    exit(0);
+  }
 }
 
-//
 void UI_engine::OpenGL_NormalKeyUpFunction(unsigned char key, int x, int y) {
   UI_engine *UI_ptr = UI_engine::instance();
 
@@ -1835,7 +1884,6 @@ void UI_engine::OpenGL_NormalKeyUpFunction(unsigned char key, int x, int y) {
   UI_ptr->show_reference_object = false;
 }
 
-//
 void UI_engine::OpenGL_SpecialKeyFunction(int key, int x, int y) {
   UI_engine *UI_ptr = UI_engine::instance();
 
@@ -1845,7 +1893,6 @@ void UI_engine::OpenGL_SpecialKeyFunction(int key, int x, int y) {
   UI_ptr->show_reference_object = true;
 }
 
-//
 void UI_engine::OpenGL_SpecialKeyUpFunction(int key, int x, int y) {
   UI_engine *UI_ptr = UI_engine::instance();
 
@@ -1855,7 +1902,6 @@ void UI_engine::OpenGL_SpecialKeyUpFunction(int key, int x, int y) {
   UI_ptr->show_reference_object = false;
 }
 
-//
 void UI_engine::OpenGL_MouseButtonFunction(int button, int state, int x,
                                            int y) {
   UI_engine *UI_ptr = UI_engine::instance();
@@ -1903,7 +1949,6 @@ void UI_engine::OpenGL_MouseButtonFunction(int button, int state, int x,
   }
 }
 
-//
 void UI_engine::OpenGL_MouseWheelFunction(int button, int dir, int x, int y) {
   UI_engine *UI_ptr = UI_engine::instance();
 
@@ -1923,7 +1968,6 @@ void UI_engine::OpenGL_MouseWheelFunction(int button, int dir, int x, int y) {
   }
 }
 
-//
 void UI_engine::OpenGL_MouseMoveFunction(int x, int y) {
   UI_engine *UI_ptr = UI_engine::instance();
 
@@ -1931,7 +1975,7 @@ void UI_engine::OpenGL_MouseMoveFunction(int x, int y) {
   UI_ptr->mouse_Y = y;
 }
 
-void screen_shoot(string &save_folder, int frame_id) {
+void screen_shot(string &save_folder, int frame_id) {
   UI_engine *UI_ptr = UI_engine::instance();
 
   int viewport_width = UI_ptr->main_viewport_width;
@@ -1950,10 +1994,13 @@ void screen_shoot(string &save_folder, int frame_id) {
                rgba_image_mat.data);
 
   cv::flip(rgba_image_mat, rgba_image_mat, 0);
-  // cv::imshow("1", rgba_image_mat);
   for (int offset = 0; offset < viewport_width * viewport_height; offset++) {
-    //printf("%d, %d, %d, %d\r\n", (int)rgba_image_mat.data[offset * 4 + 0], (int)rgba_image_mat.data[offset * 4 + 1], \
-							(int)rgba_image_mat.data[offset * 4 + 2], (int)rgba_image_mat.data[offset * 4 + 3]);
+    /*
+        printf("%d, %d, %d, %d\r\n", (int)rgba_image_mat.data[offset * 4 + 0],
+       (int)rgba_image_mat.data[offset * 4 + 1], \
+                                (int)rgba_image_mat.data[offset * 4 + 2],
+       (int)rgba_image_mat.data[offset * 4 + 3]);
+    */
     if (rgba_image_mat.data[offset * 4 + 0] == 0 &&
         rgba_image_mat.data[offset * 4 + 1] == 0 &&
         rgba_image_mat.data[offset * 4 + 2] == 0) {
@@ -1962,12 +2009,30 @@ void screen_shoot(string &save_folder, int frame_id) {
     }
   }
 
-  char path_str[1000];
-  sprintf(path_str, "%s/%08d.png\0", save_folder.c_str(), frame_id);
-  printf("%s\r\n", path_str);
+  char path_str[1024];
+  sprintf(path_str, "%s/%08d.png", save_folder.c_str(), frame_id);
 
   cv::String cv_str(path_str);
-  cv::imwrite(cv_str, rgba_image_mat);
+
+  if (cv::imwrite(cv_str, rgba_image_mat) == true) {
+#ifdef LOGGING
+    LOG_INFO("Save main viewport screenshot: " + std::string(path_str) +
+             " successfully.");
+#endif
+
+  } else {
+#ifdef LOGGING
+    LOG_ERROR("Failed to save image " + std::string(path_str));
+#endif
+
+    fprintf(stderr,
+            "File %s, Line %d, Function %s(), Failed to save image: %s\n",
+            __FILE__, __LINE__, __FUNCTION__, path_str);
+  }
 }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif

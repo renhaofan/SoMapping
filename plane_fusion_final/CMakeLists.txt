@@ -24,11 +24,13 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
 #endif()
 
 # mkdir to store log info
-execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/log)
+execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/main_viewport_screenshot)
 # Flag logging concerned
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLOGGING")
 #set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -DLOGTOSTDERR")
 
+# screenshot
+execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/log)
 
 # set utils
 file(GLOB UTILS_SOURCES
