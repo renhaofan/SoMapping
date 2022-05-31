@@ -1,7 +1,7 @@
 /**
  *  Copyright (C) All rights reserved.
  *  @file UI_interactive_events.cpp
- *  @brief Implement fix_windows_aspect() and interactive_events() defined in UI_engine.h
+ *  @brief Implement UI_engine::fix_window_aspect() and UI_engine::interactive_events() defined in UI_engine.h
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21

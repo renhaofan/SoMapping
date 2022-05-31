@@ -2,7 +2,7 @@
  *  Copyright (C) All rights reserved.
  *  @file UI_engine.cpp
  *  @brief Implement main function defined in UI_engine.h except
- *         fix_window_aspect() and interactive_events().
+ *         UI_engine::fix_window_aspect() and UI_engine::interactive_events().
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
