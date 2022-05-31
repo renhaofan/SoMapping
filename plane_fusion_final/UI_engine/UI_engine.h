@@ -1,14 +1,19 @@
 /**
  *  Copyright (C) All rights reserved.
  *  @file UI_engine.h
- *  @brief jfdk
+ *  @brief UI engine to handle render function and GLUT SINGLE events.
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
  *  @note remove Warning: array subscript has type char.
- *        reference: https://stackoverflow.com/questions/9972359/warning-array-subscript-has-type-char
+ *        reference:
+ *        https://stackoverflow.com/questions/9972359/warning-array-subscript-has-type-char
  *  @todo Make CUDA Timer:
- * https://blog.csdn.net/Morizen/article/details/114265793
+ *        https://blog.csdn.net/Morizen/article/details/114265793
+ *  @todo fix void interactive_events() BUG
+ *  @todo fix void UI_engine::fix_window_aspect() BUG
+ *  @todo Explicit switch button whether drawKeypoints() in function render_sub_viewport1();
+ *  @todo Figure out 4 functions: OpenGL_draw_in_OpenGL_*****_coordinate()
  */
 
 #pragma once
@@ -66,11 +71,10 @@ class UI_engine {
 #elif _WIN32
 #pragma region(OpenGL)
 #endif
-  //  GLchar normal_key[256], special_key[256];
   /** @brief Normal key definition for OpenGL keyboard event. */
-  uint16_t normal_key[256];
+  GLchar normal_key[256];
   /** @brief Special key definition for OpenGL keyboard event. */
-  uint16_t special_key[256];
+  GLchar special_key[256];
 
   /** @brief Flag whether left mouse button pressed for OpenGL mouse event. */
   bool mouse_LeftDown;
@@ -96,9 +100,10 @@ class UI_engine {
 
   /** @brief Reshape flag. */
   bool system_induced_reshape;
-  /** @brief Reshape flag. */
+  /** @brief Fixed aspect(height/width expecially for this project, normally
+   * w/h) when call reshape function. */
   bool need_to_fix_window_aspect;
-  /** @brief Reshape flag. */
+  /** @brief Window aspect ratio. */
   float reshape_ratio;
 
   /** @brief Window width. */
@@ -206,7 +211,7 @@ class UI_engine {
   int init(int main_argc, char **main_argv, Data_engine *data_engine,
            SLAM_system *SLAM, Render_engine *render_engine);
 
-  /** @brief OpenGL main loop. */
+  /** @brief GLUT main loop. */
   void run();
 
   /** @brief OpenGL render function, render main window and sub windows. */
@@ -232,21 +237,34 @@ class UI_engine {
   static void OpenGL_MouseWheelFunction(int button, int dir, int x, int y);
 
  private:
+  /** @brief Action when user triger concerned event. */
   void interactive_events();
-
+  /** @brief Fixed aspect ratio when reshape function. */
   void fix_window_aspect();
 
+  /** @brief Render main viewport. */
   void render_main_viewport();
-
+  /** @brief Render current color frame where switch button whether
+   *         drawKeypoints. */
   void render_sub_viewport1();
-
+  /** @brief Render psesudo depth image. */
   void render_sub_viewport2();
 
+  /**
+   * @brief OpenGL_draw_in_OpenGL_camera_coordinate
+   */
   void OpenGL_draw_in_OpenGL_camera_coordinate();
-
+  /**
+   * @brief OpenGL_draw_in_OpenGL_world_coordinate
+   */
   void OpenGL_draw_in_OpenGL_world_coordinate();
-
+  /**
+   * @brief OpenGL_draw_in_SLAM_world_coordinate
+   */
   void OpenGL_draw_in_SLAM_world_coordinate();
-
+  /**
+   * @brief OpenGL_draw_in_some_camera_coordinate
+   * @param camera_pose Camera pose frame.
+   */
   void OpenGL_draw_in_some_camera_coordinate(Eigen::Matrix4f camera_pose);
 };
