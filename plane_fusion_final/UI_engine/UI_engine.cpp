@@ -1,3 +1,13 @@
+/**
+ *  Copyright (C) All rights reserved.
+ *  @file UI_engine.cpp
+ *  @brief Implement main function defined in UI_engine.h except
+ *         fix_window_aspect() and interactive_events().
+ *  @author haofan ren, yqykrhf@163.com
+ *  @version beta 0.0
+ *  @date 22-5-21
+ */
+
 #include "UI_engine.h"
 
 #include "OurLib/my_GL_functions.h"
@@ -248,14 +258,14 @@ void UI_engine::OpenGL_IdleFunction() {
   // Inspect keyboard state
   UI_ptr->interactive_events();
 
-  //
+  // Draw model surface
   if (UI_ptr->view_flag_list[7])
     UI_ptr->SLAM_system_ptr->need_generate_mesh = true;
   else
     UI_ptr->SLAM_system_ptr->need_generate_mesh = false;
 
   ProcessingState current_state = UI_ptr->SLAM_system_ptr->process_frames();
-  // check status, if necessary.
+  // Check status, if necessary.
   if (current_state) {
   }
 
@@ -332,7 +342,6 @@ void UI_engine::OpenGL_ReshapeFunction(int width, int height) {
 
 void UI_engine::render_main_viewport() {
   // CUDA render scene
-  //
   {
     Eigen::Matrix4f GL_view_pose;
     float *ptr_f = GL_view_pose.data();
@@ -355,13 +364,10 @@ void UI_engine::render_main_viewport() {
     GL_view_pose.block(0, 3, 3, 1) =
         coordinate_change * GL_view_pose.eval().block(0, 3, 3, 1);
 
-    //!
     // this->SLAM_system_ptr->generate_render_info(GL_view_pose);
-    //!
     this->SLAM_system_ptr->preprocess_engine->generate_render_information();
   }
 
-  //
   glViewport(0, 0, this->main_viewport_width, this->main_viewport_height);
 
   // Projection matrix
@@ -374,7 +380,6 @@ void UI_engine::render_main_viewport() {
                  UI_parameters::instance()->GL_view_range.y *
                      UI_parameters::instance()->GL_view_scale);
 
-  //
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -916,7 +921,10 @@ void UI_engine::render_main_viewport() {
       glColorPointer(4, GL_UNSIGNED_BYTE, 0,
                      this->render_engine.scene_points_color);
 
-      glDrawArrays(GL_POINTS, GLint(NULL), 640 * 480);
+      //      glDrawArrays(GL_POINTS, GLint(NULL), 640 * 480);
+      int tmp_w, tmp_h;
+      this->data_engine_ptr->get_color_image_size(tmp_w, tmp_h);
+      glDrawArrays(GL_POINTS, GLint(NULL), tmp_w * tmp_h);
 
       glDisableClientState(GL_VERTEX_ARRAY);
       glDisableClientState(GL_COLOR_ARRAY);
@@ -1480,10 +1488,9 @@ void UI_engine::render_main_viewport() {
     }
   }
 
-  //
   glDisable(GL_POINT_SMOOTH);
   glDisable(GL_LINE_SMOOTH);
-  //
+
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_BLEND);
 
@@ -1536,7 +1543,6 @@ void UI_engine::render_main_viewport() {
 }
 
 void UI_engine::render_sub_viewport1() {
-  //
   if (this->SLAM_system_ptr->color_mat.empty()) return;
 
   if (true) {
@@ -1576,7 +1582,6 @@ void UI_engine::render_sub_viewport1() {
 }
 
 void UI_engine::render_sub_viewport2() {
-  // Render sub-viewport-2
   switch (this->sub_viewport2_mode) {
     case SubViewport2Mode::PSEUDO_DEPTH_IMAGE: {
       this->render_engine.pseudo_render_depth(
@@ -1589,11 +1594,13 @@ void UI_engine::render_sub_viewport2() {
     case SubViewport2Mode::RESIDUAL_IMAGE: {
       break;
     }
+    case SubViewport2Mode::SVP2MODE_NUM: {
+      break;
+    }
     default:
       break;
   }
 
-  //
   glViewport(this->main_viewport_width, 0, this->sub_viewport_width,
              this->sub_viewport_height);
   glMatrixMode(GL_PROJECTION);
@@ -1605,7 +1612,7 @@ void UI_engine::render_sub_viewport2() {
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, this->sub1_viewport_texture);
-  //
+
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, this->render_engine.depth_size.width,
                   this->render_engine.depth_size.height, GL_RGBA,
                   GL_UNSIGNED_BYTE, this->render_engine.viewport_2_color);
@@ -1717,7 +1724,7 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
       UI_ptr->normal_key[uchar('~')] == 1) {
     UI_ptr->sub_viewport2_mode =
         (SubViewport2Mode)((int)UI_ptr->sub_viewport2_mode + 1);
-      if (UI_ptr->sub_viewport2_mode >= SubViewport2Mode::SVP2MODE_NUM)
+    if (UI_ptr->sub_viewport2_mode >= SubViewport2Mode::SVP2MODE_NUM)
       UI_ptr->sub_viewport2_mode = SubViewport2Mode::PSEUDO_DEPTH_IMAGE;
   }
   // Main viewport render mode
@@ -1725,7 +1732,8 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
       UI_ptr->normal_key[uchar('R')] == 1) {
     UI_ptr->main_viewport_render_mode =
         (MainViewportRenderMode)((int)UI_ptr->main_viewport_render_mode + 1);
-      if (UI_ptr->main_viewport_render_mode >= MainViewportRenderMode::MVPRMODE_NUM)
+    if (UI_ptr->main_viewport_render_mode >=
+        MainViewportRenderMode::MVPRMODE_NUM)
       UI_ptr->main_viewport_render_mode = MainViewportRenderMode::PHONG_RENDER;
   }
 
@@ -1758,10 +1766,9 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
     //}
   }
 
-
   // Print info for DGBUG.
   if ('p' == key || 'P' == key) {
-    std::cout << "GL camera transfer matrix is :" << std::endl;
+    //    std::cout << "GL camera transfer matrix is :" << std::endl;
     // UI_ptr->GL_camera_Frame.print();
     // cout << main_engine_ptr->pose_estimate.mat << endl;
   }
