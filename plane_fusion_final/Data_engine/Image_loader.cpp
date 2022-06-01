@@ -171,27 +171,26 @@ void Offline_image_loader::read_calibration_parameters(string cal) {
     printf("Calibration filename not specified. Using default parameters.\n");
     return;
   }
-
   std::ifstream f(cal);
-  // rgb
+
+  // Color camera parameters
   double fx, fy, cx, cy;
   f >> this->color_width >> this->color_height;
   f >> fx >> fy;
   f >> cx >> cy;
   SLAM_system_settings::instance()->set_intrinsic(fx, fy, cx, cy);
 
+  // Depth camera parameters
   f >> this->depth_width >> this->depth_height;
   f >> fx >> fy;
   f >> cx >> cy;
 
   // depth2color, depth2imu
   My_Type::Matrix44f d2c, d2i;
-
   f >> d2c.m00 >> d2c.m10 >> d2c.m20 >> d2c.m30;
   f >> d2c.m01 >> d2c.m11 >> d2c.m21 >> d2c.m31;
   f >> d2c.m02 >> d2c.m12 >> d2c.m22 >> d2c.m32;
   d2c.m03 = 0.0f;
-
   d2c.m13 = 0.0f;
   d2c.m23 = 0.0f;
   d2c.m33 = 1.0f;
@@ -202,6 +201,8 @@ void Offline_image_loader::read_calibration_parameters(string cal) {
   d2i.m13 = 0.0f;
   d2i.m23 = 0.0f;
   d2i.m33 = 1.0f;
+
+  // Read scale.
   string word;
   double scale;
   f >> word >> scale;
