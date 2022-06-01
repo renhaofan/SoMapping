@@ -97,8 +97,7 @@ int main(int argc, char **argv) {
   // Initiation
   Main_engine::instance()->init(argc, argv, image_loader_ptr);
   // Load ground truth file
-  Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path,
-                                                          true);
+  Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path);
 #ifdef LOGGING
   LOG_INFO("<------ Run main thread ...");
 #endif
