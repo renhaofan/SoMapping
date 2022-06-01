@@ -1,7 +1,13 @@
 # SoMapping
 `string GLcamera_freeview_trajectory_path` in `Data_loader.h` ？
  
-Esc 退出与右上角关闭窗口的地方，补上Log::shutdown
+Esc 退出(finished)与右上角关闭窗口的地方，补上Log::shutdown()
+
+UI_engine::interactive_events() 中 有ws，qe的区别。( UI_engine::interactive_events())
+
+## Snippet
+`void UI_engine::render_sub_viewport1()` Line 1536, File UI_engine.cpp, Whether drawKeypoints.
+
 
 
 ## BUG
@@ -71,7 +77,13 @@ frame_id = 273
 1 : (-nan, -nan, -nan), -nan , 0.871626 , 2	true 
 2 : (-nan, -nan, -nan), -nan , 0.772893 , 2	true 
 ```
+### 7. Render missing voxel block.
 
+### 8. Missing voxel block.
+
+### 9. Depth error, the trejectory and map.
+
+### 10. Mismatch wrong estimation with GT. 
 
 ## 1. clang-format
 command clang-format for folder
@@ -86,24 +98,36 @@ find plane_fusion_final -iname *.cuh -o -iname *.cu | xargs clang-format -i -sty
 ### 2.1 Display
 <kbd>1</kbd> - OpenGL right-hand frame, red-x, green-y, blue-z.
 
-<kbd>2</kbd> - Trajectory, blue-?, red-?.
+<kbd>2</kbd> - Camera trajectory, blue-?, red-?.
 
-<kbd>3</kbd> - Voxel, yellow color by default.
+<kbd>3</kbd> - Voxel block, yellow color by default.
 
-<kbd>4</kbd> - Point cloud per frame, yellow color by default.
+<kbd>4</kbd> - Current points, yellow color by default.
 
-<kbd>5</kbd> - Normal vectors of point cloud.
+<kbd>5</kbd> - Model points.
 
-<kbd>6</kbd> - TSDF map.
+<kbd>6</kbd> - Plane region mesh.
 
-<kbd>8</kbd> - Pesudo color point cloud per frame.
+<kbd>6</kbd> - Draw model surface.
+
+<kbd>8</kbd> - Current plane segmentation pesudo color render.
 
 <kbd>9</kbd> - Plane detection-? blue color by default.
 
-<kbd>0</kbd> - Planar supervoxel-?
+<kbd>0</kbd> - Draw keypoint in each submap
+(Planar supervoxel-?)
+
+<kbd>r</kbd> - Mesh render mode, 3 modes. One of them is drawing planes with different color.
+
+<kbd>l</kbd> - Screenshot one frame. 
+
+<kbd>k</kbd> - Screenshot contious frame from current frame. 
 
 
 ### 2.2 FreeView Control
+<kbd>[</kbd> - GLCamera fov decrease. 
+
+<kbd>]</kbd> - GLCamera fov increase.
 
 <kbd>w</kbd> - Move forward. 
 
@@ -120,6 +144,8 @@ find plane_fusion_final -iname *.cuh -o -iname *.cu | xargs clang-format -i -sty
 <kbd>←</kbd>, <kbd>→</kbd> yaw slowly, aka rotate around self-y axis.
 
 <kbd>↑</kbd>, <kbd>↓</kbd> pitch slowly, aka rotate around self-x axis.
+
+<kbd>PgUp</kbd>, <kbd>PgDn</kbd> Roll slowly, aka rotate around self-z axis.
 
 mouse left button: rotate fast.
 
