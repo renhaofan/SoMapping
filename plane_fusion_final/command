@@ -1,0 +1,3 @@
+../../plane_fusion_final/Files/TUM/TUM1.txt /home/steve/dataset/TUM_RGBD_VSLAM/rgbd_dataset_freiburg1_xyz 1
+
+../../plane_fusion_final/Files/ICL.txt /home/steve/dataset/icl/lr_kt0/living_room_traj0_frei_png 0
