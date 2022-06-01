@@ -12,11 +12,14 @@
 // CUDA functions
 #include "Preprocess_KernelFunc.cuh"
 
-#pragma region(CUDA memory operation for hierarchy image)
-// CUDA memory allocation for hierarchy image
+// <------ CUDA memory operation for hierarchy image
+/**
+ * @brief CUDA memory allocation for hierarchy image.
+ * @param hierarcgy_image Hierarchy image ready to be allocated.
+ */
 template <typename T>
 void allocate_CUDA_memory_for_hierarchy(Hierarchy_image<T> &hierarcgy_image) {
-  for (size_t layer_id = 0; layer_id < hierarcgy_image.number_of_layers;
+  for (int layer_id = 0; layer_id < hierarcgy_image.number_of_layers;
        layer_id++) {
     checkCudaErrors(cudaMalloc((void **)&(hierarcgy_image.data_ptrs[layer_id]),
                                hierarcgy_image.size[layer_id].width *
@@ -28,21 +31,27 @@ void allocate_CUDA_memory_for_hierarchy(Hierarchy_image<T> &hierarcgy_image) {
                                    sizeof(T)));
   }
 }
-// CUDA memory free for hierarchy image
+/**
+ * @brief release_CUDA_memory_for_hierarchy.
+ * @param hierarcgy_image Hierarchy image ready to be realsed.
+ */
 template <typename T>
 void release_CUDA_memory_for_hierarchy(Hierarchy_image<T> &hierarcgy_image) {
-  for (size_t layer_id = 0; layer_id < hierarcgy_image.number_of_layers;
+  for (int layer_id = 0; layer_id < hierarcgy_image.number_of_layers;
        layer_id++)
     checkCudaErrors(cudaFree(hierarcgy_image.data_ptrs[layer_id]));
 }
+// CUDA memory operation for hierarchy image ------>
 
-#pragma endregion
 
-#pragma region(HOST memory operation for hierarchy image)
-// Host memory allocation for hierarchy image
+// <------ HOST memory operation for hierarchy image
+/**
+ * @brief Host memory allocation for hierarchy image.
+ * @param hierarcgy_image Hierarchy image ready to be allocated.
+ */
 template <typename T>
 void allocate_host_memory_for_hierarchy(Hierarchy_image<T> &hierarcgy_image) {
-  for (size_t layer_id = 0; layer_id < hierarcgy_image.number_of_layers;
+  for (int layer_id = 0; layer_id < hierarcgy_image.number_of_layers;
        layer_id++) {
     hierarcgy_image.data_ptrs[layer_id] =
         (T *)malloc(hierarcgy_image.size[layer_id].width *
@@ -52,17 +61,19 @@ void allocate_host_memory_for_hierarchy(Hierarchy_image<T> &hierarcgy_image) {
                hierarcgy_image.size[layer_id].height * sizeof(T));
   }
 }
-// Host memory release for hierarchy image
+/**
+ * @brief Host memory release for hierarchy image.
+ * @param hierarcgy_image Hierarchy image ready to be realsed.
+ */
 template <typename T>
 void release_host_memory_for_hierarchy(Hierarchy_image<T> &hierarcgy_image) {
-  for (size_t layer_id = 0; layer_id < hierarcgy_image.number_of_layers;
+  for (int layer_id = 0; layer_id < hierarcgy_image.number_of_layers;
        layer_id++)
     free(hierarcgy_image.data_ptrs[layer_id]);
 }
-#pragma endregion
+// HOST memory operation for hierarchy image ------>
 
-// ---------------------------- Preprocess_engine
-#pragma region(Preprocess_engine(base class))
+
 void Preprocess_engine::init(My_Type::Vector2i raw_color_size,
                              My_Type::Vector2i raw_depth_size,
                              int image_alignment_width, int number_of_layers) {
@@ -77,11 +88,9 @@ void Preprocess_engine::init(My_Type::Vector2i raw_color_size,
       ceil_by_stride(this->raw_depth_size.height, this->image_alignment_width);
 }
 
-//
 void Preprocess_engine::copy_previous_intensity_as_model() {
-  //
-  for (size_t layer_id = 0;
-       layer_id < this->dev_hierarchy_points.number_of_layers; layer_id++) {
+  for (int layer_id = 0; layer_id < this->dev_hierarchy_points.number_of_layers;
+       layer_id++) {
     checkCudaErrors(cudaMemcpy(
         this->dev_hierarchy_model_intensity.data_ptrs[layer_id],
         this->dev_hierarchy_intensity.data_ptrs[layer_id],
@@ -98,12 +107,9 @@ void Preprocess_engine::copy_previous_intensity_as_model() {
   }
 }
 
-#pragma endregion
 
 // ---------------------------- Preprocess_RGBD
-#pragma region(Preprocess_RGBD)
 
-//
 Preprocess_RGBD::~Preprocess_RGBD() {
   // CUDA
   release_CUDA_memory_for_hierarchy(this->dev_hierarchy_intensity);
@@ -131,13 +137,25 @@ Preprocess_RGBD::~Preprocess_RGBD() {
   release_host_memory_for_hierarchy(this->hierarchy_model_gradient);
 }
 
-//
 void Preprocess_RGBD::init(My_Type::Vector2i raw_color_size,
                            My_Type::Vector2i raw_depth_size,
                            int image_alignment_width, int number_of_layers) {
   // Init parameters
   Preprocess_engine::init(raw_color_size, raw_depth_size, image_alignment_width,
                           number_of_layers);
+
+#ifdef LOGGING
+  LOG_INFO("Preset maximum pyramid layer number: " +
+           std::to_string(MAX_LAYER_NUMBER));
+  LOG_INFO("Parameter of pyramid layer number: " +
+           std::to_string(number_of_layers));
+  LOG_INFO("Color image layer-0 size(w, h): (" +
+           std::to_string(raw_color_size.x) + ", " +
+           std::to_string(raw_color_size.y) + ")");
+  LOG_INFO("Depth image layer-0 size(w, h): (" +
+           std::to_string(raw_depth_size.x) + ", " +
+           std::to_string(raw_depth_size.y) + ")");
+#endif
 
   // Hierarchy images
   // Pre-compute hierarchy image memory occupancy
@@ -231,7 +249,7 @@ void Preprocess_RGBD::init(My_Type::Vector2i raw_color_size,
   allocate_host_memory_for_hierarchy(this->hierarchy_model_normals);
 }
 
-//
+
 void Preprocess_RGBD::preprocess_image(cv::Mat &raw_color, cv::Mat &raw_depth) {
   // Filter depth image TODO 双边滤波存在问题
   this->filter_image(raw_color, raw_depth);
@@ -240,12 +258,10 @@ void Preprocess_RGBD::preprocess_image(cv::Mat &raw_color, cv::Mat &raw_depth) {
   this->generate_hierarchy_image();
 }
 
-//
 void Preprocess_RGBD::preprocess_model_points(
     My_Type::Vector3f *dev_model_points, My_Type::Vector3f *dev_model_normals) {
   dim3 block_rect(1, 1, 1), thread_rect(1, 1, 1);
 
-  //
   checkCudaErrors(cudaMemcpy(
       this->dev_hierarchy_model_points.data_ptrs[0], dev_model_points,
       this->dev_hierarchy_model_points.size[0].width *
@@ -261,7 +277,7 @@ void Preprocess_RGBD::preprocess_model_points(
 
   // Generate hierarchy depth & normal image
   {
-    for (size_t layer_id = 1;
+    for (int layer_id = 1;
          layer_id < this->dev_hierarchy_model_points.number_of_layers;
          layer_id++) {
       thread_rect.x = this->image_alignment_width;
@@ -290,7 +306,6 @@ void Preprocess_RGBD::preprocess_model_points(
   }
 }
 
-//
 void Preprocess_RGBD::filter_image(cv::Mat &raw_color, cv::Mat &raw_depth) {
   dim3 block_rect(1, 1, 1), thread_rect(1, 1, 1);
 
@@ -409,7 +424,6 @@ void Preprocess_RGBD::filter_image(cv::Mat &raw_color, cv::Mat &raw_depth) {
   }
 }
 
-//
 void Preprocess_RGBD::generate_hierarchy_image() {
   dim3 block_rect(1, 1, 1), thread_rect(1, 1, 1);
 
@@ -482,7 +496,7 @@ void Preprocess_RGBD::generate_hierarchy_image() {
   // this->dev_hierarchy_intensity.data_ptrs[layer_id - 1],
   //											  this->dev_hierarchy_intensity.size[layer_id
   //- 1],
-  //this->dev_hierarchy_intensity.data_ptrs[layer_id]);
+  // this->dev_hierarchy_intensity.data_ptrs[layer_id]);
   //			//CUDA_CKECK_KERNEL;
   //			// Lunch kernel function (normals)
   //			down_sample_hierarchy_layers_CUDA(block_rect,
@@ -490,13 +504,13 @@ void Preprocess_RGBD::generate_hierarchy_image() {
   // this->dev_hierarchy_gradient.data_ptrs[layer_id - 1],
   //											  this->dev_hierarchy_gradient.size[layer_id
   //- 1],
-  //this->dev_hierarchy_gradient.data_ptrs[layer_id]);
+  // this->dev_hierarchy_gradient.data_ptrs[layer_id]);
   //			//CUDA_CKECK_KERNEL;
   //		}
   //	}
   // Generate hierarchy depth & normal image
   {
-    for (size_t layer_id = 1;
+    for (int layer_id = 1;
          layer_id < this->dev_hierarchy_points.number_of_layers; layer_id++) {
       thread_rect.x = this->image_alignment_width;
       thread_rect.y = this->image_alignment_width;
@@ -527,7 +541,7 @@ void Preprocess_RGBD::generate_hierarchy_image() {
   // For feature detection
   if (true) {
     //
-    for (size_t layer_id = 0;
+    for (int layer_id = 0;
          layer_id < this->dev_hierarchy_points.number_of_layers; layer_id++) {
       checkCudaErrors(
           cudaMemcpy(this->hierarchy_points.data_ptrs[layer_id],
@@ -540,11 +554,9 @@ void Preprocess_RGBD::generate_hierarchy_image() {
   }
 }
 
-//
 void Preprocess_RGBD::generate_render_information() {
-  //
-  for (size_t layer_id = 0;
-       layer_id < this->dev_hierarchy_points.number_of_layers; layer_id++) {
+  for (int layer_id = 0; layer_id < this->dev_hierarchy_points.number_of_layers;
+       layer_id++) {
     checkCudaErrors(
         cudaMemcpy(this->hierarchy_points.data_ptrs[layer_id],
                    this->dev_hierarchy_points.data_ptrs[layer_id],
@@ -575,5 +587,3 @@ void Preprocess_RGBD::generate_render_information() {
                    cudaMemcpyDeviceToHost));
   }
 }
-
-#pragma endregion

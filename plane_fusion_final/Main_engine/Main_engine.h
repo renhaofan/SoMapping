@@ -24,8 +24,12 @@ class Main_engine {
   /** @brief Member function for instantiating this static object. */
   static Main_engine *instance(void) {
     if (instance_ptr == nullptr) instance_ptr = new Main_engine();
-    //! check whether allocte memory succesfully.
+    // check whether allocte memory succesfully.
     if (instance_ptr == nullptr) {
+#ifdef LOGGING
+      LOG_FATAL("Failed to allocate main engine memory!");
+      Log::shutdown();
+#endif
       fprintf(stderr,
               "File %s, Line %d, Function %s(): "
               "Failed to allocate main engine memory.\n",
@@ -56,7 +60,7 @@ class Main_engine {
    * @param argv Input the second argument of main() function.
    * @param image_loader_ptr The pointer of Image_loader.
    * @param output_folder Output folder.(output estimated trajectory, mesh,
-   * etc.)
+   *        etc.)
    * @param _is_ICL_NUIM_dataset Dataset coordinate mode.
    */
   void init(int argc, char **argv, Image_loader *image_loader_ptr,

@@ -8,29 +8,29 @@
 #include <helper_cuda.h>
 #include <helper_functions.h>
 
-//
 #include "OurLib/my_math_functions.h"
 #include "SLAM_system/SLAM_system_settings.h"
 #include "UI_engine/UI_parameters.h"
 
-// ------------------------- Map_engine
+#pragma region
+#if __unix__
+#pragma region "Map engine base" {
+#elif _WIN32
 #pragma region(Map engine base)
+#endif
+
 Map_engine::~Map_engine() {
-  //
   checkCudaErrors(cudaFree(this->dev_model_points));
   checkCudaErrors(cudaFree(this->dev_model_normals));
   checkCudaErrors(cudaFree(this->dev_model_weight));
   checkCudaErrors(cudaFree(this->dev_model_plane_labels));
-  //
   free(this->scene_points);
   free(this->scene_normals);
   free(this->scene_weight);
   free(this->scene_plane_labels);
 }
 
-//
 void Map_engine::init_base() {
-  //
   int ceil_depth_image_width = ceil_by_stride(
       SLAM_system_settings::instance()->aligned_depth_size.width,
       SLAM_system_settings::instance()->image_alginment_patch_width);
@@ -44,7 +44,6 @@ void Map_engine::init_base() {
       UI_parameters::instance()->main_viewport_size.height,
       SLAM_system_settings::instance()->image_alginment_patch_width);
 
-  //
   checkCudaErrors(cudaMalloc((void **)&(this->dev_model_points),
                              ceil_depth_image_width * ceil_depth_image_height *
                                  sizeof(My_Type::Vector3f)));
@@ -57,7 +56,7 @@ void Map_engine::init_base() {
   checkCudaErrors(cudaMalloc(
       (void **)&(this->dev_model_plane_labels),
       ceil_depth_image_width * ceil_depth_image_height * sizeof(int)));
-  //
+
   this->scene_points = (My_Type::Vector3f *)malloc(
       ceil_viewport_width * ceil_viewport_height * sizeof(My_Type::Vector3f));
   this->scene_normals = (My_Type::Vector3f *)malloc(
@@ -68,7 +67,6 @@ void Map_engine::init_base() {
       (int *)malloc(ceil_viewport_width * ceil_viewport_height * sizeof(int));
 }
 
-//
 void Map_engine::reshape_render_viewport(My_Type::Vector2i viewport_size) {
   // Release memory
   if (this->scene_points) free(this->scene_points);
@@ -83,7 +81,7 @@ void Map_engine::reshape_render_viewport(My_Type::Vector2i viewport_size) {
   int ceil_viewport_height = ceil_by_stride(
       viewport_size.height,
       SLAM_system_settings::instance()->image_alginment_patch_width);
-  //
+
   this->scene_points = (My_Type::Vector3f *)malloc(
       ceil_viewport_width * ceil_viewport_height * sizeof(My_Type::Vector3f));
   this->scene_normals = (My_Type::Vector3f *)malloc(
@@ -93,24 +91,32 @@ void Map_engine::reshape_render_viewport(My_Type::Vector2i viewport_size) {
   this->scene_plane_labels =
       (int *)malloc(ceil_viewport_width * ceil_viewport_height * sizeof(int));
 }
-#pragma endregion
 
-// ------------------------- Basic_Voxel_map
+#if _WIN32
+#pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
+
+#if __unix__
+#pragma region "Basic voxel map" {
+#elif _WIN32
 #pragma region(Basic voxel map)
-//
+#endif
+
 Basic_Voxel_map::Basic_Voxel_map() {
   this->voxel_map_ptr = new Voxel_map();
   this->plane_map_ptr = new Plane_map();
 }
-//
+
 Basic_Voxel_map::~Basic_Voxel_map() {
   delete this->voxel_map_ptr;
   delete this->plane_map_ptr;
 }
 
-//
 void Basic_Voxel_map::init_map() {
-  this->init_base();
+  // this->init_base();
+  Map_engine::init_base();
 
   this->voxel_map_ptr->init_Voxel_map(
       SLAM_system_settings::instance()->aligned_depth_size,
@@ -119,7 +125,6 @@ void Basic_Voxel_map::init_map() {
   this->plane_map_ptr->init();
 }
 
-//
 void Basic_Voxel_map::update_map_after_tracking(
     My_pose &camera_pose, My_Type::Vector3f *dev_current_points,
     My_Type::Vector3f *dev_current_normals, int *dev_plane_labels) {
@@ -144,25 +149,21 @@ void Basic_Voxel_map::update_map_after_tracking(
   }
 }
 
-//
 void Basic_Voxel_map::update_plane_map(
     const Plane_info *current_planes, std::vector<My_Type::Vector2i> &matches) {
   this->plane_map_ptr->update_plane_list(current_planes, matches);
 }
 
-//
 void Basic_Voxel_map::generate_plane_map() {
   this->plane_map_ptr->generate_plane_map(
       this->voxel_map_ptr->dev_entrise,
       this->voxel_map_ptr->dev_voxel_block_array);
 }
 
-//
 void Basic_Voxel_map::raycast_points_from_map(Eigen::Matrix4f &camera_pose,
                                               RaycastMode raycast_mode) {
-  //
   this->voxel_map_ptr->raycast_by_pose(camera_pose, raycast_mode);
-  //
+
   if (raycast_mode == RaycastMode::RAYCAST_FOR_VIEW) {
     checkCudaErrors(cudaMemcpy(
         this->scene_points, this->voxel_map_ptr->dev_scene_points,
@@ -206,45 +207,45 @@ void Basic_Voxel_map::raycast_points_from_map(Eigen::Matrix4f &camera_pose,
                                cudaMemcpyDeviceToDevice));
   }
 }
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
-// ------------------------- Submap_Voxel_map
+#if __unix__
+#pragma region "Submap voxel map" {
+#elif _WIN32
 #pragma region(Submap voxel map)
+#endif
 
-//
 Submap_Voxel_map::Submap_Voxel_map() {
   this->voxel_map_ptr = new Voxel_map();
   this->plane_map_ptr = new Plane_map();
 }
-//
+
 Submap_Voxel_map::~Submap_Voxel_map() {
   delete this->voxel_map_ptr;
   delete this->plane_map_ptr;
 }
 
-//
 void Submap_Voxel_map::init_map() {
-  //
   this->init_base();
 
   // Initiate Voxel_map
   this->voxel_map_ptr->init_Voxel_map(
       SLAM_system_settings::instance()->aligned_depth_size,
       SUBMAP_VOXEL_BLOCK_NUM);
-  //
   this->plane_map_ptr->init();
 }
 
-//
 void Submap_Voxel_map::update_map_form_last_map(
     My_pose &camera_pose, My_Type::Vector3f *dev_current_points,
     HashEntry *dev_entries, Voxel_f *dev_voxel_array) {
-  //
   this->voxel_map_ptr->update_from_last_voxel_map(
       camera_pose, dev_current_points, dev_entries, dev_voxel_array);
 }
 
-//
 void Submap_Voxel_map::update_map_after_tracking(
     My_pose &camera_pose, My_Type::Vector3f *dev_current_points,
     My_Type::Vector3f *dev_current_normals, int *dev_plane_labels) {
@@ -257,13 +258,11 @@ void Submap_Voxel_map::update_map_after_tracking(
   this->voxel_map_ptr->fusion_SDF_to_voxel(
       dev_current_points, dev_current_normals, camera_pose.mat);
 
-  //
   if (first_frame_to_this_submap) {
     first_frame_to_this_submap = false;
     this->init_number_of_blocks = number_of_blocks;
     // printf("this->init_number_of_blocks = %d\n",
     // this->init_number_of_blocks);
-    //
     for (int repeat_fusion_i = 0; repeat_fusion_i <= MIN_RAYCAST_WEIGHT;
          repeat_fusion_i++)
       this->voxel_map_ptr->fusion_SDF_to_voxel(
@@ -277,18 +276,14 @@ void Submap_Voxel_map::update_map_after_tracking(
   }
 }
 
-//
 void Submap_Voxel_map::update_plane_map(
     const Plane_info *current_planes, std::vector<My_Type::Vector2i> &matches) {
   this->plane_map_ptr->update_plane_list(current_planes, matches);
 }
 
-//
 void Submap_Voxel_map::raycast_points_from_map(Eigen::Matrix4f &camera_pose,
                                                RaycastMode raycast_mode) {
-  //
   this->voxel_map_ptr->raycast_by_pose(camera_pose, raycast_mode);
-  //
   if (raycast_mode == RaycastMode::RAYCAST_FOR_VIEW) {
     checkCudaErrors(cudaMemcpy(
         this->scene_points, this->voxel_map_ptr->dev_scene_points,
@@ -333,9 +328,7 @@ void Submap_Voxel_map::raycast_points_from_map(Eigen::Matrix4f &camera_pose,
   }
 }
 
-//
 bool Submap_Voxel_map::consider_to_create_new_submap() {
-  //
   if (this->voxel_map_ptr->number_of_blocks >
           this->init_number_of_blocks * 2.0 &&
       this->frame_counter > 200) {
@@ -345,23 +338,24 @@ bool Submap_Voxel_map::consider_to_create_new_submap() {
   }
 }
 
-//
 void Submap_Voxel_map::compress_voxel_map() {
   // Compress voxel map (re-allocate Voxel-Block-Array)
   this->voxel_map_ptr->compress_voxel_map();
 }
 
-//
 void Submap_Voxel_map::release_voxel_map() {
   // Compress voxel map (re-allocate Voxel-Block-Array)
   this->voxel_map_ptr->release_voxel_map();
 }
 
-//
 void Submap_Voxel_map::generate_plane_map() {
   this->plane_map_ptr->generate_plane_map(
       this->voxel_map_ptr->dev_entrise,
       this->voxel_map_ptr->dev_voxel_block_array);
 }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif

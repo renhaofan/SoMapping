@@ -8,80 +8,62 @@
 #include <helper_cuda.h>
 #include <helper_functions.h>
 
-//
 #include "Voxel_map.h"
 // CUDA KernelFunctions header
 #include "Voxel_map_KernelFunc.cuh"
 //#include "Render_KernelFunc.cuh"
 
-//
-#include "OurLib/my_math_functions.h"
-#include "SLAM_system/SLAM_system_settings.h"
-
-// C/C++ IO
 #include <stdio.h>
 
 #include <iostream>
+
+#include "OurLib/my_math_functions.h"
+#include "SLAM_system/SLAM_system_settings.h"
 using namespace std;
 
-//
 Voxel_map::Voxel_map() {
-  //
   this->number_of_blocks = 0;
   out_of_block = false;
-  //
   // this->submap_pose.mat.setIdentity();
 }
-Voxel_map::~Voxel_map() {
-  // printf("Call ~Voxel_map()\n");
 
+
+Voxel_map::~Voxel_map() {
   // CUDA
   // collision counter
   checkCudaErrors(cudaFree(this->dev_collision_counter));
-  //       Block
   checkCudaErrors(cudaFree(this->dev_number_of_blocks));
-  //         Entry
   checkCudaErrors(cudaFree(this->dev_number_of_visible_blocks));
-  //
   checkCudaErrors(cudaFree(this->dev_number_of_relative_blocks));
-  //
   checkCudaErrors(cudaFree(this->dev_min_depth));
   checkCudaErrors(cudaFree(this->dev_max_depth));
-  // Entry	    Entry
   checkCudaErrors(cudaFree(this->dev_entrise));
   checkCudaErrors(cudaFree(this->dev_visible_list));
   checkCudaErrors(cudaFree(this->dev_relative_list));
-  //
   checkCudaErrors(cudaFree(this->dev_allocate_flag));
-  //       Enty
   checkCudaErrors(cudaFree(this->dev_visible_flag));
-  //
   checkCudaErrors(cudaFree(this->dev_ordered_position));
-  //
   checkCudaErrors(cudaFree(this->dev_voxel_block_array));
 
-  //
   checkCudaErrors(cudaFree(this->dev_raycast_range_map));
   checkCudaErrors(cudaFree(this->dev_scene_range_map));
 
-  //
   checkCudaErrors(cudaFree(this->dev_raycast_points));
   checkCudaErrors(cudaFree(this->dev_scene_points));
-  //
+
   checkCudaErrors(cudaFree(this->dev_raycast_normal));
   checkCudaErrors(cudaFree(this->dev_scene_normals));
-  //
+
   checkCudaErrors(cudaFree(this->dev_raycast_weight));
   checkCudaErrors(cudaFree(this->dev_scene_weight));
-  //
+
   checkCudaErrors(cudaFree(this->dev_raycast_plane_label));
   checkCudaErrors(cudaFree(this->dev_scene_plane_label));
-  //
+
   checkCudaErrors(cudaFree(this->dev_voxel_block_position));
-  //
+
   // checkCudaErrors(cudaFree(this->dev_scene_color));
 
-  //
   checkCudaErrors(cudaFree(this->dev_current_weight_center));
   checkCudaErrors(cudaFree(this->dev_map_weight_center));
 
@@ -96,10 +78,8 @@ Voxel_map::~Voxel_map() {
   // free(this->scene_color);
 }
 
-//
 void Voxel_map::init_Voxel_map(My_Type::Vector2i aligned_depth_size,
                                int voxel_block_num) {
-  //
   this->max_voxel_block_number = voxel_block_num;
 
   // Get tracking image size
@@ -237,7 +217,7 @@ void Voxel_map::init_Voxel_map(My_Type::Vector2i aligned_depth_size,
   checkCudaErrors(cudaMemset(
       this->dev_voxel_block_array, 0x00,
       this->max_voxel_block_number * VOXEL_BLOCK_SIZE * sizeof(Voxel_f)));
-  //
+
   checkCudaErrors(cudaMemset(
       this->dev_raycast_plane_label, 0x00,
       this->raycast_depth_width * this->raycast_depth_height * sizeof(int)));
@@ -248,14 +228,14 @@ void Voxel_map::init_Voxel_map(My_Type::Vector2i aligned_depth_size,
       ORDERED_TABLE_LENGTH * sizeof(My_Type::Vector3i));
   this->visible_list =
       (HashEntry *)malloc(VISIBLE_LIST_LENGTH * sizeof(HashEntry));
-  //
+
   this->raycast_range_map = (My_Type::Vector2f *)malloc(
       this->raycast_range_map_width * this->raycast_range_map_height *
       sizeof(My_Type::Vector2f));
   this->scene_range_map = (My_Type::Vector2f *)malloc(
       this->scene_range_map_width * this->scene_range_map_height *
       sizeof(My_Type::Vector2f));
-  //
+
   this->raycast_points = (My_Type::Vector3f *)malloc(
       this->raycast_depth_width * this->raycast_depth_height *
       sizeof(My_Type::Vector3f));
@@ -279,23 +259,19 @@ int Voxel_map::allocate_voxel_block(My_Type::Vector3f *dev_current_points,
   //   Voxel Block
   if (this->out_of_block) return this->number_of_blocks;
 
-  //
   // this->camera_pose_in_submap.mat = this->submap_pose.mat.inverse() *
   // camera_pose;
   this->camera_pose_in_submap.mat = sumap_pose.inverse() * camera_pose;
   this->camera_pose_in_submap.synchronize_to_GPU();
 
-  //
   dim3 block_rect(1, 1, 1), thread_rect(1, 1, 1);
 
-  //
   checkCudaErrors(cudaMemcpy(&(this->number_of_blocks),
                              this->dev_number_of_blocks, sizeof(int),
                              cudaMemcpyDeviceToHost));
   int last_block_num = this->number_of_blocks;
   int block_inc = 1;
   while (block_inc > 0) {
-    //
     checkCudaErrors(cudaMemset(this->dev_allocate_flag, 0x00,
                                ORDERED_TABLE_LENGTH * sizeof(char)));
 
@@ -426,12 +402,12 @@ void Voxel_map::fusion_SDF_to_voxel(My_Type::Vector3f *dev_current_points,
   }
   // CUDA_CKECK_KERNEL;
 }
-//
+
 void Voxel_map::fusion_plane_label_to_voxel(
     My_Type::Vector3f *dev_current_points, int *plane_img,
     Eigen::Matrix4f camera_pose, Eigen::Matrix4f submap_pose) {
-  //
-  // this->camera_pose_in_submap.mat = this->submap_pose.mat.inverse() * pose;
+
+    // this->camera_pose_in_submap.mat = this->submap_pose.mat.inverse() * pose;
   this->camera_pose_in_submap.mat = submap_pose.inverse() * camera_pose;
   this->camera_pose_in_submap.synchronize_to_GPU();
 
@@ -495,9 +471,7 @@ void Voxel_map::raycast_by_pose(Eigen::Matrix4f camera_pose, RaycastMode mode) {
                              sizeof(int), cudaMemcpyDeviceToHost));
   checkCudaErrors(cudaMemcpy(&(this->max_depth), this->dev_max_depth,
                              sizeof(int), cudaMemcpyDeviceToHost));
-  // cout << this->min_depth << "," << this->max_depth << endl;
 
-  //
   switch (mode) {
     case RaycastMode::RAYCSAT_FOR_TRACKING: {
       //-------------- Get range map
@@ -572,8 +546,6 @@ void Voxel_map::raycast_by_pose(Eigen::Matrix4f camera_pose, RaycastMode mode) {
                                      this->scene_range_map_height *
                                      sizeof(My_Type::Vector2f)));
 
-      //
-      //
       thread_rect.x = this->scene_range_map_width - 1;
       thread_rect.y = 1;
       thread_rect.z = 1;
@@ -630,7 +602,6 @@ void Voxel_map::raycast_by_pose(Eigen::Matrix4f camera_pose, RaycastMode mode) {
           this->dev_scene_normals, this->dev_scene_plane_label,
           this->dev_scene_weight);
       //			CUDA_CKECK_KERNEL;
-      //
       break;
     }
     default: {
@@ -640,7 +611,6 @@ void Voxel_map::raycast_by_pose(Eigen::Matrix4f camera_pose, RaycastMode mode) {
   }
 }
 
-//
 void Voxel_map::merge_with_voxel_map(const Voxel_map &fragment_map,
                                      int *dev_plane_global_index) {}
 
@@ -691,7 +661,6 @@ void Voxel_map::update_from_last_voxel_map(
                               this->dev_entrise, dev_temp_visible_flag);
       // CUDA_CKECK_KERNEL;
 
-      //
       thread_rect.x = 512;
       thread_rect.y = 1;
       thread_rect.z = 1;
@@ -734,9 +703,8 @@ void Voxel_map::update_from_last_voxel_map(
   checkCudaErrors(cudaFree(dev_temp_visible_entries));
 }
 
-//
+
 void Voxel_map::clear_Voxel_map() {
-  //
   // collision counter
   checkCudaErrors(cudaMemset(this->dev_collision_counter, 0x00, sizeof(int)));
   checkCudaErrors(cudaMemset(this->dev_number_of_blocks, 0x00, sizeof(int)));
@@ -756,12 +724,10 @@ void Voxel_map::clear_Voxel_map() {
       this->raycast_depth_width * this->raycast_depth_height * sizeof(int)));
 }
 
-//
 void Voxel_map::compress_voxel_map() {
   // this->number_of_blocks
   Voxel_f *dev_swap_pointer = nullptr;
 
-  //
   printf("total voxel blocks = %d\n", this->number_of_blocks);
 
   // Re-allocate
@@ -779,7 +745,6 @@ void Voxel_map::compress_voxel_map() {
   this->dev_voxel_block_array = dev_swap_pointer;
 }
 
-//
 void Voxel_map::release_voxel_map() {
   checkCudaErrors(cudaFree(this->dev_collision_counter));
   checkCudaErrors(cudaFree(this->dev_number_of_blocks));
@@ -857,8 +822,9 @@ void Voxel_map::release_voxel_map() {
 //	// Set CUDA kernel lunch paramenters
 //	thread_rect.x =
 // SLAM_system_settings::instance()->image_alginment_patch_width;
-// thread_rect.y = SLAM_system_settings::instance()->image_alginment_patch_width;
-// thread_rect.z = 1; 	block_rect.x = this->scene_depth_width / thread_rect.x;
+// thread_rect.y =
+// SLAM_system_settings::instance()->image_alginment_patch_width; thread_rect.z
+// = 1; 	block_rect.x = this->scene_depth_width / thread_rect.x;
 // block_rect.y = this->scene_depth_height / thread_rect.y; 	block_rect.z =
 // 1;
 //
@@ -907,7 +873,6 @@ void Voxel_map::release_voxel_map() {
 
 //    Visible Block List  CPU
 void Voxel_map::extract_visible_list_to_CPU() {
-  //
   checkCudaErrors(cudaMemcpy(this->allocate_flag, this->dev_allocate_flag,
                              ORDERED_TABLE_LENGTH * sizeof(char),
                              cudaMemcpyDeviceToHost));
@@ -915,13 +880,11 @@ void Voxel_map::extract_visible_list_to_CPU() {
                              ORDERED_TABLE_LENGTH * sizeof(My_Type::Vector3i),
                              cudaMemcpyDeviceToHost));
 
-  //
   checkCudaErrors(cudaMemcpy(this->raycast_points, this->dev_raycast_points,
                              this->raycast_depth_width *
                                  this->raycast_depth_height * sizeof(float) * 3,
                              cudaMemcpyDeviceToHost));
 
-  //
   int collision_counter;
   checkCudaErrors(cudaMemcpy(&collision_counter, this->dev_collision_counter,
                              sizeof(int), cudaMemcpyDeviceToHost));
@@ -984,12 +947,9 @@ void Voxel_map::copy_out_raycast_points() {
                  cudaMemcpyDeviceToHost));
 }
 
-//
 void Voxel_map::reduce_Voxel_map_weight_center() {
-  //
   dim3 block_rect(1, 1, 1), thread_rect(1, 1, 1);
 
-  //
   checkCudaErrors(cudaMemcpy(&(this->number_of_visible_blocks),
                              this->dev_number_of_visible_blocks, sizeof(int),
                              cudaMemcpyDeviceToHost));
@@ -998,7 +958,6 @@ void Voxel_map::reduce_Voxel_map_weight_center() {
     // initiate paramenters
     checkCudaErrors(cudaMemset(this->dev_current_weight_center, 0x00,
                                sizeof(My_Type::Vector3f)));
-    //
     thread_rect.x = 256;
     thread_rect.y = 1;
     thread_rect.z = 1;
@@ -1007,17 +966,16 @@ void Voxel_map::reduce_Voxel_map_weight_center() {
         thread_rect.x;
     block_rect.y = 1;
     block_rect.z = 1;
-    //
+
     reduce_current_voxel_block_position_CUDA(
         block_rect, thread_rect, this->dev_visible_list,
         this->dev_current_weight_center, this->number_of_visible_blocks);
     // CUDA_CKECK_KERNEL;
-    //
+
     checkCudaErrors(cudaMemcpy(
         &(this->current_weight_center), this->dev_current_weight_center,
         sizeof(My_Type::Vector3f), cudaMemcpyDeviceToHost));
 
-    //
     this->current_weight_center /= this->number_of_visible_blocks;
   } else {
     this->current_weight_center.x = 0;
@@ -1029,7 +987,6 @@ void Voxel_map::reduce_Voxel_map_weight_center() {
     // initiate paramenters
     checkCudaErrors(cudaMemset(this->dev_map_weight_center, 0x00,
                                sizeof(My_Type::Vector3f)));
-    //
     thread_rect.x = 256;
     thread_rect.y = 1;
     thread_rect.z = 1;
@@ -1053,7 +1010,6 @@ void Voxel_map::reduce_Voxel_map_weight_center() {
     // map_weight_center_F + submap_pose.mat.block(0, 3, 3, 1);
     map_weight_center_W = map_weight_center_F;
 
-    //
     this->map_weight_center.x = map_weight_center_W.x();
     this->map_weight_center.y = map_weight_center_W.y();
     this->map_weight_center.z = map_weight_center_W.z();

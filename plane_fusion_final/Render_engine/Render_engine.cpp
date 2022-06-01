@@ -1,5 +1,3 @@
-
-
 #include "Render_engine.h"
 
 // CUDA header files
@@ -10,24 +8,25 @@
 #include <helper_cuda.h>
 #include <helper_functions.h>
 
-// C/C++ IO
 #include <stdio.h>
-
 #include <iostream>
 using namespace std;
 
-//
 #include "SLAM_system/SLAM_system_settings.h"
 #include "UI_engine/UI_parameters.h"
 
-//
 #include "Render_KernelFunc.cuh"
 
+#if __unix__
+#pragma region "CUDA memory operation for hierarchy image" {
+#elif _WIN32
 #pragma region(CUDA memory operation for hierarchy image)
+#endif
+
 // CUDA memory allocation for hierarchy image
 template <typename T>
 void allocate_CUDA_memory_for_hierarchy(Hierarchy_image<T> &hierarcgy_image) {
-  for (size_t layer_id = 0; layer_id < hierarcgy_image.number_of_layers;
+  for (int layer_id = 0; layer_id < hierarcgy_image.number_of_layers;
        layer_id++) {
     checkCudaErrors(cudaMalloc((void **)&(hierarcgy_image.data_ptrs[layer_id]),
                                hierarcgy_image.size[layer_id].width *
@@ -47,9 +46,19 @@ void release_CUDA_memory_for_hierarchy(Hierarchy_image<T> &hierarcgy_image) {
     checkCudaErrors(cudaFree(hierarcgy_image.data_ptrs[layer_id]));
 }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
+
+#if __unix__
+#pragma region "HOST memory operation for hierarchy image" {
+#elif _WIN32
 #pragma region(HOST memory operation for hierarchy image)
+#endif
+
 // Host memory allocation for hierarchy image
 template <typename T>
 void allocate_host_memory_for_hierarchy(Hierarchy_image<T> &hierarcgy_image) {
@@ -70,9 +79,13 @@ void release_host_memory_for_hierarchy(Hierarchy_image<T> &hierarcgy_image) {
        layer_id++)
     free(hierarcgy_image.data_ptrs[layer_id]);
 }
-#pragma endregion
 
-//
+#if _WIN32
+#pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
+
 Render_engine::Render_engine() {}
 Render_engine::~Render_engine() {
   //------ Viewport1
@@ -115,7 +128,6 @@ Render_engine::~Render_engine() {
   free(this->voxel_block_lines);
 }
 
-//
 void Render_engine::init(My_Type::Vector2i depth_size,
                          My_Type::Vector2i scene_depth_size) {
   //
@@ -226,7 +238,6 @@ void Render_engine::init(My_Type::Vector2i depth_size,
       (ORDERED_TABLE_LENGTH + EXCESS_TABLE_LENGTH) * sizeof(HashEntry));
 }
 
-//
 void Render_engine::scene_viewport_reshape(My_Type::Vector2i scene_depth_size) {
   this->scene_depth_size = scene_depth_size;
 
@@ -272,7 +283,6 @@ void Render_engine::scene_viewport_reshape(My_Type::Vector2i scene_depth_size) {
       sizeof(My_Type::Vector4uc));
 }
 
-//
 void Render_engine::render_scene_points(MainViewportRenderMode render_mode) {
   dim3 block_rect(1, 1, 1), thread_rect(1, 1, 1);
 
@@ -325,7 +335,6 @@ void Render_engine::render_scene_points(MainViewportRenderMode render_mode) {
                  cudaMemcpyDeviceToHost));
 }
 
-//
 void Render_engine::pseudo_render_depth(
     My_Type::Vector3f *dev_raw_aligned_points) {
   dim3 block_rect(1, 1, 1), thread_rect(1, 1, 1);
@@ -458,7 +467,6 @@ void Render_engine::generate_normal_segment_line(
   }
 }
 
-//
 void Render_engine::generate_voxel_block_lines(HashEntry *dev_entries,
                                                int number_of_entries) {
   //

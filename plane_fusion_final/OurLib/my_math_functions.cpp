@@ -21,7 +21,7 @@ int round_by_stride(int value, int stride) {
   return ((value + (stride >> 1) - 1) / stride * stride);
 }
 
-//
+// Get an integral multiple of stride.
 int ceil_by_stride(int value, int stride) {
   return (((value - 1) / stride + 1) * stride);
 }

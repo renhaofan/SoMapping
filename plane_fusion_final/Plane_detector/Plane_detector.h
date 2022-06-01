@@ -1,3 +1,12 @@
+/**
+ *  Copyright (C) All rights reserved.
+ *  @file Plane_detector.h
+ *  @brief TODO
+ *  @author haofan ren, yqykrhf@163.com
+ *  @version beta 0.0
+ *  @date 22-5-21
+ */
+
 #pragma once
 
 //
@@ -9,7 +18,6 @@
 #include "OurLib/My_matrix.h"
 #include "Plane_detector/Plane_structure.h"
 
-//
 // CUDA header files
 // For the CUDA runtime routines (prefixed with "cuda_")
 #include <cuda.h>
@@ -19,10 +27,6 @@
 #include <helper_cuda.h>
 #include <helper_functions.h>
 
-//!
-/*!
-
-*/
 class Plane_detector {
  public:
   //! Size of aligned depth image
@@ -63,20 +67,11 @@ class Plane_detector {
   std::vector<Plane_info> plane_region_params;
   std::vector<std::vector<int>> planar_cell_index_list;
 
-  //!
   Plane_detector();
   ~Plane_detector();
 
-  //!
-  /*!
-
-  */
   virtual void init();
 
-  //!
-  /*!
-
-  */
   void detect_plane(const My_Type::Vector3f *dev_current_points,
                     const My_Type::Vector3f *dev_current_normals,
                     const Eigen::Matrix4f &camera_pose,
@@ -84,18 +79,10 @@ class Plane_detector {
                     int *dev_previous_plane_labels = nullptr,
                     bool with_continuous_frame_tracking = false);
 
-  //!
-  /*!
-
-  */
   void match_planes(const Plane_info *model_planes, int model_plane_number,
                     const int *dev_current_plane_labels,
                     const int *dev_model_plane_labels);
 
-  //!
-  /*!
-
-  */
   void match_planes_to_new_map(const Plane_info *model_planes,
                                int model_plane_number,
                                const int *dev_current_plane_labels,
@@ -135,22 +122,12 @@ class Plane_detector {
                              Plane_info *dev_current_planes,
                              bool with_continuous_frame_tracking = false) = 0;
 
-  //!
-  /*!
-
-  */
   void transfer_plane_coordinate(const Eigen::Matrix4f &camera_pose);
 
-  //
   std::vector<std::pair<int, int>> find_most_overlap_model_plane(
       int current_plane_label, int model_plane_counter);
 };
 
-//!
-/*!
-
-
-*/
 class Plane_stereoprojection_detector : public Plane_detector {
  public:
   //! CUDA device pointer of hist_PxPy.
@@ -171,24 +148,19 @@ class Plane_stereoprojection_detector : public Plane_detector {
   Plane_stereoprojection_detector();
   ~Plane_stereoprojection_detector();
 
-  //
   void init() override;
 
  protected:
-  //
   void prepare_to_detect() override;
 
-  //
   void presegment_to_cell(
       const My_Type::Vector3f *dev_current_points,
       const My_Type::Vector3f *dev_current_normals) override{};
 
-  //
   void fit_plane_for_each_cell(const My_Type::Vector3f *dev_current_points,
                                const My_Type::Vector3f *dev_current_normals,
                                Cell_info *dev_cell_info_mat);
 
-  //
   void cluster_cells(Cell_info *dev_cell_info_mat,
                      const Plane_info *dev_model_planes,
                      Plane_info *dev_current_planes,
