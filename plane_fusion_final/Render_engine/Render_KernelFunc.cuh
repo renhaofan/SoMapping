@@ -1,4 +1,5 @@
-
+#include <cuda.h>
+#include <cuda_runtime.h>
 
 // voxel
 #include "Map_engine/voxel_definition.h"
