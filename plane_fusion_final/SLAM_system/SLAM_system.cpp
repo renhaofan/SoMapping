@@ -6,8 +6,13 @@
 #include "UI_engine/UI_parameters.h"
 #include "Log.h"
 
-// ------------------------- SLAM_system (Base class)
+
+#if __unix__
+#pragma region "SLAM system base class" {
+#elif _WIN32
 #pragma region(SLAM system base class)
+#endif
+
 SLAM_system::SLAM_system() {
   //! Initialize SLAM_system_settings
   SLAM_system_settings::instance()->set_to_default();
@@ -66,12 +71,10 @@ ProcessingState SLAM_system::process_frames() {
   ProcessingState current_state = this->processing_state;
 
   if (this->processing_state != STOP_PROCESS) {
-    //
     this->pre_estimated_camera_pose.mat = this->estimated_camera_pose.mat;
     this->pre_estimated_camera_pose.synchronize_to_GPU();
   }
 
-  //
   switch (this->processing_state) {
     case ProcessingState::STOP_PROCESS:
       break;
@@ -105,27 +108,44 @@ ProcessingState SLAM_system::process_frames() {
 
   return current_state;
 }
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
-// ------------------------- Blank_SLAM_system
+#if __unix__
+#pragma region "Blank SLAM system" {
+#elif _WIN32
 #pragma region(Blank SLAM system)
-//
+#endif
+
 void Blank_SLAM_system::init() {
-  //
-  printf("Blank_SLAM_system : This module does not process frames\n");
+#ifdef LOGGING
+  LOG_WARNING("Black_SLAM_system, does not process frames.");
+#endif
   this->processing_state = ProcessingState::STOP_PROCESS;
   all_data_process_done = true;
 }
 
-//
 void Blank_SLAM_system::process_one_frame() {
   printf("Blank_SLAM_system : This module does not process frames\n");
   this->processing_state = ProcessingState::STOP_PROCESS;
 }
-#pragma endregion
 
-// ------------------------- Ground_truth_SLAM_system
+#if _WIN32
+#pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
+
+#if __unix__
+#pragma region "Ground truth SLAM system" {
+#elif _WIN32
 #pragma region(Ground truth SLAM system)
+#endif
+
+
 //
 Ground_truth_SLAM_system::Ground_truth_SLAM_system() {}
 Ground_truth_SLAM_system::~Ground_truth_SLAM_system() {
@@ -248,10 +268,19 @@ void Ground_truth_SLAM_system::generate_mesh() {
       Voxel_map_ptr->voxel_map_ptr->dev_voxel_block_array);
 }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
-// ------------------------- Basic_voxel_SLAM_system
+#if __unix__
+#pragma region "Basic voxel SLAM system" {
+#elif _WIN32
 #pragma region(Basic voxel SLAM system)
+#endif
+
+#pragma region()
 //
 Basic_voxel_SLAM_system::Basic_voxel_SLAM_system() {
   // Create modules
@@ -450,11 +479,18 @@ void Basic_voxel_SLAM_system::generate_mesh() {
       map_ptr->voxel_map_ptr->dev_voxel_block_array);
 }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
-// ------------------------- Submap_SLAM_system
+#if __unix__
+#pragma region "Submap_SLAM_system" {
+#elif _WIN32
 #pragma region(Submap_SLAM_system)
-//
+#endif
+
 Submap_SLAM_system::Submap_SLAM_system() {
   // Create modules
   this->preprocess_engine =
@@ -495,7 +531,6 @@ void Submap_SLAM_system::init(Data_engine *data_engine_ptr) {
   this->init_modules();
 }
 
-//
 void Submap_SLAM_system::init_modules() {
   // Initialize render interface (Blank_map)
   this->map_engine->init_map();
@@ -527,7 +562,6 @@ void Submap_SLAM_system::init_modules() {
   // this->ORB_vocabulary.load(vocabulary_path);
 }
 
-//
 void Submap_SLAM_system::process_one_frame() {
   /* Debug CODE : repeat fuse single frame to fvalidate coordinate alignment */
   /*static bool first_reach = true;
@@ -1938,4 +1972,9 @@ void Submap_SLAM_system::match_plane_by_parameter(
   }
 }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
+
