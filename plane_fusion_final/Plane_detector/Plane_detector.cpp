@@ -116,7 +116,7 @@ void Plane_detector::detect_plane(const My_Type::Vector3f *dev_current_points,
                       this->dev_current_planes, with_continuous_frame_tracking);
 
   sdkStopTimer(&(this->timer_average));
-  float elapsed_time = sdkGetAverageTimerValue(&(this->timer_average));
+  // float elapsed_time = sdkGetAverageTimerValue(&(this->timer_average));
   // printf("elapsed_time = %f\n", elapsed_time);
   // printf("%f\n", elapsed_time);
 
@@ -893,52 +893,12 @@ void Plane_super_pixel_detector::init() {
       cudaMalloc((void **)&(this->dev_base_vectors),
                  this->super_pixel_mat_size.x * this->super_pixel_mat_size.y *
                      sizeof(Plane_coordinate)));
-
-#if (TEST_OLD_METOD)
-  //
-  this->hist_mat =
-      (float *)malloc(HISTOGRAM_WIDTH * HISTOGRAM_WIDTH * sizeof(float));
-
-  //
-  checkCudaErrors(
-      cudaMalloc((void **)&(this->dev_hist_mat),
-                 HISTOGRAM_WIDTH * HISTOGRAM_WIDTH * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_hist_normals),
-                             MAX_HIST_NORMALS * sizeof(Hist_normal)));
-  checkCudaErrors(
-      cudaMalloc((void **)&(this->dev_hist_normal_counter), sizeof(int)));
-  checkCudaErrors(cudaMalloc(
-      (void **)&(this->dev_prj_distance_hist),
-      ceil_by_stride((int)(MAX_VALID_DEPTH_M / MIN_PLANE_DISTANCE), 256) *
-          sizeof(int)));
-  // Buffers for K-means iteration
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_plane_mean_parameters),
-                             MAX_CURRENT_PLANES * sizeof(Cell_info)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_ATA_upper_buffer),
-                             3 * MAX_CURRENT_PLANES * sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&(this->dev_ATb_buffer),
-                             2 * MAX_CURRENT_PLANES * sizeof(float)));
-#endif
 }
 
 //
 void Plane_super_pixel_detector::prepare_to_detect() {
   //
   Plane_detector::prepare_to_detect();
-
-#if (TEST_OLD_METOD)
-  //
-  memset(this->hist_mat, 0x00,
-         HISTOGRAM_WIDTH * HISTOGRAM_WIDTH * sizeof(float));
-
-  //
-  checkCudaErrors(
-      cudaMemset(this->dev_hist_mat, 0x00,
-                 HISTOGRAM_WIDTH * HISTOGRAM_WIDTH * sizeof(float)));
-  checkCudaErrors(cudaMemset(this->dev_hist_normals, 0x00,
-                             MAX_HIST_NORMALS * sizeof(Hist_normal)));
-  checkCudaErrors(cudaMemset(this->dev_hist_normal_counter, 0x00, sizeof(int)));
-#endif
 
   //
   memset(this->super_pixel_adjacent_mat, 0x00,
@@ -1110,7 +1070,7 @@ inline bool flood_fill_search_pixel(Cell_info *cell_mat,
                                  {+1, 0},  {-1, +1}, {0, +1},  {+1, +1}};
 
   //
-  int center_index = center_pixel.x + center_pixel.y * cell_mat_size.width;
+//  int center_index = center_pixel.x + center_pixel.y * cell_mat_size.width;
   for (int offset_index = 0; offset_index < 8; offset_index++) {
     int u_cell = offset_list[offset_index][0] + center_pixel.x;
     int v_cell = offset_list[offset_index][1] + center_pixel.y;
@@ -1746,169 +1706,6 @@ void Plane_super_pixel_detector::cluster_cells(
   }
 #pragma endregion
 
-  // Old method
-#if (TEST_OLD_METOD)
-#pragma region(Old)
-
-#pragma region(Generate plane paramter seed)
-  // 1. Histogram normal direction of cells on PxPy(use stereoproject [nx, ny,
-  // nz] to [px, py])
-  {
-    thread_rect.x = 256;
-    thread_rect.y = 1;
-    thread_rect.z = 1;
-    block_rect.x =
-        this->cell_mat_size.width * this->cell_mat_size.height / thread_rect.x;
-    block_rect.y = 1;
-    block_rect.z = 1;
-    // Lunch kernel function
-    histogram_PxPy_CUDA(block_rect, thread_rect, dev_cell_info_mat,
-                        this->dev_hist_mat);
-    // CUDA_CKECK_KERNEL;
-
-    // Copy out histogram
-    checkCudaErrors(
-        cudaMemcpy(this->hist_mat, this->dev_hist_mat,
-                   HISTOGRAM_WIDTH * HISTOGRAM_WIDTH * sizeof(float),
-                   cudaMemcpyDeviceToHost));
-  }
-
-  // 2. Search peaks on PxPy as plane normal direction
-  {
-    // Detect plane direction from last frame
-    checkCudaErrors(cudaMemset(this->dev_hist_mat, 0x00,
-                               MAX_HIST_NORMALS * sizeof(Hist_normal)));
-    checkCudaErrors(
-        cudaMemset(this->dev_hist_normal_counter, 0x00, sizeof(int)));
-    //
-    thread_rect.x = SLAM_system_settings::instance()->presegment_cell_width;
-    thread_rect.y = SLAM_system_settings::instance()->presegment_cell_width;
-    thread_rect.z = 1;
-    block_rect.x = HISTOGRAM_WIDTH / thread_rect.x;
-    block_rect.y = HISTOGRAM_WIDTH / thread_rect.y;
-    block_rect.z = 1;
-    // Lunch kernel function
-    find_PxPy_peaks_CUDA(block_rect, thread_rect, this->dev_hist_mat,
-                         this->dev_hist_normals, this->dev_hist_normal_counter);
-    // CUDA_CKECK_KERNEL;
-    // Copy out peaks
-    checkCudaErrors(cudaMemcpy(&this->hist_normal_counter,
-                               this->dev_hist_normal_counter, sizeof(int),
-                               cudaMemcpyDeviceToHost));
-  }
-
-  // 3. Find planes in each direction
-  {
-    int init_counter = 1;
-    checkCudaErrors(cudaMemcpy(this->dev_current_plane_counter, &init_counter,
-                               sizeof(int), cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemset(this->dev_current_planes, 0x00,
-                               MAX_CURRENT_PLANES * sizeof(Plane_info)));
-    //
-    Hist_normal *dev_hist_normal_ptr = this->dev_hist_normals;
-    // printf("hist_normal_counter = %d\r\n", this->hist_normal_counter);
-    for (int i = 0; i < this->hist_normal_counter; i++) {
-      // Reset distance histogram
-      checkCudaErrors(cudaMemset(
-          this->dev_prj_distance_hist, 0x00,
-          ceil_by_stride((int)(MAX_VALID_DEPTH_M / MIN_PLANE_DISTANCE), 256) *
-              sizeof(float)));
-      // Set CUDA grid size
-      thread_rect.x = 256;
-      thread_rect.y = 1;
-      thread_rect.z = 1;
-      block_rect.x =
-          ceil_by_stride(this->cell_mat_size.width * this->cell_mat_size.height,
-                         256) /
-          thread_rect.x;
-      block_rect.y = 1;
-      block_rect.z = 1;
-      // Lunch kernel function
-      histogram_prj_dist_CUDA(block_rect, thread_rect, this->dev_cell_info_mat,
-                              dev_hist_normal_ptr, this->dev_prj_distance_hist);
-      // CUDA_CKECK_KERNEL;
-
-      // Set CUDA grid size
-      thread_rect.x = 256;
-      thread_rect.y = 1;
-      thread_rect.z = 1;
-      block_rect.x =
-          ceil_by_stride((int)(MAX_VALID_DEPTH_M / MIN_PLANE_DISTANCE), 256) /
-          thread_rect.x;
-      block_rect.y = 1;
-      block_rect.z = 1;
-      // Lunch kernel function
-      find_prj_dist_peaks_CUDA(block_rect, thread_rect,
-                               this->dev_prj_distance_hist, dev_hist_normal_ptr,
-                               this->dev_current_plane_counter,
-                               this->dev_current_planes);
-      // CUDA_CKECK_KERNEL;
-
-      // Next normal pointer
-      dev_hist_normal_ptr++;
-    }
-
-    // Copy out current plane number
-    checkCudaErrors(cudaMemcpy(&this->current_plane_counter,
-                               this->dev_current_plane_counter, sizeof(int),
-                               cudaMemcpyDeviceToHost));
-  }
-#pragma endregion
-
-#pragma region(K - means iteration)
-  // 4. K-means iteration
-  {
-    const int kmeans_iteration_times = 5;
-    for (int i = 0; i < kmeans_iteration_times; i++) {
-      // Prepare for next iteration
-      checkCudaErrors(cudaMemset(this->dev_plane_mean_parameters, 0x00,
-                                 MAX_CURRENT_PLANES * sizeof(Cell_info)));
-      checkCudaErrors(cudaMemset(this->dev_ATA_upper_buffer, 0x00,
-                                 3 * MAX_CURRENT_PLANES * sizeof(float)));
-      checkCudaErrors(cudaMemset(this->dev_ATb_buffer, 0x00,
-                                 2 * MAX_CURRENT_PLANES * sizeof(float)));
-
-      // Set CUDA grid size
-      thread_rect.x = 256;
-      thread_rect.y = 1;
-      thread_rect.z = 1;
-      block_rect.x =
-          ceil_by_stride(this->cell_mat_size.width * this->cell_mat_size.height,
-                         thread_rect.x) /
-          thread_rect.x;
-      block_rect.y = 1;
-      block_rect.z = 1;
-      // Lunch kernel function
-      K_mean_iterate_CUDA(
-          block_rect, thread_rect, this->dev_current_planes,
-          this->dev_cell_info_mat, this->dev_plane_mean_parameters,
-          this->dev_buffer_coordinate, this->dev_ATA_upper_buffer,
-          this->dev_ATb_buffer, this->current_plane_counter);
-      // CUDA_CKECK_KERNEL;
-    }
-  }
-#pragma endregion
-
-  // Copy out current plane information
-  checkCudaErrors(cudaMemcpy(&this->current_plane_counter,
-                             this->dev_current_plane_counter, sizeof(int),
-                             cudaMemcpyDeviceToHost));
-  checkCudaErrors(cudaMemcpy(this->current_planes, this->dev_current_planes,
-                             this->current_plane_counter * sizeof(Plane_info),
-                             cudaMemcpyDeviceToHost));
-
-#pragma endregion
-#endif
-
-  // for (int plane_id = 1; plane_id < this->current_plane_counter; plane_id++)
-  //{
-  //	My_Type::Vector3f normal_vec(this->current_planes[plane_id].nx,
-  // this->current_planes[plane_id].ny,
-  // this->current_planes[plane_id].nz); 	printf("%d : %f, %f, %f, %f\n",
-  //plane_id, 		   this->current_planes[plane_id].nx,
-  // this->current_planes[plane_id].ny,
-  // this->current_planes[plane_id].nz, normal_vec.norm());
-  //}
 
   // Re-label
   {

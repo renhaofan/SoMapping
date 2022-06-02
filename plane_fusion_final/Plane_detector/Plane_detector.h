@@ -8,7 +8,6 @@
 
 #pragma once
 
-//
 #include <Eigen/Dense>
 #include <iostream>
 #include <unsupported/Eigen/FFT>
@@ -28,41 +27,50 @@
 
 class Plane_detector {
  public:
-  //! Size of aligned depth image
+  /** @brief Size of aligned depth image. */
   My_Type::Vector2i aligned_depth_size;
-  //! Size of cells matrix
+  /** @brief Size of cells matrix. */
   My_Type::Vector2i cell_mat_size;
 
-  //! Current cell information matrix
-  Cell_info *cell_info_mat, *dev_cell_info_mat;
-  //! Cell label of each pixel/point
+  /** @brief Current cell information matrix. */
+  Cell_info *cell_info_mat;
+  /** @brief Current cell information matrix. */
+  Cell_info *dev_cell_info_mat;
+  /** @brief Cell label of each pixel/point. */
   int *dev_current_cell_labels;
 
-  //! Current plane_labels
+  /** @brief Current plane_labels. */
   int *dev_current_plane_labels;
-  //! Model plane labels (store in Plane_Map)
-  // ...
-  //! Current plane counter
-  int current_plane_counter, *dev_current_plane_counter;
+  /** @brief Model plane labels (store in Plane_Map). */
+  int current_plane_counter;
+  /** @brief Current plane counter. */
+  int *dev_current_plane_counter;
 
-  //! Plane local coordinate
+  /** @brief Plane local coordinate. */
   Plane_coordinate *dev_buffer_coordinate;
 
-  //! Current plane list
-  Plane_info *current_planes, *dev_current_planes;
-  //! Model plane list (store in Plane_Map)
-  Plane_info *model_planes, *dev_model_planes;
+  /** @brief Current plane list. */
+  Plane_info *current_planes;
+  /** @brief Current plane list. */
+  Plane_info *dev_current_planes;
 
-  //! (for plane matching)
-  int *relative_matrix, *dev_relative_matrix;
-  //! <current-model> plane matches list
+  /** @brief Model plane list (store in Plane_Map). */
+  Plane_info *model_planes;
+  /** @brief Model plane list (store in Plane_Map). */
+  Plane_info *dev_model_planes;
+
+  /** @brief For plane matching. */
+  int *relative_matrix;
+  /** @brief For plane matching. */
+  int *dev_relative_matrix;
+
+  /** @brief <current-model> plane matches list. */
   std::vector<My_Type::Vector2i> matches;
+  /** @brief <current-model> plane matches list. */
   My_Type::Vector2i *dev_matches;
 
-  //!
   StopWatchInterface *timer_average;
 
-  //
   std::vector<Plane_info> plane_region_params;
   std::vector<std::vector<int>> planar_cell_index_list;
 
@@ -89,33 +97,38 @@ class Plane_detector {
                                std::vector<std::pair<int, int>> &plane_matches);
 
  protected:
-  //! Prepare to detect planes
-  /*!
-
-  */
+  /**
+   * @brief Prepare to detect planes
+   */
   virtual void prepare_to_detect();
 
-  //! Pre-segmentation current points to cells(RegularGrids/SuperPixels)
-  /*!
-
-  */
+  /**
+   * @brief Pre-segmentation current points to cells(RegularGrids/SuperPixels)
+   * @param dev_current_points
+   * @param dev_current_normals
+   */
   virtual void presegment_to_cell(
       const My_Type::Vector3f *dev_current_points,
       const My_Type::Vector3f *dev_current_normals) = 0;
 
-  //! Fit plane for each cell
-  /*!
-
-  */
+  /**
+   * @brief Fit plane for each cell
+   * @param dev_current_points
+   * @param dev_current_normals
+   * @param dev_cell_info_mat
+   */
   virtual void fit_plane_for_each_cell(
       const My_Type::Vector3f *dev_current_points,
       const My_Type::Vector3f *dev_current_normals,
       Cell_info *dev_cell_info_mat) = 0;
 
-  //! Cluster cells to planes
-  /*!
-
-  */
+  /**
+   * @brief Cluster cells to planes
+   * @param dev_cell_info_mat
+   * @param dev_model_planes
+   * @param dev_current_planes
+   * @param with_continuous_frame_tracking
+   */
   virtual void cluster_cells(Cell_info *dev_cell_info_mat,
                              const Plane_info *dev_model_planes,
                              Plane_info *dev_current_planes,
@@ -129,21 +142,29 @@ class Plane_detector {
 
 class Plane_stereoprojection_detector : public Plane_detector {
  public:
-  //! CUDA device pointer of hist_PxPy.
-  float *hist_mat, *dev_hist_mat;
-  //! CUDA device pointer of hist_normal.
-  Hist_normal *dev_hist_normals;
-  //! The number of normal vectors obtained by histogram statistics.
-  int hist_normal_counter, *dev_hist_normal_counter;
 
-  //! Plane distance histogram
+  /** @brief CUDA device pointer of hist_PxPy. */
+  float *hist_mat;
+  /** @brief CUDA device pointer of hist_PxPy. */
+  float *dev_hist_mat;
+
+
+  /** @brief CUDA device pointer of hist_normal. */
+  Hist_normal *dev_hist_normals;
+  /** @brief The number of normal vectors obtained by histogram statistics. */
+  int hist_normal_counter;
+  /** @brief The number of normal vectors obtained by histogram statistics. */
+  int *dev_hist_normal_counter;
+
+  /** @brief Plane distance histogram. */
   float *dev_prj_distance_hist;
 
-  //! Some buffers for GPU-based K-means iteration
+  /** @brief Some buffers for GPU-based K-means iteration. */
   Cell_info *dev_plane_mean_parameters;
-  float *dev_ATA_upper_buffer, *dev_ATb_buffer;
 
-  //!
+  float *dev_ATA_upper_buffer;
+  float *dev_ATb_buffer;
+
   Plane_stereoprojection_detector();
   ~Plane_stereoprojection_detector();
 
@@ -158,7 +179,7 @@ class Plane_stereoprojection_detector : public Plane_detector {
 
   void fit_plane_for_each_cell(const My_Type::Vector3f *dev_current_points,
                                const My_Type::Vector3f *dev_current_normals,
-                               Cell_info *dev_cell_info_mat);
+                               Cell_info *dev_cell_info_mat) override;
 
   void cluster_cells(Cell_info *dev_cell_info_mat,
                      const Plane_info *dev_model_planes,
@@ -166,29 +187,9 @@ class Plane_stereoprojection_detector : public Plane_detector {
                      bool with_continuous_frame_tracking = false) override;
 };
 
-#define TEST_OLD_METOD 0
-//!
-/*!
 
-*/
 class Plane_super_pixel_detector : public Plane_detector {
  public:
-#if (TEST_OLD_METOD)
-  //! CUDA device pointer of hist_PxPy.
-  float *hist_mat, *dev_hist_mat;
-  //! CUDA device pointer of hist_normal.
-  Hist_normal *dev_hist_normals;
-  //! The number of normal vectors obtained by histogram statistics.
-  int hist_normal_counter, *dev_hist_normal_counter;
-
-  //! Plane distance histogram
-  float *dev_prj_distance_hist;
-
-  //! Some buffers for GPU-based K-means iteration
-  Cell_info *dev_plane_mean_parameters;
-  float *dev_ATA_upper_buffer, *dev_ATb_buffer;
-#endif
-
   //!
   My_Type::Vector2i super_pixel_mat_size;
   //
@@ -224,12 +225,12 @@ class Plane_super_pixel_detector : public Plane_detector {
 
   //
   void presegment_to_cell(const My_Type::Vector3f *dev_current_points,
-                          const My_Type::Vector3f *dev_current_normals);
+                          const My_Type::Vector3f *dev_current_normals) override;
 
   //
   void fit_plane_for_each_cell(const My_Type::Vector3f *dev_current_points,
                                const My_Type::Vector3f *dev_current_normals,
-                               Cell_info *dev_cell_info_mat);
+                               Cell_info *dev_cell_info_mat) override;
 
   //
   void cluster_cells(Cell_info *dev_cell_info_mat,
