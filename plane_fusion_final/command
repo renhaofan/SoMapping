@@ -2,4 +2,4 @@
 
 ../../plane_fusion_final/Files/ICL.txt /home/steve/dataset/icl/lr_kt0/living_room_traj0_frei_png 0
 
-../../plane_fusion_final/Files/ScanNet/scene0000_00_TUM_Format.txt /home/steve/dataset/scene0000_00 5
+../../plane_fusion_final/Files/ScanNet/train/scene0000_00_TUM_Format.txt    /home/steve/dataset/scene0000_00  5
