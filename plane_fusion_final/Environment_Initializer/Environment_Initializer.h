@@ -26,6 +26,9 @@ class Environment_Initializer {
    * @brief Check GPU device, CUDA environment. And start logging.
    * @param argc Input the frist argument of main() function.
    * @param argv Input the second argument of main() function.
+   * @todo if success, print `GPU Device 0: "Maxwell" with compute
+   capability 5.0` err = cudaGetDeviceProperties(&deviceProps, devID); record as
+   log, not print in stderr.
    */
   void init_environment(int argc, char **argv);
 
