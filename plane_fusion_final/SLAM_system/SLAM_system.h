@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file SLAM_system.h
  *  @brief Define 4 kinds of slam systems.
  *  @details Base class SLAM_system as parent class. Derivated 4 class:

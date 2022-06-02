@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file SLAM_system_settings.cpp
  *  @brief SLAM system settings
  *  @author haofan ren, yqykrhf@163.com
