@@ -1009,7 +1009,7 @@ __global__ void count_planar_pixel_number_KernelFunc(const int *plane_labels,
     //
     block_256_reduce(counter_cache, tid);
     if (tid == 0) {
-      atomicAdd(&plane_list[plane_index].pixel_number, counter_cache[0]);
+      atomicAdd(&plane_list[plane_index].pixel_num, counter_cache[0]);
     }
   }
 }

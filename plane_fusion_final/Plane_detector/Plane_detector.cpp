@@ -190,12 +190,12 @@ void Plane_detector::match_planes(const Plane_info *model_planes,
   // 0. init data
   {
     for (int plane_id = 0; plane_id < this->current_plane_counter; plane_id++) {
-      this->current_planes[plane_id].pixel_number = 0;
+      this->current_planes[plane_id].pixel_num = 0;
     }
 
     for (int plane_id = 0; plane_id < model_plane_number; plane_id++) {
       this->model_planes[plane_id] = model_planes[plane_id];
-      this->model_planes[plane_id].pixel_number = 0;
+      this->model_planes[plane_id].pixel_num = 0;
     }
 
     checkCudaErrors(cudaMemcpy(this->dev_current_planes, this->current_planes,
@@ -415,12 +415,12 @@ void Plane_detector::match_planes_to_new_map(
   // 0. init data
   {
     for (int plane_id = 0; plane_id < this->current_plane_counter; plane_id++) {
-      this->current_planes[plane_id].pixel_number = 0;
+      this->current_planes[plane_id].pixel_num = 0;
     }
 
     for (int plane_id = 0; plane_id < model_plane_number; plane_id++) {
       this->model_planes[plane_id] = model_planes[plane_id];
-      this->model_planes[plane_id].pixel_number = 0;
+      this->model_planes[plane_id].pixel_num = 0;
     }
 
     checkCudaErrors(cudaMemcpy(this->dev_current_planes, this->current_planes,
