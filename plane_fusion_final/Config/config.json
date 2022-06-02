@@ -1,0 +1,15 @@
+{
+  "PlaneDetection" : {
+    "MIN_PLANE_DISTANCE" : "0.02",
+    "HISTOGRAM_STEP" : "0.05",
+    "HISTOGRAM_WIDTH" : "128",
+    "MAX_CURRENT_PLANES" : "64",
+    "MAX_MODEL_PLANES" : "1024"
+  },
+  "VoxelMap" : {
+
+  },
+  "SLAM" : {
+    "Ground_truth_SLAM_system" : "true"
+  }
+}
