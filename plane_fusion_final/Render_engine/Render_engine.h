@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Render_engine.h
  *  @brief Render engine, copy data needed from device to host.
  *  @author haofan ren, yqykrhf@163.com

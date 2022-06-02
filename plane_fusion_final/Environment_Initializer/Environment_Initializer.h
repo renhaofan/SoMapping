@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Environment_Initializer.h
  *  @brief class Environment_Initializer header.
  *         Check and print GPU device & CUDA infomation.

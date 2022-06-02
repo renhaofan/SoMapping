@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Hierarchy_image.h
  *  @brief Construct hierarchy image with alignment.
  *  @details Only pre-compute image size per layer, not allocate memory. Layer

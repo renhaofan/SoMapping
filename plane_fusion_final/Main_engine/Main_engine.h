@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Main_engine.h
  *  @brief class Main_engine header, Singleton object contains
  *         environment_initializer, data_engine, SLAM_system, render_engine.

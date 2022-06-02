@@ -1,11 +1,18 @@
+/**
+ *  Copyright (C) All rights reserved.
+ *  @file SLAM_system.cpp
+ *  @brief SLAM system
+ *  @author haofan ren, yqykrhf@163.com
+ *  @version beta 0.0
+ *  @date 22-5-21
+ */
 
 #include "SLAM_system.h"
 
+#include "Log.h"
 #include "SLAM_system_settings.h"
 #include "Track_engine/Solver_functor.h"
 #include "UI_engine/UI_parameters.h"
-#include "Log.h"
-
 
 #if __unix__
 #pragma region "SLAM system base class" {
@@ -14,12 +21,10 @@
 #endif
 
 SLAM_system::SLAM_system() {
-  //! Initialize SLAM_system_settings
   SLAM_system_settings::instance()->set_to_default();
 }
 
 void SLAM_system::init_parameters(Data_engine *data_engine_ptr) {
-  //
   int raw_color_width, raw_color_height;
   int raw_depth_width, raw_depth_height;
   // Get data_engine
@@ -48,7 +53,6 @@ void SLAM_system::init_parameters(Data_engine *data_engine_ptr) {
       SLAM_system_settings::instance()->image_alginment_patch_width,
       SLAM_system_settings::instance()->number_of_hierarchy_layers);
 
-  //
   if (SLAM_system_settings::instance()->enable_plane_module) {
     // this->plane_detector = new Plane_stereoprojection_detector();
     this->plane_detector = new Plane_super_pixel_detector();
@@ -59,10 +63,8 @@ void SLAM_system::init_parameters(Data_engine *data_engine_ptr) {
     this->plane_detector->init();
   }
 
-  //
   this->feature_detector = new Feature_detector();
 
-  //
   sdkCreateTimer(&this->timer_average);
   sdkResetTimer(&this->timer_average);
 }
@@ -100,7 +102,7 @@ ProcessingState SLAM_system::process_frames() {
   if (this->all_data_process_done && first_reach) {
     printf("End of process\n");
 #ifdef LOGGING
-  LOG_INFO("Finish main thread ------>");
+    LOG_INFO("Finish main thread ------>");
 #endif
     first_reach = false;
     this->end_of_process_data();
@@ -144,7 +146,6 @@ void Blank_SLAM_system::process_one_frame() {
 #elif _WIN32
 #pragma region(Ground truth SLAM system)
 #endif
-
 
 //
 Ground_truth_SLAM_system::Ground_truth_SLAM_system() {}
@@ -223,7 +224,7 @@ void Ground_truth_SLAM_system::track_camera_pose() {
     this->timestamp = ground_truth_trajectory_node.time;
   } else {
 #ifdef LOGGING
-      LOG_WARNING("No ground truth loaded!");
+    LOG_WARNING("No ground truth loaded!");
 #endif
     printf("No ground_truth loaded!\n");
     this->processing_state = ProcessingState::STOP_PROCESS;
@@ -1980,4 +1981,3 @@ void Submap_SLAM_system::match_plane_by_parameter(
 #elif __unix__
 #pragma endregion }
 #endif
-

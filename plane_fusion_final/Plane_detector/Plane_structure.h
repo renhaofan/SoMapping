@@ -1,7 +1,16 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Plane_structure.h
  *  @brief Header file for plane map data structure.
+ *  @details Parameterize plane equaction \f$n_{x}x + n_{y}y + n_{z}z + d = 0\f$
+ * by a <b>plane vector</b> \f$ \pi = (n_{x}, n_{y}, n_{z}, d) \f$,
+ *
+ *  where \f$ (n_{x}, n_{y}, n_{z}) \f$ is the <b>unit normal vector</b> of the
+ * plane, so \f$ d \f$ is the distance from the plane to the origin.
+ *
+ *  Besides, take the closet point from the world origin to the plane as the
+ * <b>plane coordinate origin</b>.
+ *
+ * Last but not least, When plane map was created, establish the plane vector.
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
@@ -103,26 +112,23 @@ typedef struct struct_Plane_info {
   /** @brief The distance from the plane to the origin. */
   float d;
 
-  /** @brief Unknown. */
-  float weight;
-
   /** @brief The number of pixel the plane contained. */
-  int pixel_number;
+  int pixel_num;
+  /** @brief The number of cell the plane map contained. */
+  int cell_num;
+  /** @brief Unknown. Fragment Map Block. */
+  int block_num;
 
   /** @brief Plane ID. */
   int plane_index;
-
   /** @brief Unknown. */
   int global_index;
 
-  /** @brief The number of cell the plane map contained. */
-  int cell_num;
-
+  /** @brief Unknown. */
+  float weight;
   /** @brief Area. */
   float area;
 
-  /** @brief Unknown. Fragment Map Block. */
-  int block_num;
   /** @brief Unknown. */
   bool is_valid;
 
@@ -135,10 +141,10 @@ typedef struct struct_Plane_info {
       : nx(_nx),
         ny(_ny),
         nz(_nz),
-        weight(_weight),
+        cell_num(_cell_num),
         plane_index(_plane_index),
         global_index(_global_index),
-        cell_num(_cell_num),
+        weight(_weight),
         is_valid(_is_valid) {}
 
 } Plane_info;

@@ -1,7 +1,10 @@
 /**
  *  Copyright (C) All rights reserved.
  *  @file SLAM_system.h
- *  @brief SLAM system
+ *  @brief Define 4 kinds of slam systems.
+ *  @details Base class SLAM_system as parent class. Derivated 4 class:
+ * Blank_SLAM_system, Ground_truth_SLAM_system, Basic_voxel_SLAM_system,
+ * Submap_SLAM_system.
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
@@ -106,7 +109,7 @@ class SLAM_system {
   // Relocalization
   // Loop closure
 
-  /** @brief Default constructor. call instance()->set_to_default() */
+  /** @brief Default constructor.Initialize SLAM system settings. */
   SLAM_system();
   /** @brief Default destructor. */
   virtual ~SLAM_system(){};
@@ -165,7 +168,7 @@ class Blank_SLAM_system : public SLAM_system {
 };
 
 /**
- * @brief Directly using the ground_truth for reconstruction.
+ * @brief Directly using the ground_truth.
  */
 class Ground_truth_SLAM_system : public SLAM_system {
  public:

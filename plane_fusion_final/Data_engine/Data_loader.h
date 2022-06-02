@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Data_loader.h
  *  @brief Load frame by member image_loader. And load camera pose ground truth.
  *  In addition, some GLCamera trajectory path(not used tmp).

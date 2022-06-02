@@ -1,3 +1,13 @@
+/**
+ *  Copyright (C) All rights reserved.
+ *  @file SLAM_system_settings.cpp
+ *  @brief SLAM system settings
+ *  @author haofan ren, yqykrhf@163.com
+ *  @version beta 0.0
+ *  @date 22-5-21
+ */
+
+
 #include "SLAM_system_settings.h"
 
 #include "OurLib/my_math_functions.h"

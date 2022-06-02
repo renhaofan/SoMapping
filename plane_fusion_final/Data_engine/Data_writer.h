@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Data_writer.h
  *  @brief Set up the estimated trajectory storage path.
  *  @author haofan ren, yqykrhf@163.com

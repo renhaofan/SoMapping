@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Preprocess_KernelFunc.cuh
  *  @brief CUDA kernel function for frame preprocess.
  *  @author haofan ren, yqykrhf@163.com

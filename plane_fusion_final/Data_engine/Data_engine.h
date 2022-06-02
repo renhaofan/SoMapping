@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Data_engine.h
  *  @brief Data engine to load data and to set the estimated pose storage path.
  *  @author haofan ren, yqykrhf@163.com

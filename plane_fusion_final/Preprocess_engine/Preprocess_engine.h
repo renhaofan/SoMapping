@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Preprocess_engine.h
  *  @brief Frame filter and frame hierarchy generation.
  *  @author haofan ren, yqykrhf@163.com

@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Map_engine.h
  *  @brief Map engine,
  *  @author haofan ren, yqykrhf@163.com

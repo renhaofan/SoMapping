@@ -1,10 +1,11 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Image_loader.h
- *  @brief Class Offline_image_loader header. Gather all frames pathes and
- concerned frame parametes(size, num_channel, elemSize, etc), camera intrinsic
- and depth2color, depth2imu extrinsic. If you want to load frame, call function
- `load_next_frame(double &timestamp, cv::Mat &color_mat, cv::Mat &depth_mat)`.
+ *  @brief Gather all frames pathes and concerned frame parametes, camera
+ * intrinsic and extrinsic.
+ *  @details Frame parametes(size, num_channel, elemSize, etc), camera intrinsic
+ * and depth2color, depth2imu extrinsic. If you want to load frame, call
+ * function l  bool load_next_frame(double &timestamp, cv::Mat &color_mat,
+ * cv::Mat &depth_mat)
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21

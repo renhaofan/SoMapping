@@ -1,12 +1,9 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file main_code.cpp
  *  @brief program entry.
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
- *  @fn void print_argvs(int argc, char** argv);
- *  @fn int main(int argc, char** argv);
  */
 
 #include <cstdio>

@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file SLAM_system_settings.h
  *  @brief Sensor info, tracker info, plane parameters and whether enable plane,
  *         whether generate mesh for vis.
@@ -8,6 +7,7 @@
  *  @date 22-5-21
  *  @note Macro for different os
  *        https://iq.opengenus.org/detect-operating-system-in-c/
+ *  @todo Check CUDA error. Many times comment CUDA_CKECK_KERNEL. (NOTE)
  */
 
 #pragma once
@@ -17,7 +17,7 @@
 #include "Config.h"
 
 //#define CUDA_CKECK_KERNEL
-/** @brief Check CUDA error. */
+/** @brief Check CUDA error. Many times comment CUDA_CKECK_KERNEL. (NOTE)*/
 #define CUDA_CKECK_KERNEL checkCudaErrors(cuCtxSynchronize());
 
 /**

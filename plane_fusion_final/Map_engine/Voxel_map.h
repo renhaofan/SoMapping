@@ -1,5 +1,4 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Voxel_map.h
  *  @brief Voxel map
  *  @author haofan ren, yqykrhf@163.com

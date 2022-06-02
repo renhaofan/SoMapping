@@ -1,7 +1,6 @@
 /**
- *  Copyright (C) All rights reserved.
  *  @file Image_loader.cpp
- *  @brief fajkl
+ *  @brief Implement the image loader.
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
@@ -52,6 +51,7 @@ std::string append_slash_to_dirname(std::string dirname) {
   return dirname + "/";
 }
 
+// Get the number of files in folder.
 void get_file_num(const std::string path, size_t *cnt) {
   DIR *dir;
   struct dirent *ptr;
