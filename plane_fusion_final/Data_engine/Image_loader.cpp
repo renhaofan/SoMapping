@@ -1,3 +1,13 @@
+/**
+ *  Copyright (C) All rights reserved.
+ *  @file Image_loader.cpp
+ *  @brief fajkl
+ *  @author haofan ren, yqykrhf@163.com
+ *  @version beta 0.0
+ *  @date 22-5-21
+ *  @todo cv::cvtColor(temp, color_mat, cv::COLOR_BGRA2BGR) when not RGBA BUG?
+ */
+
 #include "Image_loader.h"
 
 #include <SLAM_system/SLAM_system_settings.h>
@@ -42,6 +52,31 @@ std::string append_slash_to_dirname(std::string dirname) {
   return dirname + "/";
 }
 
+void get_file_num(const std::string path, size_t *cnt) {
+  DIR *dir;
+  struct dirent *ptr;
+
+  size_t total = 0;
+
+  dir = opendir(path.c_str());
+  if (NULL == dir) {
+#ifdef LOGGING
+    LOG_ERROR("Failed to open dir!");
+#endif
+    fprintf(stderr, "File %s, Line %d, Function %s(): Failed to opendir %s.\n",
+            __FILE__, __LINE__, __FUNCTION__, path.c_str());
+    exit(1);
+  }
+  while ((ptr = readdir(dir)) != 0) {
+    // ignore . and .. file
+    if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0)
+      continue;
+    total++;
+  }
+  *cnt = total;
+  closedir(dir);
+}
+
 Blank_image_loader::Blank_image_loader() {
   this->image_loader_mode = ImageLoaderMode::NO_DATA;
   this->image_loader_state = ImageLoaderState::END_OF_DATA;
@@ -62,8 +97,6 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
 
   switch (dm) {
     case DatasetMode::ICL:
-      //      color_dir = dir + "/rgb/";
-      //      depth_dir = dir + "/depth/";
       color_dir = append_slash_to_dirname(dir) + "rgb/";
       depth_dir = append_slash_to_dirname(dir) + "depth/";
       detect_images(color_dir, depth_dir);
@@ -71,19 +104,14 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
       this->print_state(false);
       break;
     case DatasetMode::TUM:
-      //      color_dir = dir + "/";
-      //      depth_dir = dir + "/";
       color_dir = append_slash_to_dirname(dir);
       depth_dir = append_slash_to_dirname(dir);
-      //      associate_dir = dir + "/associate.txt";
       associate_dir = append_slash_to_dirname(dir) + "associate.txt";
       detect_images(associate_dir, color_dir, depth_dir, dm);
       this->read_calibration_parameters(cal);
       this->print_state(false);
       break;
     case DatasetMode::MyZR300:
-      //      color_dir = dir + "/color/";
-      //      depth_dir = dir + "/filtered/";
       color_dir = append_slash_to_dirname(dir) + "color/";
       depth_dir = append_slash_to_dirname(dir) + "filtered/";
       detect_images(associate_dir, color_dir, depth_dir, dm);
@@ -91,8 +119,6 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
       this->print_state(false);
       break;
     case DatasetMode::MyD435i:
-//      color_dir = dir + "/color/";
-//      depth_dir = dir + "/depth/";
       color_dir = append_slash_to_dirname(dir) + "color/";
       depth_dir = append_slash_to_dirname(dir) + "depth/";
       detect_images(associate_dir, color_dir, depth_dir, dm);
@@ -100,8 +126,13 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
       this->print_state(false);
       break;
     case DatasetMode::MyAzureKinect:
-//      color_dir = dir + "/color/";
-//      depth_dir = dir + "/depth/";
+      color_dir = append_slash_to_dirname(dir) + "color/";
+      depth_dir = append_slash_to_dirname(dir) + "depth/";
+      detect_images(associate_dir, color_dir, depth_dir, dm);
+      this->read_calibration_parameters(cal);
+      this->print_state(false);
+      break;
+    case DatasetMode::SCANNET:
       color_dir = append_slash_to_dirname(dir) + "color/";
       depth_dir = append_slash_to_dirname(dir) + "depth/";
       detect_images(associate_dir, color_dir, depth_dir, dm);
@@ -140,11 +171,32 @@ void Offline_image_loader::read_image_parameters() {
     temp_mat =
         cv::imread(this->color_path_vector[0].c_str(), CV_LOAD_IMAGE_UNCHANGED);
 
+    // Security check
+    if (temp_mat.empty()) {
+#ifdef LOGGING
+      LOG_FATAL("Color image:" + color_path_vector[0] + " emtpy!");
+      Log::shutdown();
+#endif
+      fprintf(
+          stderr, "File %s, Line %d, Function %s(): Depth image %s empty.\n",
+          __FILE__, __LINE__, __FUNCTION__, this->color_path_vector[0].c_str());
+      exit(1);
+    }
+
     // Read parameters of color image
     this->color_width = temp_mat.cols;
     this->color_height = temp_mat.rows;
     this->color_element_size = (int)temp_mat.elemSize();
     this->color_channel_num = temp_mat.channels();
+  } else {
+#ifdef LOGGING
+    LOG_FATAL("Color image path vector empty!");
+    Log::shutdown();
+#endif
+    fprintf(stderr,
+            "File %s, Line %d, Function %s(): Color image path vector empty.\n",
+            __FILE__, __LINE__, __FUNCTION__);
+    exit(1);
   }
 
   if (this->depth_path_vector.size() > 0) {
@@ -154,11 +206,32 @@ void Offline_image_loader::read_image_parameters() {
     temp_mat =
         cv::imread(this->depth_path_vector[0].c_str(), CV_LOAD_IMAGE_UNCHANGED);
 
+    // Security check
+    if (temp_mat.empty()) {
+#ifdef LOGGING
+      LOG_FATAL("Depth image:" + depth_path_vector[0] + " emtpy!");
+      Log::shutdown();
+#endif
+      fprintf(
+          stderr, "File %s, Line %d, Function %s(): Depth image %s empty.\n",
+          __FILE__, __LINE__, __FUNCTION__, this->depth_path_vector[0].c_str());
+      exit(1);
+    }
+
     // Read parameters of depth image
     this->depth_width = temp_mat.cols;
     this->depth_height = temp_mat.rows;
     this->depth_element_size = (int)temp_mat.elemSize();
     this->depth_channel_num = temp_mat.channels();
+  } else {
+#ifdef LOGGING
+    LOG_FATAL("Depth image path vector empty!");
+    Log::shutdown();
+#endif
+    fprintf(stderr,
+            "File %s, Line %d, Function %s(): Depth image path vector empty.\n",
+            __FILE__, __LINE__, __FUNCTION__);
+    exit(1);
   }
 }
 
@@ -274,7 +347,7 @@ void Offline_image_loader::detect_images(string associate, string colordir,
                                          string depthdir, int dm) {
   ifstream inf;
   inf.open(associate, ifstream::in);
-  if (!inf.is_open()) {
+  if ((dm != DatasetMode::SCANNET) && !inf.is_open()) {
 #ifdef LOGGING
     LOG_FATAL("Failed to open associate file: " + associate);
     Log::shutdown();
@@ -288,7 +361,7 @@ void Offline_image_loader::detect_images(string associate, string colordir,
   size_t comma2 = 0;
 
   switch (dm) {
-    case DatasetMode::TUM:
+    case DatasetMode::TUM: {
       while (!inf.eof()) {
         getline(inf, line);
 
@@ -343,9 +416,10 @@ void Offline_image_loader::detect_images(string associate, string colordir,
         }
       }
       break;
+    }
     case DatasetMode::MyZR300:
     case DatasetMode::MyD435i:
-    case DatasetMode::MyAzureKinect:
+    case DatasetMode::MyAzureKinect: {
       getline(inf, line);
       while (!inf.eof()) {
         getline(inf, line);
@@ -392,10 +466,55 @@ void Offline_image_loader::detect_images(string associate, string colordir,
           throw "Error occured when read dataset!";
         }
       }
-
       break;
+    }
+    case SCANNET: {
+      //      size_t image_number = 5578;
+      size_t image_number = 0;
+      get_file_num(colordir, &image_number);
+
+      std::string color_ext = ".jpg";
+      std::string depth_ext = ".png";
+      for (size_t i = 0; i < image_number; ++i) {
+        this->image_timestamp_vector.push_back(image_number);
+        this->color_path_vector.push_back(colordir + to_string(i) + color_ext);
+        this->depth_path_vector.push_back(depthdir + to_string(i) + depth_ext);
+      }
+      this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
+      // TODO check image_loader_mode.
+      if (this->depth_path_vector.size() == 0 &&
+          this->color_path_vector.size() == 0) {
+        this->image_loader_mode = ImageLoaderMode::NO_DATA;
+        this->number_of_frames = 0;
+      } else if (this->depth_path_vector.size() > 0 &&
+                 this->color_path_vector.size() == 0) {
+        this->image_loader_mode = ImageLoaderMode::WITH_DEPTH_ONLY;
+        this->number_of_frames = this->depth_path_vector.size();
+      } else if (this->depth_path_vector.size() > 0 &&
+                 this->color_path_vector.size() > 0) {
+        // Validate number of loaded frames
+        if (this->color_path_vector.size() == this->depth_path_vector.size()) {
+          this->image_loader_mode = ImageLoaderMode::WITH_COLOR_AND_DEPTH;
+          this->number_of_frames = this->depth_path_vector.size();
+        } else {
+          this->image_loader_mode =
+              ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES;
+          this->number_of_frames = 0;
+#ifdef LOGGING
+          LOG_FATAL("Error occured when read dataset.");
+          Log::shutdown();
+#endif
+          fprintf(stderr,
+                  "File %s, Line %d, Function %s(): Error occured when read "
+                  "dataset.\n",
+                  __FILE__, __LINE__, __FUNCTION__);
+          throw "Error occured when read dataset!";
+        }
+      }
+      break;
+    }
     case DATASETMODE_NUMBER:
-    default:
+    default: {
 #ifdef LOGGING
       LOG_FATAL("Invalid dataset option.");
       Log::shutdown();
@@ -407,6 +526,7 @@ void Offline_image_loader::detect_images(string associate, string colordir,
               DatasetMode::DATASETMODE_NUMBER - 1);
       throw "Invalid dataset option.";
       break;
+    }
   }
 
   inf.close();
@@ -452,7 +572,7 @@ void Offline_image_loader::print_state(bool print_all_pathes) const {
                to_string(this->depth_path_vector.size()));
       LOG_INFO("Color images number: " +
                to_string(this->color_path_vector.size()));
-      LOG_INFO("Initialising offline image loader finished ------>");
+//      LOG_INFO("Initialising offline image loader finished ------>");
 #endif
       // print all frames pathes
       if (print_all_pathes) {
@@ -547,14 +667,54 @@ bool Offline_image_loader::load_next_frame(double &timestamp,
     case ImageLoaderMode::WITH_DEPTH_ONLY: {
       depth_mat = cv::imread(this->depth_path_vector[this->frame_index].c_str(),
                              CV_LOAD_IMAGE_UNCHANGED);
+      if (depth_mat.empty()) {
+#ifdef LOGGING
+        LOG_FATAL("Depth image:" + this->depth_path_vector[this->frame_index] +
+                  " emtpy!");
+        Log::shutdown();
+#endif
+        fprintf(stderr,
+                "File %s, Line %d, Function %s(): Depth image %s empty.\n",
+                __FILE__, __LINE__, __FUNCTION__,
+                this->depth_path_vector[this->frame_index].c_str());
+        exit(1);
+      }
       break;
     }
     case ImageLoaderMode::WITH_COLOR_AND_DEPTH: {
       depth_mat = cv::imread(this->depth_path_vector[this->frame_index].c_str(),
                              CV_LOAD_IMAGE_UNCHANGED);
+      // Security check
+      if (depth_mat.empty()) {
+#ifdef LOGGING
+        LOG_FATAL("Depth image:" + this->depth_path_vector[this->frame_index] +
+                  " emtpy!");
+        Log::shutdown();
+#endif
+        fprintf(stderr,
+                "File %s, Line %d, Function %s(): Depth image %s empty.\n",
+                __FILE__, __LINE__, __FUNCTION__,
+                this->depth_path_vector[this->frame_index].c_str());
+        exit(1);
+      }
+
       cv::Mat temp =
           cv::imread(this->color_path_vector[this->frame_index].c_str(),
                      CV_LOAD_IMAGE_UNCHANGED);
+      // Security check
+      if (temp.empty()) {
+#ifdef LOGGING
+        LOG_FATAL("Color image:" + this->color_path_vector[this->frame_index] +
+                  " emtpy!");
+        Log::shutdown();
+#endif
+        fprintf(stderr,
+                "File %s, Line %d, Function %s(): Color image %s empty.\n",
+                __FILE__, __LINE__, __FUNCTION__,
+                this->color_path_vector[this->frame_index].c_str());
+        exit(1);
+      }
+
       cv::cvtColor(temp, color_mat, cv::COLOR_BGRA2BGR);
       break;
     }

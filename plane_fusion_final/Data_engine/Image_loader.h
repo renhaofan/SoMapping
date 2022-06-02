@@ -83,8 +83,8 @@ class Image_loader {
 };
 
 /**
- * @brief Class that is inherited using public inheritance. In case that Image_loader
- * pointer is nullptr.
+ * @brief Class that is inherited using public inheritance. In case that
+ * Image_loader pointer is nullptr.
  */
 class Blank_image_loader : public Image_loader {
  public:
@@ -138,12 +138,13 @@ class Offline_image_loader : public Image_loader {
    * @brief The DatasetMode enum, control which kind of dataset.
    */
   enum DatasetMode {
-    ICL,               /** ICL-NUIM RGB-D Benchmark Dataset */
-    TUM,               /** TUM RGB-D SLAM Dataset and Benchmark */
-    MyZR300,           /** MyZR300 Dataset */
-    MyD435i,           /** MyD435i Dataset */
-    MyAzureKinect,     /** MyAzureKinect Dataset */
-    DATASETMODE_NUMBER /** The number of enum DatasetMode options. */
+    ICL = 0,               /** ICL-NUIM RGB-D Benchmark Dataset */
+    TUM = 1,               /** TUM RGB-D SLAM Dataset and Benchmark */
+    MyZR300 = 2,           /** MyZR300 Dataset */
+    MyD435i = 3,           /** MyD435i Dataset */
+    MyAzureKinect = 4,     /** MyAzureKinect Dataset */
+    SCANNET = 5,           /** ScanNet Dataset */
+    DATASETMODE_NUMBER = 6 /** The number of enum DatasetMode options. */
   };
 
   /** @brief Frame index. zero by default. */
@@ -232,7 +233,7 @@ class Offline_image_loader : public Image_loader {
   void detect_images(string associate, string colordir, string depthdir,
                      int dm);
   /**
-   * @brief Print ImageLoaderMode and concerned details.
+   * @brief Print ImageLoaderMode and all frame path for DEBUG.
    * @param print_all_pathes Control whether print state, false by default.
    * @exception Incorrect ImageLoaderMode.
    */
