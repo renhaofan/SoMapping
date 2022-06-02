@@ -19,13 +19,16 @@ void SLAM_system_settings::set_to_default() {
   this->aligned_color_size.width = 0;
   this->aligned_color_size.height = 0;
 
-  /*
+ /*
   Note that the depth images provided in our dataset are already pre-registered
   to the RGB images. Therefore, rectifying the depth images based on the
   intrinsic parameters is not straight forward.
   https://vision.in.tum.de/data/datasets/rgbd-dataset/file_formats#intrinsic_camera_calibration_of_the_kinect
   */
-  int calib_mode = 1;
+  // TUM 16-bit PNG files, see web above.
+  this->sensor_params.sensor_scale = 5000.0f;
+
+  int calib_mode = 4;
   if (calib_mode == 0) {
     // ICL
     this->sensor_params.sensor_fx = 480.0f;
@@ -50,15 +53,14 @@ void SLAM_system_settings::set_to_default() {
     this->sensor_params.sensor_fy = 570.2;
     this->sensor_params.sensor_cx = 324.7;
     this->sensor_params.sensor_cy = 250.1;
+  } else if (calib_mode == 4) {
+    // ScanNet
+    this->sensor_params.sensor_fx = 571.623718;
+    this->sensor_params.sensor_fy = 571.623718;
+    this->sensor_params.sensor_cx = 319.500000;
+    this->sensor_params.sensor_cy = 239.500000;
+    this->sensor_params.sensor_scale = 1000.0f;
   }
-
-  // TUM 16-bit PNG files
-  // reference
-  // https://vision.in.tum.de/data/datasets/rgbd-dataset/file_formats#intrinsic_camera_calibration_of_the_kinect
-  this->sensor_params.sensor_scale = 5000.0f;
-
-
-  // this->sensor_params.sensor_scale = 1000.0f;
 
   this->sensor_params.sensor_noise_ratio = 0.01f;
   this->sensor_params.min_range = 0.10f;

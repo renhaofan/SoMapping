@@ -21,7 +21,7 @@
 #define CUDA_CKECK_KERNEL checkCudaErrors(cuCtxSynchronize());
 
 /**
- * @brief Sensor parameters, such as fx,fy,cx,cy,depth range, scale, etc.
+ * @brief Depth Sensor parameters, such as fx,fy,cx,cy,depth range, scale, etc.
  */
 typedef struct _Sensor_params {
   /** @brief fx parameter. */

@@ -222,6 +222,9 @@ void Ground_truth_SLAM_system::track_camera_pose() {
     this->estimated_camera_pose.load_pose(ground_truth_trajectory_node);
     this->timestamp = ground_truth_trajectory_node.time;
   } else {
+#ifdef LOGGING
+      LOG_WARNING("No ground truth loaded!");
+#endif
     printf("No ground_truth loaded!\n");
     this->processing_state = ProcessingState::STOP_PROCESS;
   }

@@ -66,6 +66,9 @@ int main(int argc, char **argv) {
       case 4:
         LOG_INFO("Dataset name: MyAzureKinect");
         break;
+      case 5:
+        LOG_INFO("Dataset name: ScanNet");
+        break;
       default:
         LOG_FATAL("Invalid dataset option");
         Log::shutdown();
@@ -76,7 +79,8 @@ int main(int argc, char **argv) {
     printf(
         "Please input 'calibration file' for online input,\n or "
         "'calibration file, sequence dir, dataset "
-        "mode(ICL:0,TUM:1,MyZR300:2,MyD435i:3,MyAzureKinect:4)' for offline "
+        "mode(ICL:0,TUM:1,MyZR300:2,MyD435i:3,MyAzureKinect:4,ScanNet:5)' for "
+        "offline "
         "input.\n");
 
 #ifdef LOGGING
@@ -90,14 +94,16 @@ int main(int argc, char **argv) {
   LOG_INFO("Initialising sequence finished ------>");
 #endif
 
+  // Initiation
+  Main_engine::instance()->init(argc, argv, image_loader_ptr);
+
+  // Load ground truth file
   string ground_truth_path =
       "/home/steve/dataset/TUM_RGBD_VSLAM/"
       "rgbd_dataset_freiburg1_xyz/groundtruth.txt";
 
-  // Initiation
-  Main_engine::instance()->init(argc, argv, image_loader_ptr);
-  // Load ground truth file
-  Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path);
+//  Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path);
+
 #ifdef LOGGING
   LOG_INFO("<------ Run main thread ...");
 #endif
