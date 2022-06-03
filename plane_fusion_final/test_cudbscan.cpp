@@ -4,7 +4,8 @@
 #include <vector>
 
 #include "cudbscan/DBSCANCPU.hpp"
-#include "cudbscan/Timer.hpp"
+//#include "cudbscan/Timer.hpp"
+#include "Timer/Timer.h"
 #include "cudbscan/cuDBSCAN.hpp"
 
 using namespace std;
@@ -28,16 +29,25 @@ int main(int argc, char* argv[]) {
   }
 
   Timer t;
+  double timeCUDA = 0;
+  double timeCPU = 0;
+  // test GPU
+  t.start();
   cuDBSCAN scanCUDA(vec, eps, minClusterSize);
   int nClustersCUDA = scanCUDA.run();
-  double timeCUDA = t.elapsed();
+  t.stop();
+
+  timeCUDA = t.getElapsedTime();
   std::cout << "[CUDA] Number of clusters: " << nClustersCUDA
             << "\t Time: " << timeCUDA << std::endl;
 
-  t.reset();
+  // test CPU
+  t.start();
   DBSCANCPU scanCPU(vec, eps, minClusterSize);
   int nCluestersCPU = scanCPU.run();
-  double timeCPU = t.elapsed();
+  t.stop();
+
+  timeCPU = t.getElapsedTime();
   std::cout << "[CPU] Number of clusters: " << nCluestersCPU
             << "\t Time: " << timeCPU << std::endl;
   std::cout << "Speedup was: " << timeCPU / timeCUDA << std::endl;

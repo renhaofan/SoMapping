@@ -137,7 +137,9 @@ endif()
 
 target_link_libraries(FUSION ${PROJECT_NAME} ${CUDA_LIBRARY} rt cuda)
 
-## test google log
+##########################################
+######### test google log ################
+##########################################
 add_executable(test_glog test_glog.cpp )
 target_link_libraries(test_glog ${CERES_LIBRARIES})
 
@@ -146,14 +148,14 @@ target_link_libraries(test_glog ${CERES_LIBRARIES})
 #find_package(Glog REQUIRED)
 #include_directories(${GFLAGS_INCLUDE_DIRS} ${GLOG_INCLUDE_DIRS})
 
-## test cudbscan
+##########################################
+######### test cudbscan ################
+##########################################
 set(SOURCE_CUDBSCAN
     test_cudbscan.cpp
-    cudbscan/Point2.hpp
-    cudbscan/Timer.hpp
+    Timer/Timer.cpp
     cudbscan/DBSCANCPU.hpp
     cudbscan/cuDBSCAN.hpp
     cudbscan/cuDBSCAN.cu)
-
 cuda_add_executable(test_cudbscan ${SOURCE_CUDBSCAN})
 target_link_libraries(test_cudbscan ${CUDA_LIBRARIES})

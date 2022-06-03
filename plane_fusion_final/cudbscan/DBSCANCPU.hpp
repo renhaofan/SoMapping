@@ -5,7 +5,8 @@
 #include <sstream>
 #include <vector>
 
-#include "Point2.hpp"
+#include "OurLib/My_vector.h"
+typedef My_Type::Vector2f Point2;
 
 class DBSCANCPU {
  public:
