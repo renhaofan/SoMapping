@@ -231,3 +231,6 @@ After build the project, you should find binary executable file `FUSION` located
 cd bin
 ./FUSION /*****/Files/TUM/TUM1.txt /******/rgbd_dataset_freiburg1_xyz 1
 ```
+
+# 4. Acknowledgement
+The cluster method based on [this implementation](https://github.com/Maghoumi/cudbscan)

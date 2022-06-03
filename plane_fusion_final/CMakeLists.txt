@@ -145,3 +145,15 @@ target_link_libraries(test_glog ${CERES_LIBRARIES})
 #find_package(Gflags REQUIRED)
 #find_package(Glog REQUIRED)
 #include_directories(${GFLAGS_INCLUDE_DIRS} ${GLOG_INCLUDE_DIRS})
+
+## test cudbscan
+set(SOURCE_CUDBSCAN
+    test_cudbscan.cpp
+    cudbscan/Point2.hpp
+    cudbscan/Timer.hpp
+    cudbscan/DBSCANCPU.hpp
+    cudbscan/cuDBSCAN.hpp
+    cudbscan/cuDBSCAN.cu)
+
+cuda_add_executable(test_cudbscan ${SOURCE_CUDBSCAN})
+target_link_libraries(test_cudbscan ${CUDA_LIBRARIES})
