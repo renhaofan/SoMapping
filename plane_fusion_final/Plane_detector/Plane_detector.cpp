@@ -1,11 +1,8 @@
 #include "Plane_detector.h"
 
-//
 #include "SLAM_system/SLAM_system_settings.h"
-//
 #include "Plane_detector_KernelFunc.cuh"
 
-//
 #include <float.h>
 
 #include <cstdio>
@@ -14,12 +11,13 @@
 
 #include "math.h"
 
-// ---------------------------- Plane_detector (base class)
+#if __unix__
+#pragma region "Plane_detector base class" {
+#elif _WIN32
 #pragma region(Plane_detector base class)
+#endif
 
-//
 Plane_detector::Plane_detector() { this->current_plane_counter = 0; }
-//
 Plane_detector::~Plane_detector() {
   // Release HOST memory
   free(this->cell_info_mat);
@@ -39,14 +37,12 @@ Plane_detector::~Plane_detector() {
   checkCudaErrors(cudaFree(this->dev_buffer_coordinate));
 }
 
-//
 void Plane_detector::init() {
   this->aligned_depth_size =
       SLAM_system_settings::instance()->aligned_depth_size;
   this->cell_mat_size = this->aligned_depth_size /
                         SLAM_system_settings::instance()->presegment_cell_width;
 
-  //
   this->cell_info_mat = (Cell_info *)malloc(
       this->cell_mat_size.x * this->cell_mat_size.y * sizeof(Cell_info));
   this->current_planes =
@@ -56,7 +52,6 @@ void Plane_detector::init() {
   this->relative_matrix =
       (int *)malloc(MAX_CURRENT_PLANES * MAX_MODEL_PLANES * sizeof(int));
 
-  //
   checkCudaErrors(cudaMalloc(
       (void **)&(this->dev_cell_info_mat),
       this->cell_mat_size.x * this->cell_mat_size.y * sizeof(Cell_info)));
@@ -82,12 +77,10 @@ void Plane_detector::init() {
   checkCudaErrors(cudaMalloc((void **)&(this->dev_buffer_coordinate),
                              MAX_CURRENT_PLANES * sizeof(Plane_coordinate)));
 
-  //
   sdkCreateTimer(&this->timer_average);
   sdkResetTimer(&this->timer_average);
 }
 
-//
 void Plane_detector::detect_plane(const My_Type::Vector3f *dev_current_points,
                                   const My_Type::Vector3f *dev_current_normals,
                                   const Eigen::Matrix4f &camera_pose,
@@ -125,7 +118,6 @@ void Plane_detector::detect_plane(const My_Type::Vector3f *dev_current_points,
   this->transfer_plane_coordinate(camera_pose);
 }
 
-//
 void Plane_detector::transfer_plane_coordinate(
     const Eigen::Matrix4f &camera_pose) {
   for (int plane_index = 1; plane_index < this->current_plane_counter;
@@ -176,7 +168,6 @@ void Plane_detector::transfer_plane_coordinate(
   }
 }
 
-//
 void Plane_detector::match_planes(const Plane_info *model_planes,
                                   int model_plane_number,
                                   const int *dev_current_plane_labels,
@@ -435,11 +426,10 @@ void Plane_detector::match_planes_to_new_map(
                    MAX_CURRENT_PLANES * MAX_MODEL_PLANES * sizeof(int)));
   }
 
-  //
   plane_matches.clear();
   std::vector<int> valid_plane_index_list;
   valid_plane_index_list.push_back((int)0);
-  for (int current_plane_id = 0, new_id = 1;
+  for (size_t current_plane_id = 0, new_id = 1;
        current_plane_id < this->matches.size(); current_plane_id++) {
     printf("%d -> %d", this->matches[current_plane_id].x,
            this->matches[current_plane_id].y);
@@ -448,7 +438,7 @@ void Plane_detector::match_planes_to_new_map(
           std::pair<int, int>(this->matches[current_plane_id].y, new_id));
       valid_plane_index_list.push_back(current_plane_id);
       // printf("%d -> %d\n", this->matches[current_plane_id].y, new_id);
-      printf(" --> %d", new_id);
+      printf(" --> %zu", new_id);
       new_id++;
     }
     printf("\n");
@@ -458,10 +448,10 @@ void Plane_detector::match_planes_to_new_map(
   this->matches.resize(model_plane_number + 1);
   memset(this->matches.data(), 0x00,
          this->matches.size() * sizeof(My_Type::Vector2i));
-  for (int i = 0; i < this->matches.size(); i++)
+  for (size_t i = 0; i < this->matches.size(); i++)
     this->matches[i] = My_Type::Vector2i(i, i);
   //
-  for (int i = 0; i < plane_matches.size(); i++) {
+  for (size_t i = 0; i < plane_matches.size(); i++) {
     this->matches[plane_matches[i].first] = plane_matches[i].second;
   }
   // 4. Re-label current plane labels to model plane order
@@ -485,7 +475,7 @@ void Plane_detector::match_planes_to_new_map(
   this->matches.resize(valid_plane_index_list.size());
   memset(this->matches.data(), 0x00,
          this->matches.size() * sizeof(My_Type::Vector2i));
-  for (int i = 0; i < this->matches.size(); i++) {
+  for (size_t i = 0; i < this->matches.size(); i++) {
     this->matches[i] = My_Type::Vector2i(valid_plane_index_list[i], i);
     // this->matches[i] = My_Type::Vector2i(this->matches[i].x,
     // this->matches[i].y);
@@ -495,7 +485,6 @@ void Plane_detector::match_planes_to_new_map(
   //
 }
 
-//
 int cmp_function(const void *a, const void *b) {
   if ((*(std::pair<int, int> *)a).second > (*(std::pair<int, int> *)b).second) {
     return -1;
@@ -503,7 +492,7 @@ int cmp_function(const void *a, const void *b) {
     return 1;
   }
 }
-//
+
 std::vector<std::pair<int, int>> Plane_detector::find_most_overlap_model_plane(
     int current_plane_label, int model_plane_counter) {
   std::vector<std::pair<int, int>> overlap_list;
@@ -527,7 +516,6 @@ std::vector<std::pair<int, int>> Plane_detector::find_most_overlap_model_plane(
   return overlap_list;
 }
 
-//
 void Plane_detector::prepare_to_detect() {
   //
   memset(this->cell_info_mat, 0x00,
@@ -553,11 +541,19 @@ void Plane_detector::prepare_to_detect() {
                  (int)MAX_CURRENT_PLANES * sizeof(My_Type::Vector2i)));
 }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
-// ---------------------------- Plane detector use stereoprojection
+
+#if __unix__
+#pragma region "Plane detector use stereoprojection" {
+#elif _WIN32
 #pragma region(Plane detector use stereoprojection)
-//
+#endif
+
 Plane_stereoprojection_detector::Plane_stereoprojection_detector() {
   printf("Plane_stereoprojection_detector\n");
 }
@@ -575,7 +571,6 @@ Plane_stereoprojection_detector::~Plane_stereoprojection_detector() {
   checkCudaErrors(cudaFree(this->dev_ATb_buffer));
 }
 
-//
 void Plane_stereoprojection_detector::init() {
   // Initialize base class members
   Plane_detector::init();
@@ -605,7 +600,6 @@ void Plane_stereoprojection_detector::init() {
                              2 * MAX_CURRENT_PLANES * sizeof(float)));
 }
 
-//
 void Plane_stereoprojection_detector::prepare_to_detect() {
   //
   Plane_detector::prepare_to_detect();
@@ -623,7 +617,6 @@ void Plane_stereoprojection_detector::prepare_to_detect() {
   checkCudaErrors(cudaMemset(this->dev_hist_normal_counter, 0x00, sizeof(int)));
 }
 
-//
 void Plane_stereoprojection_detector::fit_plane_for_each_cell(
     const My_Type::Vector3f *dev_current_points,
     const My_Type::Vector3f *dev_current_normals,
@@ -646,7 +639,6 @@ void Plane_stereoprojection_detector::fit_plane_for_each_cell(
   }
 }
 
-//
 void Plane_stereoprojection_detector::cluster_cells(
     Cell_info *dev_cell_info_mat, const Plane_info *dev_model_planes,
     Plane_info *dev_current_planes, bool with_continuous_frame_tracking) {
@@ -824,11 +816,14 @@ void Plane_stereoprojection_detector::cluster_cells(
   }
 }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
-// ---------------------------- Plane detector use super pixel
 Plane_super_pixel_detector::Plane_super_pixel_detector() {}
-//
+
 Plane_super_pixel_detector::~Plane_super_pixel_detector() {
   //
   free(this->super_pixel_adjacent_mat);
@@ -842,7 +837,6 @@ Plane_super_pixel_detector::~Plane_super_pixel_detector() {
   checkCudaErrors(cudaFree(this->dev_base_vectors));
 }
 
-//
 void Plane_super_pixel_detector::init() {
   // Initialize base class members
   Plane_detector::init();
@@ -895,7 +889,6 @@ void Plane_super_pixel_detector::init() {
                      sizeof(Plane_coordinate)));
 }
 
-//
 void Plane_super_pixel_detector::prepare_to_detect() {
   //
   Plane_detector::prepare_to_detect();
@@ -912,7 +905,6 @@ void Plane_super_pixel_detector::prepare_to_detect() {
                      sizeof(Super_pixel)));
 }
 
-//
 void Plane_super_pixel_detector::presegment_to_cell(
     const My_Type::Vector3f *dev_current_points,
     const My_Type::Vector3f *dev_current_normals) {
@@ -983,7 +975,6 @@ void Plane_super_pixel_detector::presegment_to_cell(
                              cudaMemcpyDeviceToDevice));
 }
 
-//
 void Plane_super_pixel_detector::fit_plane_for_each_cell(
     const My_Type::Vector3f *dev_current_points,
     const My_Type::Vector3f *dev_current_normals,
@@ -1045,8 +1036,12 @@ void Plane_super_pixel_detector::fit_plane_for_each_cell(
   }
 }
 
+#if __unix__
+#pragma region "Flood fill" {
+#elif _WIN32
 #pragma region(Flood fill)
-//
+#endif
+
 inline void find_next_seed_point(Cell_info *cell_mat,
                                  const My_Type::Vector2i &cell_mat_size,
                                  int &seed_point_index) {
@@ -1058,7 +1053,7 @@ inline void find_next_seed_point(Cell_info *cell_mat,
   }
   // printf("%d\n", seed_point_index);
 }
-//
+
 inline bool flood_fill_search_pixel(Cell_info *cell_mat,
                                     const My_Type::Vector2i &cell_mat_size,
                                     const Plane_info &plane_params,
@@ -1104,7 +1099,7 @@ inline bool flood_fill_search_pixel(Cell_info *cell_mat,
   }
   return is_find_pixel;
 }
-//
+
 inline void update_plane_params(Cell_info *cell_info_mat,
                                 std::vector<int> &cell_index_list,
                                 Plane_info &temp_plane) {
@@ -1130,7 +1125,7 @@ inline void update_plane_params(Cell_info *cell_info_mat,
 
   // Distance
   float distance = 0.0f, weight = 0.0f;
-  for (int index_list_id = 0; index_list_id < cell_index_list.size();
+  for (size_t index_list_id = 0; index_list_id < cell_index_list.size();
        index_list_id++) {
     Cell_info temp_cell = cell_info_mat[cell_index_list[index_list_id]];
     My_Type::Vector3f position(temp_cell.x, temp_cell.y, temp_cell.z);
@@ -1205,7 +1200,7 @@ void build_adjacent_matrix_for_regions(Cell_info *cell_info_mat,
     }
 }
 
-//
+
 void generate_local_coordinate_host(Plane_coordinate &local_coordinate) {
   local_coordinate.x_vec = My_Type::Vector3f(1.0f, 0.0f, 0.0f);
   if (fabsf(local_coordinate.x_vec.dot(local_coordinate.z_vec)) >= 0.71) {
@@ -1223,7 +1218,7 @@ void generate_local_coordinate_host(Plane_coordinate &local_coordinate) {
   //
   local_coordinate.y_vec = local_coordinate.z_vec.cross(local_coordinate.x_vec);
 }
-//
+
 inline void transform_to_local_coordinate_host(
     My_Type::Vector3f &src_point, My_Type::Vector3f &dst_point,
     Plane_coordinate &local_coordinate) {
@@ -1231,7 +1226,7 @@ inline void transform_to_local_coordinate_host(
   dst_point.y = local_coordinate.y_vec.dot(src_point);
   dst_point.z = local_coordinate.z_vec.dot(src_point);
 }
-//
+
 inline void transform_from_local_coordinate_host(
     My_Type::Vector3f &src_point, My_Type::Vector3f &dst_point,
     Plane_coordinate &local_coordinate) {
@@ -1239,6 +1234,7 @@ inline void transform_from_local_coordinate_host(
               src_point.y * local_coordinate.y_vec +
               src_point.z * local_coordinate.z_vec;
 }
+
 // Fit plane for each region
 void fit_params_for_planar_region(Cell_info *cell_info_mat,
                                   Plane_info &plane_region_params,
@@ -1380,7 +1376,6 @@ void fit_params_for_planar_region(Cell_info *cell_info_mat,
   }
 }
 
-//
 bool search_merge_region(int &base_id, int &search_id,
                          std::vector<bool> &merge_flag,
                          std::vector<Plane_info> &plane_region_params,
@@ -1421,7 +1416,6 @@ bool search_merge_region(int &base_id, int &search_id,
   return false;
 }
 
-//
 void merge_planar_regions(
     Cell_info *cell_info_mat, My_Type::Vector2i cell_mat_size,
     bool *adjacent_mat, std::vector<Plane_info> &plane_region_params,
@@ -1430,7 +1424,7 @@ void merge_planar_regions(
   std::vector<std::vector<int>> merge_list;
   merge_list.push_back(std::vector<int>());
 
-  int seed_id = 1;
+  size_t seed_id = 1;
   while (seed_id < plane_region_params.size()) {
     std::vector<int> merge_region;
     std::vector<int> region_index_stack;
@@ -1474,12 +1468,12 @@ void merge_planar_regions(
   std::vector<std::vector<int>> planar_cell_index_list_buffer;
   planar_cell_index_list_buffer.push_back(std::vector<int>());
   //
-  for (int new_plane_id = 1; new_plane_id < merge_list.size(); new_plane_id++) {
+  for (size_t new_plane_id = 1; new_plane_id < merge_list.size(); new_plane_id++) {
     std::vector<int> temp_cell_index_list;
-    for (int j = 0; j < merge_list[new_plane_id].size(); j++) {
+    for (size_t j = 0; j < merge_list[new_plane_id].size(); j++) {
       int list_id = merge_list[new_plane_id][j];
 
-      for (int cell_index_id = 0;
+      for (size_t cell_index_id = 0;
            cell_index_id < planar_cell_index_list[list_id].size();
            cell_index_id++) {
         int cell_index = planar_cell_index_list[list_id][cell_index_id];
@@ -1517,7 +1511,7 @@ void relabel_cells_by_large_regions(
 
   //
   int new_plane_id = 1;
-  for (int plane_id = 1, new_plane_id = 1;
+  for (size_t plane_id = 1, new_plane_id = 1;
        plane_id < plane_region_params.size(); plane_id++) {
     float plane_area = plane_region_params[plane_id].area;
 
@@ -1525,14 +1519,14 @@ void relabel_cells_by_large_regions(
     const float region_area_threshold = MIN_AREA_OF_PLANE;
     if (plane_area < region_area_threshold ||
         (!plane_region_params[plane_id].is_valid)) {
-      for (int cell_index_id = 0;
+      for (size_t cell_index_id = 0;
            cell_index_id < planar_cell_index_list[plane_id].size();
            cell_index_id++) {
         int cell_index = planar_cell_index_list[plane_id][cell_index_id];
         cell_info_mat[cell_index].plane_index = 0;
       }
     } else {
-      for (int cell_index_id = 0;
+      for (size_t cell_index_id = 0;
            cell_index_id < planar_cell_index_list[plane_id].size();
            cell_index_id++) {
         int cell_index = planar_cell_index_list[plane_id][cell_index_id];
@@ -1557,9 +1551,12 @@ void relabel_cells_by_large_regions(
   planar_cell_index_list = planar_cell_index_list_buffer;
 }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
-//
 void Plane_super_pixel_detector::cluster_cells(
     Cell_info *dev_cell_info_mat, const Plane_info *dev_model_planes,
     Plane_info *dev_current_planes, bool with_continuous_frame_tracking) {
@@ -1651,7 +1648,7 @@ void Plane_super_pixel_detector::cluster_cells(
     // give plane label to cell
     int number_of_regions = (int)this->plane_region_params.size();
     for (int list_id = 1; list_id < number_of_regions; list_id++) {
-      for (int cell_index_id = 0;
+      for (size_t cell_index_id = 0;
            cell_index_id < this->planar_cell_index_list[list_id].size();
            cell_index_id++) {
         int index = (this->planar_cell_index_list[list_id])[cell_index_id];
@@ -1683,7 +1680,7 @@ void Plane_super_pixel_detector::cluster_cells(
                                    this->planar_cell_index_list);
 
     // Fit plane
-    for (int i = 1; i < this->planar_cell_index_list.size(); i++)
+    for (size_t i = 1; i < this->planar_cell_index_list.size(); i++)
       fit_params_for_planar_region(this->cell_info_mat,
                                    this->plane_region_params[i],
                                    this->planar_cell_index_list[i]);
@@ -1705,7 +1702,6 @@ void Plane_super_pixel_detector::cluster_cells(
       this->current_planes[plane_id] = this->plane_region_params[plane_id];
   }
 #pragma endregion
-
 
   // Re-label
   {

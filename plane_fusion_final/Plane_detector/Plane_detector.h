@@ -142,12 +142,10 @@ class Plane_detector {
 
 class Plane_stereoprojection_detector : public Plane_detector {
  public:
-
   /** @brief CUDA device pointer of hist_PxPy. */
   float *hist_mat;
   /** @brief CUDA device pointer of hist_PxPy. */
   float *dev_hist_mat;
-
 
   /** @brief CUDA device pointer of hist_normal. */
   Hist_normal *dev_hist_normals;
@@ -187,52 +185,42 @@ class Plane_stereoprojection_detector : public Plane_detector {
                      bool with_continuous_frame_tracking = false) override;
 };
 
-
 class Plane_super_pixel_detector : public Plane_detector {
  public:
-  //!
   My_Type::Vector2i super_pixel_mat_size;
-  //
+
   int number_of_CUDA_block_per_line;
   int number_of_CUDA_block_per_cell;
 
-  //!
   Super_pixel *dev_super_pixel_mat;
   Super_pixel *dev_super_pixel_accumulate_mat;
-  //!
+
   int *dev_super_pixel_id_image;
 
-  //!
   Plane_coordinate *dev_base_vectors;
-  //!
+
   My_Type::Vector3f *dev_cell_hessain_uppers;
-  //!
+
   My_Type::Vector2f *dev_cell_nabla;
 
-  //!
   bool *super_pixel_adjacent_mat;
 
-  //!
   Plane_super_pixel_detector();
   ~Plane_super_pixel_detector();
 
-  //
   void init() override;
 
  private:
-  //
   void prepare_to_detect() override;
 
-  //
-  void presegment_to_cell(const My_Type::Vector3f *dev_current_points,
-                          const My_Type::Vector3f *dev_current_normals) override;
+  void presegment_to_cell(
+      const My_Type::Vector3f *dev_current_points,
+      const My_Type::Vector3f *dev_current_normals) override;
 
-  //
   void fit_plane_for_each_cell(const My_Type::Vector3f *dev_current_points,
                                const My_Type::Vector3f *dev_current_normals,
                                Cell_info *dev_cell_info_mat) override;
 
-  //
   void cluster_cells(Cell_info *dev_cell_info_mat,
                      const Plane_info *dev_model_planes,
                      Plane_info *dev_current_planes,
