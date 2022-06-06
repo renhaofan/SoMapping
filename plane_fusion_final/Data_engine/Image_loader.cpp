@@ -5,6 +5,7 @@
  *  @version beta 0.0
  *  @date 22-5-21
  *  @todo cv::cvtColor(temp, color_mat, cv::COLOR_BGRA2BGR) when not RGBA BUG?
+ *  @todo Offline_image_loader::align_color_to_depth();
  */
 
 #include "Image_loader.h"
@@ -75,6 +76,20 @@ void get_file_num(const std::string path, size_t *cnt) {
   }
   *cnt = total;
   closedir(dir);
+}
+
+// Flag whether it is identity matrix.
+bool is_identity(My_Type::Matrix44f &mat) {
+  for (int i = 0; i < 4; ++i) {
+    for (int j = 0; j < 4; ++j) {
+      if (i == j) {
+        if (std::abs(mat(i, j) - 1.0f) > 1e-6) return false;
+      } else {
+        if (std::abs(mat(i, j)) > 1e-6) return false;
+      }
+    }
+  }
+  return true;
 }
 
 Blank_image_loader::Blank_image_loader() {
@@ -260,6 +275,7 @@ void Offline_image_loader::read_calibration_parameters(string cal) {
 
   // depth2color, depth2imu
   My_Type::Matrix44f d2c, d2i;
+  // column major, may be because the opencv.
   f >> d2c.m00 >> d2c.m10 >> d2c.m20 >> d2c.m30;
   f >> d2c.m01 >> d2c.m11 >> d2c.m21 >> d2c.m31;
   f >> d2c.m02 >> d2c.m12 >> d2c.m22 >> d2c.m32;
@@ -727,4 +743,14 @@ bool Offline_image_loader::load_next_frame(double &timestamp,
   // To next frame
   this->frame_index++;
   return true;
+}
+
+bool Offline_image_loader::need_to_align_color_to_depth() {
+    return is_identity(SLAM_system_settings::instance()->depth2color_mat);
+}
+
+bool Offline_image_loader::align_color_to_depth(const cv::Mat &depth_mat, cv::Mat &color_mat) {
+    // depth2color_mat read as column major, opencv raw major, no need to transpose.
+  cv::Mat d2c(4, 4, CV_16UC1, SLAM_system_settings::instance()->depth2color_mat.data);
+
 }

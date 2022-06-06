@@ -1,6 +1,6 @@
 # SoMapping
 `string GLcamera_freeview_trajectory_path` in `Data_loader.h` ？
- 
+
 Esc 退出(finished)与右上角关闭窗口的地方，补上Log::shutdown()
 
 UI_engine::interactive_events() 中 有ws，qe的区别。( UI_engine::interactive_events())
@@ -85,12 +85,20 @@ frame_id = 273
 
 ### 10. Mismatch wrong estimation with GT. 
 
-### 11. camera parameter redefined(TODO)
+### 11. camera parameter redefined(SOLVED)
 When change the different dataset, like TUM and scannet, you need to change the variable `calib_mode`
 value Function void SLAM_system_settings::set_to_default() in SLAM_system_settings.cpp .
 
+[SOLUTION]: Replace variable `this->sensor_params` by ``depth_params``, which are confusing in many places.
+
+### 12. Plane dector cuda error, see videos
+
+### 13. Mapping failed on scence0000_00 where refrigrator places. see video
+
+
 
 ## 1. clang-format
+
 command clang-format for folder
 ```bash
 find plane_fusion_final -iname *.h -o -iname *.cpp | xargs clang-format -i -style=Google

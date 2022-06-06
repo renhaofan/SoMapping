@@ -21,7 +21,7 @@
 #define CUDA_CKECK_KERNEL checkCudaErrors(cuCtxSynchronize());
 
 /**
- * @brief Depth Sensor parameters, such as fx,fy,cx,cy,depth range, scale, etc.
+ * @brief Image sensor parameters, such as fx,fy,cx,cy,depth range, scale, etc.
  */
 typedef struct _Sensor_params {
   /** @brief fx parameter. */
@@ -78,8 +78,8 @@ class SLAM_system_settings {
   /** @brief Aligned color image size. */
   My_Type::Vector2i aligned_color_size;
 
-  /** @brief Sensor parameters. */
-  Sensor_params sensor_params;
+//  /** @brief Sensor parameters. */
+//  Sensor_params sensor_params;
   /** @brief Color sensor parameters. */
   Sensor_params color_params;
   /** @brief Depth sensor parameters. */

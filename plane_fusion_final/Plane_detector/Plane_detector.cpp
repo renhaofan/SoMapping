@@ -634,7 +634,7 @@ void Plane_stereoprojection_detector::fit_plane_for_each_cell(
     // Lunch kernel function
     fit_plane_for_cells_CUDA(
         block_rect, thread_rect, dev_current_points, dev_current_normals,
-        SLAM_system_settings::instance()->sensor_params, dev_cell_info_mat);
+        SLAM_system_settings::instance()->depth_params, dev_cell_info_mat);
     // CUDA_CKECK_KERNEL;
   }
 }
@@ -963,7 +963,7 @@ void Plane_super_pixel_detector::presegment_to_cell(
         SLAM_system_settings::instance()->presegment_cell_width,
         SLAM_system_settings::instance()->pixel_data_weight,
         SLAM_system_settings::instance()->normal_position_weight,
-        SLAM_system_settings::instance()->sensor_params);
+        SLAM_system_settings::instance()->depth_params);
     // CUDA_CKECK_KERNEL;
   }
 
@@ -1029,7 +1029,7 @@ void Plane_super_pixel_detector::fit_plane_for_each_cell(
     block_rect.z = 1;
     generate_cells_info_CUDA(
         block_rect, thread_rect, this->dev_super_pixel_mat,
-        SLAM_system_settings::instance()->sensor_params,
+        SLAM_system_settings::instance()->depth_params,
         SLAM_system_settings::instance()->presegment_cell_width,
         this->dev_cell_info_mat);
     // CUDA_CKECK_KERNEL;

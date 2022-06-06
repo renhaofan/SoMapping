@@ -209,7 +209,7 @@ void Feature_map::get_model_keypoints(
     //
     float search_radius_3D =
         this->search_projection_radius /
-        SLAM_system_settings::instance()->sensor_params.sensor_fx *
+        SLAM_system_settings::instance()->depth_params.sensor_fx *
         current_keypoints[current_id].z;
     My_Type::Vector3f base_point(current_vec_in_map.x(), current_vec_in_map.y(),
                                  current_vec_in_map.z());

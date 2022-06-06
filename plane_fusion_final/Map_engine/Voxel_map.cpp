@@ -390,13 +390,13 @@ void Voxel_map::fusion_SDF_to_voxel(My_Type::Vector3f *dev_current_points,
     prj_normal_fusion_sdf_CUDA(
         block_rect, thread_rect, dev_current_points, dev_current_normal,
         this->camera_pose_in_submap.dev_mat_inv,
-        SLAM_system_settings::instance()->sensor_params,
+        SLAM_system_settings::instance()->depth_params,
         this->raycast_depth_width, this->raycast_depth_height,
         this->dev_visible_list, this->dev_voxel_block_array);
   } else {
     prj_fusion_sdf_CUDA(block_rect, thread_rect, dev_current_points,
                         this->camera_pose_in_submap.dev_mat_inv,
-                        SLAM_system_settings::instance()->sensor_params,
+                        SLAM_system_settings::instance()->depth_params,
                         this->raycast_depth_width, this->raycast_depth_height,
                         this->dev_visible_list, this->dev_voxel_block_array);
   }
@@ -425,7 +425,7 @@ void Voxel_map::fusion_plane_label_to_voxel(
   prj_fusion_plane_label_CUDA(
       block_rect, thread_rect, dev_current_points,
       this->camera_pose_in_submap.dev_mat_inv,
-      SLAM_system_settings::instance()->sensor_params,
+      SLAM_system_settings::instance()->depth_params,
       this->raycast_depth_width, this->raycast_depth_height,
       this->dev_visible_list, this->dev_voxel_block_array, plane_img);
   // CUDA_CKECK_KERNEL;
@@ -494,14 +494,14 @@ void Voxel_map::raycast_by_pose(Eigen::Matrix4f camera_pose, RaycastMode mode) {
       if (true) {
         raycast_get_range_4corner_CUDA(
             block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
-            SLAM_system_settings::instance()->sensor_params,
+            SLAM_system_settings::instance()->depth_params,
             SLAM_system_settings::instance()->raycast_range_patch_width,
             this->dev_entrise, this->dev_min_depth, this->dev_max_depth,
             this->dev_raycast_range_map);
       } else {
         raycast_get_range_CUDA(
             block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
-            this->dev_entrise, SLAM_system_settings::instance()->sensor_params,
+            this->dev_entrise, SLAM_system_settings::instance()->depth_params,
             SLAM_system_settings::instance()->raycast_range_patch_width,
             this->dev_min_depth, this->dev_max_depth,
             this->dev_raycast_range_map);
@@ -528,7 +528,7 @@ void Voxel_map::raycast_by_pose(Eigen::Matrix4f camera_pose, RaycastMode mode) {
                          sizeof(My_Type::Vector3f)));
       raycast_byStep_CUDA(
           block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
-          SLAM_system_settings::instance()->sensor_params,
+          SLAM_system_settings::instance()->depth_params,
           SLAM_system_settings::instance()->raycast_range_patch_width,
           this->dev_entrise, this->dev_voxel_block_array,
           this->dev_raycast_range_map, this->dev_raycast_points,
@@ -556,14 +556,14 @@ void Voxel_map::raycast_by_pose(Eigen::Matrix4f camera_pose, RaycastMode mode) {
       if (true) {
         raycast_get_range_4corner_CUDA(
             block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
-            SLAM_system_settings::instance()->sensor_params,
+            SLAM_system_settings::instance()->depth_params,
             SLAM_system_settings::instance()->raycast_range_patch_width,
             this->dev_entrise, this->dev_min_depth, this->dev_max_depth,
             this->dev_scene_range_map);
       } else {
         raycast_get_range_CUDA(
             block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
-            this->dev_entrise, SLAM_system_settings::instance()->sensor_params,
+            this->dev_entrise, SLAM_system_settings::instance()->depth_params,
             SLAM_system_settings::instance()->raycast_range_patch_width,
             this->dev_min_depth, this->dev_max_depth,
             this->dev_scene_range_map);
@@ -595,7 +595,7 @@ void Voxel_map::raycast_by_pose(Eigen::Matrix4f camera_pose, RaycastMode mode) {
                          sizeof(My_Type::Vector3f)));
       raycast_byStep_CUDA(
           block_rect, thread_rect, this->camera_pose_in_submap.dev_mat,
-          SLAM_system_settings::instance()->sensor_params,
+          SLAM_system_settings::instance()->depth_params,
           SLAM_system_settings::instance()->raycast_range_patch_width,
           this->dev_entrise, this->dev_voxel_block_array,
           this->dev_scene_range_map, this->dev_scene_points,

@@ -228,7 +228,7 @@ class Offline_image_loader : public Image_loader {
    *        between color and depth image.
    * @param colordir File path where the color sequences are located.
    * @param depthdir File path where the depth sequences are located.
-   * @param dm enum DatasetMode, valid value range from 0 to 4.
+   * @param dm enum DatasetMode, valid value range from 0 to 5.
    * @exception The number of depth images are not equal color images.
    */
   void detect_images(string associate, string colordir, string depthdir,
@@ -265,6 +265,23 @@ class Offline_image_loader : public Image_loader {
    */
   bool load_next_frame(double &timestamp, cv::Mat &color_mat,
                        cv::Mat &depth_mat) override;
+
+
+  /**
+   * @brief Judge whether need to align color image to depth image by calibrate files.
+   * @return Flag.
+   */
+  bool need_to_align_color_to_depth();
+
+  /**
+   * @brief align_color_to_depth
+   * @param depth_mat
+   * @param color_mat
+   * @return Flag
+   */
+  bool align_color_to_depth(const cv::Mat &depth_mat, cv::Mat &color_mat);
+
+
   /**
    * @brief Extract depth width and height by two variables.
    * @param width Extract depth width.

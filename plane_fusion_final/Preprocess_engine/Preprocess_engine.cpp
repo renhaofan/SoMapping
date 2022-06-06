@@ -336,7 +336,7 @@ void Preprocess_RGBD::filter_image(cv::Mat &raw_color, cv::Mat &raw_depth) {
     // Lunch kernel function
     generate_float_type_depth_CUDA(
         block_rect, thread_rect, this->dev_raw_depth,
-        SLAM_system_settings::instance()->sensor_params, this->raw_depth_size,
+        SLAM_system_settings::instance()->depth_params, this->raw_depth_size,
         this->dev_depth_buffer);
     // CUDA_CKECK_KERNEL;
 
@@ -365,7 +365,7 @@ void Preprocess_RGBD::filter_image(cv::Mat &raw_color, cv::Mat &raw_depth) {
       // Lunch kernel function
       generate_float_type_depth_CUDA(
           block_rect, thread_rect, this->dev_raw_depth,
-          SLAM_system_settings::instance()->sensor_params, this->raw_depth_size,
+          SLAM_system_settings::instance()->depth_params, this->raw_depth_size,
           this->dev_filtered_depth);
       // CUDA_CKECK_KERNEL;
     }
@@ -440,7 +440,7 @@ void Preprocess_RGBD::generate_hierarchy_image() {
     // Lunch kernel function
     generate_aligned_points_image_CUDA(
         block_rect, thread_rect, this->dev_filtered_depth,
-        SLAM_system_settings::instance()->sensor_params,
+        SLAM_system_settings::instance()->depth_params,
         this->dev_hierarchy_points.data_ptrs[0]);
     // CUDA_CKECK_KERNEL;
   }
@@ -455,7 +455,7 @@ void Preprocess_RGBD::generate_hierarchy_image() {
     // Lunch kernel function
     generate_aligned_points_image_CUDA(
         block_rect, thread_rect, this->dev_filtered_depth,
-        SLAM_system_settings::instance()->sensor_params,
+        SLAM_system_settings::instance()->depth_params,
         this->dev_raw_aligned_points);
     // CUDA_CKECK_KERNEL;
   }

@@ -13,6 +13,8 @@
 #include "OurLib/my_GL_functions.h"
 #include "OurLib/my_GL_geometry.h"
 
+#include "Log.h"
+
 // using std::to_string()
 #include <iostream>
 #include <string>
@@ -96,13 +98,24 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
                        UI_parameters::instance()->GL_window_margin_width;
   this->window_height = UI_parameters::instance()->main_viewport_size.height +
                         UI_parameters::instance()->GL_window_margin_width;
+
+//  LOG_WARNING(UI_parameters::instance()->main_viewport_size.width); 640
+//  LOG_WARNING(UI_parameters::instance()->main_viewport_size.height); 480
+//  LOG_WARNING(UI_parameters::instance()->sub_viewport_size.width); 320
+//  LOG_WARNING(UI_parameters::instance()->sub_viewport_size.height); 240
+
   // Set viewport size
   this->main_viewport_width =
       UI_parameters::instance()->main_viewport_size.width;
   this->main_viewport_height =
       UI_parameters::instance()->main_viewport_size.height;
-  this->sub_viewport_width = this->main_viewport_width / 2;
-  this->sub_viewport_height = this->main_viewport_height / 2;
+
+  //  this->sub_viewport_width = this->main_viewport_width / 2;
+  //  this->sub_viewport_height = this->main_viewport_height / 2;
+  //  revised by renhaofan
+  this->sub_viewport_width = UI_parameters::instance()->sub_viewport_size.width;
+  this->sub_viewport_height =
+      UI_parameters::instance()->sub_viewport_size.height;
 
   // Initialize render engine
   //  My_Type::Vector2i scene_viewport_size(this->main_viewport_width,
@@ -1545,6 +1558,9 @@ void UI_engine::render_main_viewport() {
 void UI_engine::render_sub_viewport1() {
   if (this->SLAM_system_ptr->color_mat.empty()) return;
 
+//  LOG_WARNING(this->SLAM_system_ptr->color_mat.size().width); 1296
+//  LOG_WARNING(this->SLAM_system_ptr->color_mat.size().height); 968
+
   if (true) {
     drawKeypoints(this->SLAM_system_ptr->color_mat.clone(),
                   this->SLAM_system_ptr->feature_detector->current_keypoints,
@@ -1564,10 +1580,15 @@ void UI_engine::render_sub_viewport1() {
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, this->sub1_viewport_texture);
-  //
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, this->SLAM_system_ptr->color_mat.cols,
                   this->SLAM_system_ptr->color_mat.rows, GL_BGR,
                   GL_UNSIGNED_BYTE, this->SLAM_system_ptr->color_mat.data);
+//  while (true) {
+//    cv::imshow("render viewport 1 texture", this->SLAM_system_ptr->color_mat);
+//    cout << this->SLAM_system_ptr->color_mat.cols << endl;
+//    cout << this->SLAM_system_ptr->color_mat.rows << endl;
+//  }
+
   glBegin(GL_QUADS);
   glTexCoord2f(0.0f, 1.0f);
   glVertex2f(-1.0f, -1.0f);

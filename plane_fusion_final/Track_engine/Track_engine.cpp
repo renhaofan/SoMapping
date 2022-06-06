@@ -99,7 +99,7 @@ void Track_engine::generate_icp_correspondence_lines(
       dev_model_points_hierarchy.data_ptrs[0],
       dev_current_normals_hierarchy.data_ptrs[0],
       dev_model_normals_hierarchy.data_ptrs[0],
-      SLAM_system_settings::instance()->sensor_params, cache_increment_pose,
+      SLAM_system_settings::instance()->depth_params, cache_increment_pose,
       this->dev_correspondence_lines);
   // CUDA_CKECK_KERNEL;
 
@@ -188,7 +188,7 @@ TrackingState Basic_ICP_tracker::track_camera_pose(
             dev_model_points_hierarchy.data_ptrs[layer_id],
             dev_current_normals_hierarchy.data_ptrs[layer_id],
             dev_model_normals_hierarchy.data_ptrs[layer_id], NULL,
-            SLAM_system_settings::instance()->sensor_params,
+            SLAM_system_settings::instance()->depth_params,
             this->cache_increment_pose, layer_id,
             this->dev_accumulation_buffer);
         // CUDA_CKECK_KERNEL;
@@ -225,7 +225,7 @@ TrackingState Basic_ICP_tracker::track_camera_pose(
             dev_current_intensity_hierarchy.data_ptrs[layer_id],
             dev_model_intensity_hierarchy.data_ptrs[layer_id],
             dev_model_gradient_hierarchy.data_ptrs[layer_id], NULL,
-            SLAM_system_settings::instance()->sensor_params,
+            SLAM_system_settings::instance()->depth_params,
             this->cache_increment_pose, layer_id,
             this->dev_accumulation_buffer);
         // CUDA_CKECK_KERNEL;
@@ -388,7 +388,7 @@ TrackingState Keypoint_ICP_tracker::track_camera_pose(
             dev_model_points_hierarchy.data_ptrs[layer_id],
             dev_current_normals_hierarchy.data_ptrs[layer_id],
             dev_model_normals_hierarchy.data_ptrs[layer_id], NULL,
-            SLAM_system_settings::instance()->sensor_params,
+            SLAM_system_settings::instance()->depth_params,
             this->cache_increment_pose, layer_id,
             this->dev_accumulation_buffer);
         // CUDA_CKECK_KERNEL;
@@ -446,7 +446,7 @@ TrackingState Keypoint_ICP_tracker::track_camera_pose(
             dev_current_intensity_hierarchy.data_ptrs[layer_id],
             dev_model_intensity_hierarchy.data_ptrs[layer_id],
             dev_model_gradient_hierarchy.data_ptrs[layer_id], NULL,
-            SLAM_system_settings::instance()->sensor_params,
+            SLAM_system_settings::instance()->depth_params,
             this->cache_increment_pose, layer_id,
             this->dev_accumulation_buffer);
         // CUDA_CKECK_KERNEL;
