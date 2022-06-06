@@ -1,0 +1,3 @@
+[submodule "v11.6"]
+	path = plane_fusion_final/3rdparty/cuda-samples
+	url = git@github.com:NVIDIA/cuda-samples.git

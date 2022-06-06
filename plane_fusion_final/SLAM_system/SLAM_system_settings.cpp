@@ -37,7 +37,7 @@ void SLAM_system_settings::set_to_default() {
   // TUM 16-bit PNG files, see web above.
   this->sensor_params.sensor_scale = 5000.0f;
 
-  int calib_mode = 4;
+  int calib_mode = 5;
   if (calib_mode == 0) {
     // ICL
     this->sensor_params.sensor_fx = 480.0f;
@@ -62,7 +62,7 @@ void SLAM_system_settings::set_to_default() {
     this->sensor_params.sensor_fy = 570.2;
     this->sensor_params.sensor_cx = 324.7;
     this->sensor_params.sensor_cy = 250.1;
-  } else if (calib_mode == 4) {
+  } else if (calib_mode == 5) {
     // ScanNet
     this->sensor_params.sensor_fx = 571.623718;
     this->sensor_params.sensor_fy = 571.623718;

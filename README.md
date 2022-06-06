@@ -85,6 +85,11 @@ frame_id = 273
 
 ### 10. Mismatch wrong estimation with GT. 
 
+### 11. camera parameter redefined(TODO)
+When change the different dataset, like TUM and scannet, you need to change the variable `calib_mode`
+value Function void SLAM_system_settings::set_to_default() in SLAM_system_settings.cpp .
+
+
 ## 1. clang-format
 command clang-format for folder
 ```bash
