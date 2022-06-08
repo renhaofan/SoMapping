@@ -176,7 +176,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ### Dependency
 #### 1. OpenGL
 ```bash
-sudo apt install -y libglu1-mesa-dev mesa-common-dev mesa-utils
+sudo apt install -y libglu1-mesa-dev mesa-common-dev mesa-utils libglew-dev
 sudo apt install -y freeglut3-dev libglm-dev libassimp-dev
 sudo apt install -y libglfw3 libglfw3-dev libglfw3-doc
 ```

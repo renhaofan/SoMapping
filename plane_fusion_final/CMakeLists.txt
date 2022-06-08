@@ -159,3 +159,11 @@ set(SOURCE_CUDBSCAN
     cudbscan/cuDBSCAN.cu)
 cuda_add_executable(test_cudbscan ${SOURCE_CUDBSCAN})
 target_link_libraries(test_cudbscan ${CUDA_LIBRARIES})
+
+#########################################
+### test registration depth inmage.     #
+#########################################
+add_executable(test_alignment test_alignment.cpp)
+target_link_libraries(test_alignment ${OpenCV_LIBS})
+
+

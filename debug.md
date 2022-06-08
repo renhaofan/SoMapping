@@ -72,8 +72,9 @@ image_loader_ptr = new Offline_image_loader(cal, dir, dm);
     vector<string> depth_path_vector
     size_t number_of_frames
   this->read_calibration_parameters(cal);
-    (SLAM_system_settings set_to_default)
+    SLAM_system_settings set_to_default();
     SLAM_system_settings::instance()->set_intrinsic(fx, fy, cx, cy);
     SLAM_system_settings::instance()->set_intrinsic(fx, fy, cx, cy, 1.0f / scale);
-    SLAM_system_settings::instance()->set_extrinsic(d2c, d2i);
+    SLAM_system_settings::instance()->set_extrinsic(d2c, d2i);  (NOT USED????)
+    
 ```
