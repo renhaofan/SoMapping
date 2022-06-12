@@ -9,6 +9,7 @@
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
+ *  @todo Offline_image_loader::align_color_to_depth();
  */
 
 #pragma once

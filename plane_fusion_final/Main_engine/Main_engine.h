@@ -1,7 +1,7 @@
 /**
  *  @file Main_engine.h
- *  @brief class Main_engine header, Singleton object contains
- *         environment_initializer, data_engine, SLAM_system, render_engine.
+ *  @brief Main_engine header, Singleton object contains
+ *         environment_initializer, data_engine, SLAM_system, render_engine, UI_engine.
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
@@ -14,7 +14,9 @@
 #include "UI_engine/UI_engine.h"
 
 /**
- * @brief Singleton object,
+ * @brief Main engine controls the program progress.
+ * @details Environment initialzier, data engine,
+ *          SLAM system, render engine, UI engine initializer.
  */
 class Main_engine {
  public:
@@ -54,7 +56,7 @@ class Main_engine {
 
   /**
    * @brief Initiate environment, data_engine, SLAM system,
-   *        render_engine, UI_engine::instance()->init;
+   *        render_engine, UI_engine;
    * @param argc Input the first argument of main() function.
    * @param argv Input the second argument of main() function.
    * @param image_loader_ptr The pointer of Image_loader.

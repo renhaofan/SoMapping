@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <iostream>
 
+#include "Config.h"
 #include "Log.h"
 #include "Main_engine/Main_engine.h"
 using namespace std;
@@ -21,9 +22,14 @@ using namespace std;
 void print_argvs(int argc, char **argv);
 
 int main(int argc, char **argv) {
+    JSON_CONFIG::instance()->init();
+//  JSON_CONFIG::instance()->j["PlaneDetection"]["MAX_MODEL_PLANES"] = 9999;
+//  cout << JSON_CONFIG::instance()->j["PlaneDetection"]["MAX_MODEL_PLANES"]
+//       << endl;
+
 #ifdef LOGGING
   Log::init(&argc, &argv);
-  LOG_INFO("<------ Initialising video sequence ...");
+  LOG_INFO("<(------ Initialising video sequence ...");
 #endif
 
   print_argvs(argc, argv);
@@ -88,7 +94,7 @@ int main(int argc, char **argv) {
   }
 
 #ifdef LOGGING
-  LOG_INFO("Initialising sequence finished ------>");
+  LOG_INFO("Initialising sequence finished ------)>");
 #endif
 
   // Initiation
@@ -96,13 +102,11 @@ int main(int argc, char **argv) {
 
   // Load ground truth file
   string ground_truth_path =
-      "/home/steve/dataset/TUM_RGBD_VSLAM/"
-      "rgbd_dataset_freiburg1_xyz/groundtruth.txt";
-
-//  Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path);
+      "/home/steve/dataset/scene0427_00_alignement/groundtruth.txt";
+  Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path);
 
 #ifdef LOGGING
-  LOG_INFO("<------ Run main thread ...");
+  LOG_INFO("<(------ Run main thread ...");
 #endif
 
   // Run

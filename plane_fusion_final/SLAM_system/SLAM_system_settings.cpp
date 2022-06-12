@@ -89,9 +89,9 @@ void SLAM_system_settings::set_to_default() {
   //        0         0         0        1
   //  }
 
-//  this->sensor_params.sensor_noise_ratio = 0.01f;
-//  this->sensor_params.min_range = 0.10f;
-//  this->sensor_params.max_range = 8.0f;
+  //  this->sensor_params.sensor_noise_ratio = 0.01f;
+  //  this->sensor_params.min_range = 0.10f;
+  //  this->sensor_params.max_range = 8.0f;
 
   this->depth_params.sensor_noise_ratio = 0.01f;
   this->depth_params.min_range = 0.10f;
@@ -116,6 +116,11 @@ void SLAM_system_settings::set_depth_image_size(const int &width,
       ceil_by_stride(width, this->image_alginment_patch_width);
   this->aligned_depth_size.height =
       ceil_by_stride(height, this->image_alginment_patch_width);
+#ifdef LOGGING
+  LOG_INFO_III("Aligned depth size(w, h) in SLAM system setting: ",
+               this->aligned_depth_size.width, ", ",
+               this->aligned_depth_size.height);
+#endif
 }
 
 void SLAM_system_settings::set_color_image_size(const int &width,
@@ -125,6 +130,11 @@ void SLAM_system_settings::set_color_image_size(const int &width,
       ceil_by_stride(width, this->image_alginment_patch_width);
   this->aligned_color_size.height =
       ceil_by_stride(height, this->image_alginment_patch_width);
+#ifdef LOGGING
+  LOG_INFO_III("Aligned color size(w, h) in SLAM system setting: ",
+               this->aligned_color_size.width, ", ",
+               this->aligned_color_size.height);
+#endif
 }
 
 void SLAM_system_settings::set_calibration_paramters(const float &fx,
@@ -132,11 +142,11 @@ void SLAM_system_settings::set_calibration_paramters(const float &fx,
                                                      const float &cx,
                                                      const float &cy,
                                                      const float &scale) {
-//  this->sensor_params.sensor_fx = fx;
-//  this->sensor_params.sensor_cy = fy;
-//  this->sensor_params.sensor_fx = cx;
-//  this->sensor_params.sensor_cy = cy;
-//  this->sensor_params.sensor_scale = scale;
+  //  this->sensor_params.sensor_fx = fx;
+  //  this->sensor_params.sensor_cy = fy;
+  //  this->sensor_params.sensor_fx = cx;
+  //  this->sensor_params.sensor_cy = cy;
+  //  this->sensor_params.sensor_scale = scale;
   this->depth_params.sensor_fx = fx;
   this->depth_params.sensor_cy = fy;
   this->depth_params.sensor_fx = cx;
@@ -160,8 +170,6 @@ void SLAM_system_settings::set_intrinsic(const float &fx, const float &fy,
   this->depth_params.sensor_cx = cx;
   this->depth_params.sensor_cy = cy;
   this->depth_params.sensor_scale = scale;
-  LOG_WARNING("scale in set_intrinsic");
-  LOG_WARNING(this->depth_params.sensor_scale);
 }
 
 void SLAM_system_settings::set_extrinsic(const My_Type::Matrix44f d2c,

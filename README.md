@@ -9,6 +9,8 @@ UI_engine::interactive_events() 中 有ws，qe的区别。( UI_engine::interacti
 `void UI_engine::render_sub_viewport1()` Line 1536, File UI_engine.cpp, Whether drawKeypoints.
 `void Plane_detector::transfer_plane_coordinate` Line 151, File Plane_detector.cpp, print plane id, area, vector.
 
+`Main_engine.cpp` line 31 choose the basic voxel salm/gt_slam/submap slam.
+
 
 ## BUG
 
@@ -22,10 +24,15 @@ CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Map_engine/Me
 ```
 
 ```
-CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Preprocess_engine/Preprocess_engine.cpp:313 code=702(cudaErrorLaunchTimeout) "cudaMemcpy(this->dev_raw_depth, raw_depth.data, this->raw_depth_size.width * this->raw_depth_size.height * sizeof(RawDepthType), cudaMemcpyHostToDevice)" 
+CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Preprocess_engine/Preprocess_engine.cpp:313 code=702(cudaErrorLaunchTimeout) "cudaMemcpy(this->dev_raw_depth, raw_depth.data, this->raw_depth_size.width * this->raw_depth_size.height * sizeof(RawDepthType), cudaMemcpyHostToDevice)"
+```
+
+```
+CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Plane_detector/Plane_detector.cpp:259 code=700(cudaErrorIllegalAddress) "cudaMemcpy(this->relative_matrix, this->dev_relative_matrix, MAX_CURRENT_PLANES * MAX_MODEL_PLANES * sizeof(int), cudaMemcpyDeviceToHost)" 
 ```
 
 ### 2. wrong calibration file will cause this BUG in offline dataset mode.
+
 ```
 terminate called after throwing an instance of 'cv::Exception'
   what():  OpenCV(3.4.5) /home/steve/Downloads/Source-Archive-main/OpenCV/opencv-3.4.5/modules/video/src/lkpyramid.cpp:1231: error: (-215:Assertion failed) (npoints = prevPtsMat.checkVector(2, CV_32F, true)) >= 0 in function 'calc'
@@ -95,6 +102,10 @@ value Function void SLAM_system_settings::set_to_default() in SLAM_system_settin
 
 ### 13. Mapping failed on scence0000_00 where refrigrator places. see video
 
+### 14. nan problem
+Possible reason is optimization poblem. `CMAKE_CXX_FLAGS -O0` . However nan occured runtime rather than different compile.  
+
+NOT BECAUSE OPTIMAIZE FLAG
 
 
 ## 1. clang-format
@@ -113,7 +124,7 @@ find plane_fusion_final -iname *.cuh -o -iname *.cu | xargs clang-format -i -sty
 
 <kbd>2</kbd> - Camera trajectory, blue-?, red-?.
 
-<kbd>3</kbd> - Voxel block, yellow color by default.
+<kbd>3</kbd> - Non-planar voxel block, yellow color by default.
 
 <kbd>4</kbd> - Current points, yellow color by default.
 
@@ -121,7 +132,7 @@ find plane_fusion_final -iname *.cuh -o -iname *.cu | xargs clang-format -i -sty
 
 <kbd>6</kbd> - Plane region mesh.
 
-<kbd>6</kbd> - Draw model surface.
+<kbd>7</kbd> - Draw model surface.
 
 <kbd>8</kbd> - Current plane segmentation pesudo color render.
 
@@ -247,3 +258,36 @@ cd bin
 
 # 4. Acknowledgement
 The cluster method based on [this implementation](https://github.com/Maghoumi/cudbscan)
+
+
+
+```
+sudo apt-get install imagemagick
+mogrify -resize 640x480! -format jpg *
+```
+
+
+
+// Bit set count operation from
+
+// http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+
+```C++
+int DescriptorDistance(const cv::Mat &a, const cv::Mat &b) {
+  const int *pa = a.ptr<int>();
+  const int *pb = b.ptr<int>();
+
+  int dist = 0;
+
+  for (int i = 0; i < 8; i++, pa++, pb++) {
+    unsigned int v = *pa ^ *pb;
+    v = v - ((v >> 1) & 0x55555555);
+    v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
+
+    dist += (((v + (v >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
+
+  }
+  return dist;
+}
+```
+

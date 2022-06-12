@@ -36,6 +36,7 @@ execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/log)
 file(GLOB UTILS_SOURCES
     Log/*.cpp
     Timer/*.cpp
+    Config/*.cpp
 )
 include_directories(${CMAKE_SOURCE_DIR}/Log)
 include_directories(${CMAKE_SOURCE_DIR}/Timer)

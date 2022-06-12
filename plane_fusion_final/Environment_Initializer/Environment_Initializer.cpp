@@ -1,3 +1,11 @@
+/**
+ *  @file Environment_Initializer.cpp
+ *  @brief Check and print GPU device & CUDA infomation.
+ *  @author haofan ren, yqykrhf@163.com
+ *  @version beta 0.0
+ *  @date 22-5-21
+ */
+
 #include "Environment_Initializer.h"
 
 #include <cstdio>
@@ -26,7 +34,7 @@ void Environment_Initializer::init_environment(int argc, char **argv) {
 
   // logging
 #ifdef LOGGING
-  LOG_INFO("<------ Check GPU device ... ");
+  LOG_INFO("<(------ Check GPU device ... ");
 #endif
 
   // Reset GPU
@@ -87,6 +95,6 @@ void Environment_Initializer::init_environment(int argc, char **argv) {
 #ifdef LOGGING
   LOG_INFO("CUDA device ID = " + to_string(devID));
   LOG_INFO("CUDA device used is " + std::string(deviceProps.name));
-  LOG_INFO("Check GPU device finished ------>");
+  LOG_INFO("Check GPU device finished ------)>");
 #endif
 }

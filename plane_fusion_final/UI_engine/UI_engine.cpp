@@ -6,6 +6,7 @@
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
+ *  @todo if (this->view_flag_list[0]) switch somapping_slam_system, submap_slam_system
  */
 
 #include "UI_engine.h"
@@ -13,6 +14,7 @@
 #include "OurLib/my_GL_functions.h"
 #include "OurLib/my_GL_geometry.h"
 
+#include "Config.h"
 #include "Log.h"
 
 // using std::to_string()
@@ -432,6 +434,9 @@ void UI_engine::render_main_viewport() {
 
   // 1. Draw OpenGL world coordiate
   if (this->view_flag_list[1]) {
+#ifdef LOGGING
+    LOG_INFO("Press key 1. Draw OpenGL world coordinate.");
+#endif
     // Transform to OpenGL world coordinate
     this->OpenGL_draw_in_OpenGL_world_coordinate();
 
@@ -442,6 +447,10 @@ void UI_engine::render_main_viewport() {
 
   // 2. Draw camera trajectories
   if (this->view_flag_list[2]) {
+#ifdef LOGGING
+    LOG_INFO("Press key 2. Draw camera trajectories.");
+#endif
+
     // Transform to SLAM world coordinate
     this->OpenGL_draw_in_SLAM_world_coordinate();
 
@@ -498,6 +507,9 @@ void UI_engine::render_main_viewport() {
 
   // 3. Draw voxel block
   if (this->view_flag_list[3]) {
+#ifdef LOGGING
+    LOG_INFO("Press key 3. Draw non-planar voxel block.");
+#endif
     // if (typeid(this->SLAM_system_ptr->map_engine) == typeid(Basic_Voxel_map
     // *))
     //{
@@ -530,8 +542,8 @@ void UI_engine::render_main_viewport() {
       glDisableClientState(GL_VERTEX_ARRAY);
     }
 
-    // Debug non-planar region
-    if (true) {
+    // non-planar region
+    if (false) {
       this->OpenGL_draw_in_SLAM_world_coordinate();
       //
       Submap_SLAM_system *sys_ptr =
@@ -557,10 +569,60 @@ void UI_engine::render_main_viewport() {
 
       glDisableClientState(GL_VERTEX_ARRAY);
     }
+
+    //    if (JSON_CONFIG::instance()->j["SLAM"]["Somapping_SLAM_system"]) {
+    //        cout << "----------------------------------------" << endl;
+    //        cout <<
+    //        JSON_CONFIG::instance()->j["PlaneDetection"]["MAX_MODEL_PLANES"]
+    //        << endl;
+    //    }
+
+    // non-planar region
+    if (JSON_CONFIG::instance()->j["SLAM"]["Submap_SLAM_system"]) {
+      Submap_SLAM_system *sys_ptr =
+          dynamic_cast<Submap_SLAM_system *>(this->SLAM_system_ptr);
+      Submap_Voxel_map *map_ptr =
+          dynamic_cast<Submap_Voxel_map *>(sys_ptr->submap_ptr_array.back());
+      //
+      sys_ptr->mesh_ptr_array.back()->generate_nonplanar_mesh_from_voxel(
+          map_ptr->voxel_map_ptr->dev_entrise,
+          map_ptr->voxel_map_ptr->dev_voxel_block_array);
+      //
+      this->render_engine.generate_voxel_block_lines(
+          sys_ptr->mesh_ptr_array.back()->dev_nonplanar_entries,
+          sys_ptr->mesh_ptr_array.back()->number_of_nonplanar_blocks);
+    } else if (JSON_CONFIG::instance()->j["SLAM"]["Somapping_SLAM_system"]) {
+      Somapping_SLAM_system *sys_ptr =
+          dynamic_cast<Somapping_SLAM_system *>(this->SLAM_system_ptr);
+      Submap_Voxel_map *map_ptr =
+          dynamic_cast<Submap_Voxel_map *>(sys_ptr->submap_ptr_array.back());
+      //
+      sys_ptr->mesh_ptr_array.back()->generate_nonplanar_mesh_from_voxel(
+          map_ptr->voxel_map_ptr->dev_entrise,
+          map_ptr->voxel_map_ptr->dev_voxel_block_array);
+      //
+      this->render_engine.generate_voxel_block_lines(
+          sys_ptr->mesh_ptr_array.back()->dev_nonplanar_entries,
+          sys_ptr->mesh_ptr_array.back()->number_of_nonplanar_blocks);
+    }
+
+    this->OpenGL_draw_in_SLAM_world_coordinate();
+    glLineWidth(1.0f);
+    glColor4f(1.0f, 1.0f, 0.0f, 0.7f);
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    glVertexPointer(3, GL_FLOAT, sizeof(My_Type::Vector3f),
+                    this->render_engine.voxel_block_lines);
+    glDrawArrays(GL_LINES, 0, this->render_engine.number_of_blocks * 24);
+
+    glDisableClientState(GL_VERTEX_ARRAY);
   }
 
   // 4. Draw current points cloud
   if (this->view_flag_list[4]) {
+#ifdef LOGGING
+    LOG_INFO("Press key 4. Draw current point cloud.");
+#endif
     // Transform to SLAM world coordinate
     this->OpenGL_draw_in_some_camera_coordinate(
         this->SLAM_system_ptr->estimated_camera_pose.mat);
@@ -589,8 +651,12 @@ void UI_engine::render_main_viewport() {
     // glDisableClientState(GL_COLOR_ARRAY);
   }
 
-  // 5. Draw model points cloud
+  // 5. Draw model point cloud
   if (this->view_flag_list[5]) {
+#ifdef LOGGING
+    LOG_INFO("Press key 5. Draw model point cloud.");
+#endif
+
     if (false) {
       // Transform to SLAM world coordinate
       this->OpenGL_draw_in_some_camera_coordinate(
@@ -674,6 +740,10 @@ void UI_engine::render_main_viewport() {
 
   // 6. Draw normals
   if (this->view_flag_list[6]) {
+#ifdef LOGGING
+    LOG_INFO("Press key 6. Draw plane region meshes.");
+#endif
+
     // Model normal debug
     if (false) {
       this->render_engine.generate_normal_segment_line(
@@ -704,7 +774,7 @@ void UI_engine::render_main_viewport() {
       glDisableClientState(GL_VERTEX_ARRAY);
     }
 
-    // Plane region mesh
+    // Plane region meshes
     if (true) {
       //
       this->OpenGL_draw_in_OpenGL_camera_coordinate();
@@ -806,6 +876,10 @@ void UI_engine::render_main_viewport() {
 
   // 7. Draw model surface
   if (this->view_flag_list[7]) {
+#ifdef LOGGING
+    LOG_INFO("Press key 7. Draw model surface.");
+#endif
+
     if (SLAM_system_settings::instance()->generate_mesh_for_visualization) {
       // Set Light at OpenGL camera viewpoint
       this->OpenGL_draw_in_OpenGL_camera_coordinate();
@@ -958,6 +1032,9 @@ void UI_engine::render_main_viewport() {
 
   // 8. Draw current plane segmentation
   if (this->view_flag_list[8]) {
+#ifdef LOGGING
+    LOG_INFO("Press key 8. Draw current plane segmentation.");
+#endif
     // Show plane segmentation pseudo render result
     if (true) {
       // this->render_engine.pseudo_render_plane_labels(this->SLAM_system_ptr->plane_detector->dev_current_plane_labels);
@@ -1120,6 +1197,10 @@ void UI_engine::render_main_viewport() {
 
   //
   if (this->view_flag_list[9]) {
+#ifdef LOGGING
+    LOG_INFO("Press key 9. Not sure");
+#endif
+
     if (false) {
       this->OpenGL_draw_in_SLAM_world_coordinate();
 
@@ -1150,22 +1231,38 @@ void UI_engine::render_main_viewport() {
 
     if (true) {
       this->OpenGL_draw_in_SLAM_world_coordinate();
-
-      Submap_SLAM_system *sys_ptr =
-          dynamic_cast<Submap_SLAM_system *>(this->SLAM_system_ptr);
-      Submap_Voxel_map *map_ptr =
-          dynamic_cast<Submap_Voxel_map *>(sys_ptr->submap_ptr_array.back());
-      //
-
       glColor4f(0.0f, 0.7f, 1.0f, 0.7f);
       glLineWidth(2.0f);
       glEnableClientState(GL_VERTEX_ARRAY);
 
-      glVertexPointer(3, GL_FLOAT, 0, map_ptr->plane_map_ptr->block_vertexs);
-      glDrawArrays(GL_LINES, GLint(NULL),
-                   map_ptr->plane_map_ptr->number_of_pixel_blocks * 8);
-      // glDrawArrays(GL_POINTS, NULL,
-      // map_ptr->plane_map_ptr->number_of_pixel_blocks * 8);
+      if (JSON_CONFIG::instance()->j["SLAM"]["Submap_SLAM_system"]) {
+        Submap_SLAM_system *sys_ptr =
+            dynamic_cast<Submap_SLAM_system *>(this->SLAM_system_ptr);
+        Submap_Voxel_map *map_ptr =
+            dynamic_cast<Submap_Voxel_map *>(sys_ptr->submap_ptr_array.back());
+        glVertexPointer(3, GL_FLOAT, 0, map_ptr->plane_map_ptr->block_vertexs);
+        glDrawArrays(GL_LINES, GLint(NULL),
+                     map_ptr->plane_map_ptr->number_of_pixel_blocks * 8);
+        // glDrawArrays(GL_POINTS, NULL,
+        // map_ptr->plane_map_ptr->number_of_pixel_blocks * 8);
+
+      } else if (JSON_CONFIG::instance()->j["SLAM"]["Somapping_SLAM_system"]) {
+        Somapping_SLAM_system *sys_ptr =
+            dynamic_cast<Somapping_SLAM_system *>(this->SLAM_system_ptr);
+        Submap_Voxel_map *map_ptr =
+            dynamic_cast<Submap_Voxel_map *>(sys_ptr->submap_ptr_array.back());
+        glVertexPointer(3, GL_FLOAT, 0, map_ptr->plane_map_ptr->block_vertexs);
+        glDrawArrays(GL_LINES, GLint(NULL),
+                     map_ptr->plane_map_ptr->number_of_pixel_blocks * 8);
+        // glDrawArrays(GL_POINTS, NULL,
+        // map_ptr->plane_map_ptr->number_of_pixel_blocks * 8);
+      }
+
+      //      Submap_SLAM_system *sys_ptr =
+      //          dynamic_cast<Submap_SLAM_system *>(this->SLAM_system_ptr);
+      //      Submap_Voxel_map *map_ptr =
+      //          dynamic_cast<Submap_Voxel_map
+      //          *>(sys_ptr->submap_ptr_array.back());
 
       glDisableClientState(GL_VERTEX_ARRAY);
     }
@@ -1173,15 +1270,36 @@ void UI_engine::render_main_viewport() {
 
   // 10. Model features
   if (this->view_flag_list[0]) {
+#ifdef LOGGING
+    LOG_WARNING(
+        "Press key 0. Draw keypoint in each submap. [BUGS]"
+        "sommapping SLAM public derivated from submap SLAM");
+#endif
     float half_cube_size = (float)(VOXEL_SIZE * 0.2 * 8);
 
     // Draw keypoint in each submap
     if (true) {
       OpenGL_draw_in_SLAM_world_coordinate();
-
       Submap_SLAM_system *slam_system_ptr =
           dynamic_cast<Submap_SLAM_system *>(this->SLAM_system_ptr);
-      // slam_system_ptr->
+
+      if (JSON_CONFIG::instance()->j["SLAM"]["Somapping_SLAM_system"]) {
+        slam_system_ptr =
+                dynamic_cast<Submap_SLAM_system *>(slam_system_ptr);
+      }
+      //      SLAM_system *slam_system_ptr = this->SLAM_system_ptr;
+      //      * slam_system_ptr =
+      //          dynamic_cast<Submap_SLAM_system *>(this->SLAM_system_ptr);
+      //      if (JSON_CONFIG::instance()->j["SLAM"]["Submap_SLAM_system"]) {
+      //        slam_system_ptr =
+      //            dynamic_cast<Submap_SLAM_system *>(this->SLAM_system_ptr);
+      //      } else if
+      //      (JSON_CONFIG::instance()->j["SLAM"]["Somapping_SLAM_system"]) {
+      //        slam_system_ptr =
+      //            dynamic_cast<Somapping_SLAM_system
+      //            *>(this->SLAM_system_ptr);
+      //      }
+
       glColor4f(0.1f, 0.9f, 0.1f, 0.9f);
       glLineWidth(4.0f);
       int number_of_submaps = slam_system_ptr->feature_map_ptr_array.size();

@@ -1,4 +1,10 @@
-
+/**
+ *  @file Track_engine.cpp
+ *  @brief Track to estimate camera pose
+ *  @author haofan ren, yqykrhf@163.com
+ *  @version beta 0.0
+ *  @date 22-5-21
+ */
 
 #include "Track_engine.h"
 
@@ -10,7 +16,6 @@
 #include <helper_cuda.h>
 #include <helper_functions.h>
 
-//
 #include "Solver_functor.h"
 // CUDA functions
 #include <iostream>
@@ -126,7 +131,6 @@ Basic_ICP_tracker::~Basic_ICP_tracker() {
   checkCudaErrors(cudaFree(this->dev_accumulation_buffer));
 }
 
-//
 TrackingState Basic_ICP_tracker::track_camera_pose(
     const Hierarchy_image<My_Type::Vector3f> &dev_current_points_hierarchy,
     const Hierarchy_image<My_Type::Vector3f> &dev_model_points_hierarchy,

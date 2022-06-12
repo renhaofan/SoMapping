@@ -46,10 +46,12 @@ using std::endl;
 typedef double scalar;
 typedef cv::Matx44d Mat4x4;
 typedef cv::Matx14d Mat14;
+typedef cv::Vec4d Vec4;
 #else
 typedef float scalar;
 typedef cv::Matx44f Mat4x4;
 typedef cv::Matx14f Mat14;
+typedef cv::Vec4f Vec4;
 #endif
 
 /**
@@ -70,11 +72,13 @@ struct CameraParameters {
 #ifdef USING_FLOAT64
   Mat4x4 color_intrinsic4x4 = cv::Matx44d::eye();
   Mat4x4 depth_intrinsic4x4 = cv::Matx44d::eye();
+  Mat4x4 c2d_extrinsic4x4 = cv::Matx44d::eye();
   Mat4x4 d2c_extrinsic4x4 = cv::Matx44d::eye();
 #else
   Mat4x4 color_intrinsic4x4 = cv::Matx44f::eye();
   Mat4x4 depth_intrinsic4x4 = cv::Matx44f::eye();
-  Mat4x4 d2c_extrinsic4x4 = cv::Matx44f::eye();
+  Mat4x4 c2d_extrinsic4x4 = cv::Matx44f::eye();
+  Mat4x4 d2c_extrinsic4x4 = cv::Matx44d::eye();
 #endif
   scalar depth_scale;
   const int cout_precision = 6;
@@ -101,11 +105,15 @@ struct CameraParameters {
     depth_scale = scale;
   }
 
-#ifdef USING_FLOAT64
-  void SetExtrinsic(const Mat4x4& mat) { d2c_extrinsic4x4 = mat; }
-#else
-  void SetExtrinsic(const Mat4x4& mat) { d2c_extrinsic4x4 = mat; }
-#endif
+  void SetColor2DepthExtrinsic(const Mat4x4& mat) {
+    c2d_extrinsic4x4 = mat;
+    d2c_extrinsic4x4 = mat.inv();
+  }
+
+  void SetDepth2ColorExtrinsic(const Mat4x4& mat) {
+    d2c_extrinsic4x4 = mat;
+    c2d_extrinsic4x4 = mat.inv();
+  }
 
   scalar GetColorFx(void) { return color_intrinsic4x4(0, 0); }
   scalar GetColorFy(void) { return color_intrinsic4x4(1, 1); }
@@ -147,6 +155,21 @@ struct CameraParameters {
     cout.unsetf(std::ios_base::floatfield);
   }
 
+  void PrintColor2DepthExtrinsic(void) {
+    cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
+    for (int i = 0; i < 4; ++i) {
+      cout << "[";
+      for (int j = 0; j < 4; ++j) {
+        cout << std::setw(cout_w) << std::setprecision(cout_precision)
+             << c2d_extrinsic4x4(i, j);
+        cout << " ";
+      }
+      cout << "]" << endl;
+    }
+    cout.unsetf(std::ios_base::fixed);
+    cout.unsetf(std::ios_base::floatfield);
+  }
+
   void PrintDepth2ColorExtrinsic(void) {
     cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
     for (int i = 0; i < 4; ++i) {
@@ -168,7 +191,7 @@ struct CameraParameters {
  * @param sensor
  * @param omega
  */
-void ComposeOmegaMatrix(const CameraParameters& sensor, Mat4x4& omega);
+void ComposeMatrix(const CameraParameters& sensor, Mat4x4& omega);
 
 /**
  * @brief ReadSceneTxtFile
@@ -180,83 +203,70 @@ void ReadSceneTxtFile(const std::string& path, CameraParameters& sensor);
 int main(int argc, char** argv) {
   PrintOpenCVInfo();
   CameraParameters cp;
-  std::string path = "/home/steve/dataset/scene0000_00/scene0000_00.txt";
+  std::string path = "/home/steve/dataset/scene0427_00/scene0427_00.txt";
   ReadSceneTxtFile(path, cp);
   cp.PrintColorIntrinsic();
   cout << "-------------------------------------------------------" << endl;
   cp.PrintDepthIntrinsic();
   cout << "-------------------------------------------------------" << endl;
+  cp.PrintColor2DepthExtrinsic();
+  cout << "-------------------------------------------------------" << endl;
   cp.PrintDepth2ColorExtrinsic();
   cout << "-------------------------------------------------------" << endl;
 
-  Mat4x4 omega;
-  ComposeOmegaMatrix(cp, omega);
-  cout << omega << endl;
+  Mat4x4 p_mat;
+  ComposeMatrix(cp, p_mat);
+  cout << p_mat << endl;
   cout << "-------------------------------------------------------" << endl;
 
-  std::string color_path = "/home/steve/dataset/scene0000_00/color/0.jpg";
-  std::string depth_path = "/home/steve/dataset/scene0000_00/depth/0.png";
+  std::string color_path = "/home/steve/dataset/scene0427_00/color/0.jpg";
+  std::string depth_path = "/home/steve/dataset/scene0427_00/depth/0.png";
 
-  cv::Mat color_img = cv::imread(color_path, -1);
-  cv::Mat depth_img = cv::imread(depth_path, -1);
+  cv::Mat color_img = cv::imread(color_path, CV_LOAD_IMAGE_UNCHANGED);
+  cv::Mat depth_img = cv::imread(depth_path, CV_LOAD_IMAGE_UNCHANGED);
   if (color_img.empty() || depth_img.empty()) {
     fprintf(stderr, "Error");
-    exit(1);
+    exit(EXIT_FAILURE);
   }
-  PrintMatType(color_img, "color image data type");
-  PrintMatType(depth_img, "depth image data type");
-
-  cv::Mat aligned_color(depth_img.size(), color_img.type(),
+  cv::Mat depth_aligned(color_img.size(), depth_img.type(),
                         cv::Scalar(0, 0, 0));
 
-  cv::Mat color_img_resize;
-  cv::resize(color_img, color_img_resize, depth_img.size(), cv::INTER_LINEAR);
+  PrintMatType(color_img, "color image data type");
+  PrintMatType(depth_img, "depth image data type");
+  PrintMatType(depth_aligned);
 
-  //  std::vector<cv::Vec2i> index;
+  std::vector<unsigned short> list;
   for (int v = 0; v < depth_img.rows; ++v) {
-    // depth image
     unsigned short* drow_ptr = depth_img.ptr<unsigned short>(v);
-    // align color image
-    unsigned char* acrow_ptr = aligned_color.ptr<unsigned char>(v);
-    cv::Vec2i idx;
     for (int u = 0; u < depth_img.cols; ++u) {
-      // compute correpondent align color index from depth image index
       unsigned short depth = drow_ptr[u];
       if (depth == 0) continue;
-      // real dpeth is depth / scale, (for example 1000.0)
-      // r_depth: reciprocal of real depth
-      scalar r_depth = 1000.0 / static_cast<scalar>(depth);
-      scalar tmpu = omega.row(0).dot(Mat14(u, v, 1, r_depth));
-      scalar tmpv = omega.row(1).dot(Mat14(u, v, 1, r_depth));
-
-      idx[0] = static_cast<int>(std::round(tmpu));
-      idx[1] = static_cast<int>(std::round(tmpv));
-      // check corner case
-      idx[0] = (idx[0] > (depth_img.cols - 1)) ? (depth_img.cols - 1) : idx[0];
-      idx[1] = (idx[1] > (depth_img.rows - 1)) ? (depth_img.rows - 1) : idx[1];
-      if (idx[0] > (depth_img.cols - 1)) {
-        cout << "ERROR" << idx[0];
+      Vec4 ret = p_mat * Vec4(u * depth, v * depth, depth, 1);
+      ret /= ret[2];
+      if (ret[0] > color_img.cols) {
+        fprintf(stderr, "u %f out of bounding\n", ret[0]);
+        continue;
+        //          exit(EXIT_FAILURE);
       }
-      if (idx[1] > (depth_img.rows - 1)) {
-        cout << "ERROR" << idx[1];
+      if (ret[1] > color_img.rows) {
+        fprintf(stderr, "v %f out of bounding\n", ret[1]);
+        continue;
+        //          exit(EXIT_FAILURE);
       }
 
-      //      cout << idx[1] << " " << idx[0] << endl;
-      //      index.push_back(idx);
+      int tmpu = std::round(ret[0]);
+      int tmpv = std::round(ret[1]);
 
-      unsigned char* acdata_ptr = &acrow_ptr[u * aligned_color.channels()];
-      //      acdata_ptr[0] = 255;
-      //      acdata_ptr[1] = 0;
-      //      acdata_ptr[2] = 0;
-      acdata_ptr[0] = color_img.at<cv::Vec3b>(idx[1], idx[0])[0];
-      acdata_ptr[1] = color_img.at<cv::Vec3b>(idx[1], idx[0])[1];
-      acdata_ptr[2] = color_img.at<cv::Vec3b>(idx[1], idx[0])[2];
+      depth_aligned.at<ushort>(tmpv, tmpu) = depth;
+//      list.push_back(ret[0]);
+//      list.push_back(ret[1]);
+//      list.push_back(depth);
     }
   }
 
-  cv::imshow("aligne color", aligned_color);
-  cv::waitKey(0);
-  cv::imwrite("test.png", aligned_color);
+  cv::imshow("aligned", depth_aligned);
+  cv::waitKey();
+  cv::imwrite("aligned.png", depth_aligned);
   return 0;
 }
 
@@ -324,14 +334,15 @@ void ReadSceneTxtFile(const std::string& path, CameraParameters& sensor) {
   if (path.empty()) {
     fprintf(stderr, "File %s, Line %d, Funcion %s(), path: %s is empty!\n",
             __FILE__, __LINE__, __FUNCTION__, path.c_str());
-    exit(1);
+    exit(EXIT_FAILURE);
   }
   std::ifstream f(path);
   if (!f.is_open()) {
     fprintf(stderr, "File %s, Line %d, Funcion %s(), Failed to open file: %s\n",
             __FILE__, __LINE__, __FUNCTION__, path.c_str());
-    exit(1);
+    exit(EXIT_FAILURE);
   }
+
   //  std::string s;
   //  f >> s;
   sensor.SetIntrinsics(1170.187988, 1170.187988, 647.750000, 483.750000,
@@ -340,11 +351,11 @@ void ReadSceneTxtFile(const std::string& path, CameraParameters& sensor) {
            -0.008366, -0.003410, -0.002833, 0.008347, 0.999961, -0.021924,
            -0.000000, 0.000000, -0.000000, 1.000000);
 
-  sensor.SetExtrinsic(m.inv());
+  sensor.SetColor2DepthExtrinsic(m);
   f.close();
 }
 
-void ComposeOmegaMatrix(const CameraParameters& sensor, Mat4x4& mat) {
+void ComposeMatrix(const CameraParameters& sensor, Mat4x4& mat) {
   mat = sensor.color_intrinsic4x4 * sensor.d2c_extrinsic4x4 *
         sensor.depth_intrinsic4x4.inv();
 }

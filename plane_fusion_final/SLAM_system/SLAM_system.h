@@ -1,12 +1,21 @@
 /**
  *  @file SLAM_system.h
- *  @brief Define 4 kinds of slam systems.
- *  @details Base class SLAM_system as parent class. Derivated 4 class:
- * Blank_SLAM_system, Ground_truth_SLAM_system, Basic_voxel_SLAM_system,
- * Submap_SLAM_system.
+ *  @brief Define 4 kinds of slam systems, which one has 7 base members.
+ *  @details
+ *  <pre> Base SLAM systems contains:
+        1. Data_engine
+        2. Preprocess_engine
+        3. Track_engine
+        4. Map_engine
+        5. Plane_detector
+        6. Associator, i.e. plane & keypoint
+        7. Mesh_generator
+    </pre>
+ *  @endverbatim
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
+ *  @todo Loop closure.
  */
 
 #pragma once
@@ -45,7 +54,8 @@ enum ProcessingState {
 };
 
 /**
- * @brief Base class.
+ * @brief SLAM system base class.
+ * @details
  */
 class SLAM_system {
  public:
@@ -307,6 +317,93 @@ class Submap_SLAM_system : public SLAM_system {
   void generate_mesh() override;
 
  private:
+  void generate_submap_to_global_plane_mapper(
+      std::vector<std::vector<My_Type::Vector2i>> &global_plane_container);
+
+  void generate_submap_to_global_plane_relabel_list(
+      std::vector<std::vector<My_Type::Vector2i>> &global_plane_container,
+      int submap_id, std::vector<My_Type::Vector2i> &relabel_list);
+
+  void filter_loop_matches(std::vector<Eigen::Vector3f> &current_points,
+                           std::vector<Eigen::Vector3f> &loop_points,
+                           std::vector<Plane_info> &current_planes,
+                           std::vector<Plane_info> &loop_planes,
+                           std::vector<bool> &is_valid_keypoint_match,
+                           std::vector<bool> &is_valid_plane_match);
+
+  void match_plane_by_parameter(
+      std::vector<Plane_info> &previous_map_planes,
+      std::vector<Plane_info> &current_map_planes,
+      std::vector<std::pair<int, int>> &plane_matches);
+};
+
+/**
+ * @brief Semantic mapping SLAM system.
+ * @details Designed for ScanNet dataset mode, take ground truth as camera
+ *          poses.
+ */
+class Somapping_SLAM_system : public Submap_SLAM_system {
+ public:
+  /** @brief Enable inter-submap optimization module. */
+  bool enable_optimization = true;
+  /** @brief Enable loop detection module. */
+  bool enable_loop_detection = true;
+  /** @brief Enable submap module. */
+  bool enable_submap_creation = false;
+  /** @brief Enable plane map module. */
+  bool enable_plane_map = true;
+
+  /** @brief Voxel map of each submap. */
+  std::vector<Submap_Voxel_map *> submap_ptr_array;
+  /** @brief Feature map of each submap. */
+  std::vector<Feature_map *> feature_map_ptr_array;
+
+  /** @brief Triangle mesh of each submap. */
+  std::vector<Mesh_generator *> mesh_ptr_array;
+  /** @brief Estiamted trajectory of each submap. */
+  std::vector<Trajectory> estimated_trajectory_array;
+  /** @brief Submap pose matrices. */
+  std::vector<My_pose *> submap_pose_array;
+
+  /** @brief Vocabulary data structure. */
+  DBoW3::Vocabulary ORB_vocabulary;
+
+  /** @brief Default constructor. */
+  Somapping_SLAM_system();
+  /** @brief Default destructor. */
+  ~Somapping_SLAM_system();
+
+  /** @brief Debug. */
+  std::vector<Eigen::Vector3f> keypoint_buffer_1, keypoint_buffer_2;
+
+  void init(Data_engine *data_engine_ptr) override;
+
+  void generate_render_info(Eigen::Matrix4f view_pose) override;
+
+  /** @brief End of process data. */
+  void end_of_process_data() override;
+
+  protected:
+  /** @brief Create modules for different kinds of SLAM system. */
+  void init_modules() override;
+
+  void process_one_frame() override;
+
+  void preprocess() override;
+
+  void track_camera_pose() override;
+
+  void update_to_map() override;
+
+  void optimize_map() override;
+
+  void relocalization() override{};
+
+  void detect_loop() override;
+
+  void generate_mesh() override;
+
+  private:
   void generate_submap_to_global_plane_mapper(
       std::vector<std::vector<My_Type::Vector2i>> &global_plane_container);
 

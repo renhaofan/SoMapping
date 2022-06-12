@@ -1,15 +1,16 @@
 {
-  "PlaneDetection" : {
-    "MIN_PLANE_DISTANCE" : "0.02",
-    "HISTOGRAM_STEP" : "0.05",
-    "HISTOGRAM_WIDTH" : "128",
-    "MAX_CURRENT_PLANES" : "64",
-    "MAX_MODEL_PLANES" : "1024"
+  "PlaneDetection": {
+    "MIN_PLANE_DISTANCE" : 0.02,
+    "HISTOGRAM_STEP" : 0.05,
+    "HISTOGRAM_WIDTH" : 128,
+    "MAX_CURRENT_PLANES" : 64,
+    "MAX_MODEL_PLANES" : 1024
   },
-  "VoxelMap" : {
-
-  },
-  "SLAM" : {
-    "Ground_truth_SLAM_system" : "true"
+  "SLAM": {
+    "Blank_SLAM_system" : false,
+    "Ground_truth_SLAM_system" : false,
+    "Basic_voxel_SLAM_system" : false,
+    "Submap_SLAM_system" : false,
+    "Somapping_SLAM_system" : true
   }
 }

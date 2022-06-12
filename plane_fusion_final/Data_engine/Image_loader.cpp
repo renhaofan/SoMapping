@@ -66,7 +66,7 @@ void get_file_num(const std::string path, size_t *cnt) {
 #endif
     fprintf(stderr, "File %s, Line %d, Function %s(): Failed to opendir %s.\n",
             __FILE__, __LINE__, __FUNCTION__, path.c_str());
-    exit(1);
+    exit(EXIT_FAILURE);
   }
   while ((ptr = readdir(dir)) != 0) {
     // ignore . and .. file
@@ -107,7 +107,7 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
   string associate_dir = dir + "/TIMESTAMP.txt";
 
 #ifdef LOGGING
-  LOG_INFO("<------ Initialising offline image loader ...");
+  LOG_INFO("<(------ Initialising offline image loader ...");
 #endif
 
   switch (dm) {
@@ -195,7 +195,7 @@ void Offline_image_loader::read_image_parameters() {
       fprintf(
           stderr, "File %s, Line %d, Function %s(): Depth image %s empty.\n",
           __FILE__, __LINE__, __FUNCTION__, this->color_path_vector[0].c_str());
-      exit(1);
+      exit(EXIT_FAILURE);
     }
 
     // Read parameters of color image
@@ -211,7 +211,7 @@ void Offline_image_loader::read_image_parameters() {
     fprintf(stderr,
             "File %s, Line %d, Function %s(): Color image path vector empty.\n",
             __FILE__, __LINE__, __FUNCTION__);
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   if (this->depth_path_vector.size() > 0) {
@@ -230,7 +230,7 @@ void Offline_image_loader::read_image_parameters() {
       fprintf(
           stderr, "File %s, Line %d, Function %s(): Depth image %s empty.\n",
           __FILE__, __LINE__, __FUNCTION__, this->depth_path_vector[0].c_str());
-      exit(1);
+      exit(EXIT_FAILURE);
     }
 
     // Read parameters of depth image
@@ -246,7 +246,7 @@ void Offline_image_loader::read_image_parameters() {
     fprintf(stderr,
             "File %s, Line %d, Function %s(): Depth image path vector empty.\n",
             __FILE__, __LINE__, __FUNCTION__);
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 }
 
@@ -588,7 +588,7 @@ void Offline_image_loader::print_state(bool print_all_pathes) const {
                to_string(this->depth_path_vector.size()));
       LOG_INFO("Color images number: " +
                to_string(this->color_path_vector.size()));
-//      LOG_INFO("Initialising offline image loader finished ------>");
+      LOG_INFO("Initialising offline image loader finished ------)>");
 #endif
       // print all frames pathes
       if (print_all_pathes) {
@@ -693,7 +693,7 @@ bool Offline_image_loader::load_next_frame(double &timestamp,
                 "File %s, Line %d, Function %s(): Depth image %s empty.\n",
                 __FILE__, __LINE__, __FUNCTION__,
                 this->depth_path_vector[this->frame_index].c_str());
-        exit(1);
+        exit(EXIT_FAILURE);
       }
       break;
     }
@@ -711,7 +711,7 @@ bool Offline_image_loader::load_next_frame(double &timestamp,
                 "File %s, Line %d, Function %s(): Depth image %s empty.\n",
                 __FILE__, __LINE__, __FUNCTION__,
                 this->depth_path_vector[this->frame_index].c_str());
-        exit(1);
+        exit(EXIT_FAILURE);
       }
 
       cv::Mat temp =
@@ -728,10 +728,15 @@ bool Offline_image_loader::load_next_frame(double &timestamp,
                 "File %s, Line %d, Function %s(): Color image %s empty.\n",
                 __FILE__, __LINE__, __FUNCTION__,
                 this->color_path_vector[this->frame_index].c_str());
-        exit(1);
+        exit(EXIT_FAILURE);
       }
 
-      cv::cvtColor(temp, color_mat, cv::COLOR_BGRA2BGR);
+      // add reference lvkun, directly resize color image to align
+      cv::Mat color_mat1;
+      cv::resize(temp, color_mat1, depth_mat.size());
+      cv::cvtColor(color_mat1, color_mat, cv::COLOR_BGRA2BGR);
+
+//      cv::cvtColor(temp, color_mat, cv::COLOR_BGRA2BGR);
       break;
     }
     case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES:
@@ -746,11 +751,13 @@ bool Offline_image_loader::load_next_frame(double &timestamp,
 }
 
 bool Offline_image_loader::need_to_align_color_to_depth() {
-    return is_identity(SLAM_system_settings::instance()->depth2color_mat);
+  return is_identity(SLAM_system_settings::instance()->depth2color_mat);
 }
 
-bool Offline_image_loader::align_color_to_depth(const cv::Mat &depth_mat, cv::Mat &color_mat) {
-    // depth2color_mat read as column major, opencv raw major, no need to transpose.
-  cv::Mat d2c(4, 4, CV_16UC1, SLAM_system_settings::instance()->depth2color_mat.data);
-
+bool Offline_image_loader::align_color_to_depth(const cv::Mat &depth_mat,
+                                                cv::Mat &color_mat) {
+  // depth2color_mat read as column major, opencv raw major, no need to
+  // transpose.
+  cv::Mat d2c(4, 4, CV_16UC1,
+              SLAM_system_settings::instance()->depth2color_mat.data);
 }

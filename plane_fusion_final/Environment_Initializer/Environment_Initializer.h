@@ -5,8 +5,13 @@
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
+ *  @todo log the cuda device rather than print to std. In
+ *  function init_environment;
  */
 
+/**
+ * @brief Check and print GPU device & CUDA infomation.
+ */
 class Environment_Initializer {
  public:
   /** @brief Max threads per CUDA block. */
