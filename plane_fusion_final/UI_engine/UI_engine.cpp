@@ -67,11 +67,14 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
     this->data_engine_ptr = data_engine;
   } else {
 #ifdef LOGGING
-    LOG_FATAL("UI_Engine error: invlid data_engine_ptr!");
+    LOG_FATAL("UI_Engine error: invalid data_engine_ptr!");
     Log::shutdown();
 #endif
-    fprintf(stderr, "UI_Engine error: invlid data_engine_ptr !\r\n");
-    exit(1);
+    fprintf(stderr,
+            "File %s, Line %d, Function %s, UI_Engine error: invalid "
+            "data_engine_ptr !\r\n",
+            __FILE__, __LINE__, __FUNCTION__);
+    exit(EXIT_FAILURE);
   }
 
   // Get SLAM_system
@@ -79,18 +82,15 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
     this->SLAM_system_ptr = SLAM_system;
   } else {
 #ifdef LOGGING
-    LOG_FATAL("UI_Engine error : invlid SLAM_system_ptr!");
+    LOG_FATAL("UI_Engine error: invalid SLAM_system_ptr!");
     Log::shutdown();
 #endif
-    fprintf(stderr, "UI_Engine error : invlid SLAM_system_ptr !\r\n");
-    exit(1);
+    fprintf(stderr,
+            "File %s, Line %d, Function %s, UI_Engine error: invalid "
+            "SLAM_system_ptr !\r\n",
+            __FILE__, __LINE__, __FUNCTION__);
+    exit(EXIT_FAILURE);
   }
-
-#if _WIN32
-#pragma endregion
-#elif __unix__
-#pragma endregion }
-#endif
 
   // Set window size
   this->window_width = UI_parameters::instance()->main_viewport_size.width +
@@ -98,11 +98,18 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
                        UI_parameters::instance()->GL_window_margin_width;
   this->window_height = UI_parameters::instance()->main_viewport_size.height +
                         UI_parameters::instance()->GL_window_margin_width;
-
-//  LOG_WARNING(UI_parameters::instance()->main_viewport_size.width); 640
-//  LOG_WARNING(UI_parameters::instance()->main_viewport_size.height); 480
-//  LOG_WARNING(UI_parameters::instance()->sub_viewport_size.width); 320
-//  LOG_WARNING(UI_parameters::instance()->sub_viewport_size.height); 240
+#ifdef LOGGING
+  LOG_INFO_I("GL window margin width: ",
+             UI_parameters::instance()->GL_window_margin_width);
+  LOG_INFO_III("GL main viewport size(w, d): ",
+               UI_parameters::instance()->main_viewport_size.width, ", ",
+               UI_parameters::instance()->main_viewport_size.height);
+  LOG_INFO_III("GL sub viewport size(w, d): ",
+               UI_parameters::instance()->sub_viewport_size.width, ", ",
+               UI_parameters::instance()->sub_viewport_size.height);
+  LOG_INFO_III("Window size(w, d): ", this->window_width, ", ",
+               this->window_height);
+#endif
 
   // Set viewport size
   this->main_viewport_width =
@@ -124,6 +131,11 @@ int UI_engine::init(int main_argc, char **main_argv, Data_engine *data_engine,
   this->data_engine_ptr->get_depth_image_size(depth_size.width,
                                               depth_size.height);
   this->render_engine.init(depth_size, depth_size);
+#if _WIN32
+#pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
 #if __unix__
 #pragma region "OpenGL Initialization" {
@@ -1558,8 +1570,8 @@ void UI_engine::render_main_viewport() {
 void UI_engine::render_sub_viewport1() {
   if (this->SLAM_system_ptr->color_mat.empty()) return;
 
-//  LOG_WARNING(this->SLAM_system_ptr->color_mat.size().width); 1296
-//  LOG_WARNING(this->SLAM_system_ptr->color_mat.size().height); 968
+  //  LOG_WARNING(this->SLAM_system_ptr->color_mat.size().width); 1296
+  //  LOG_WARNING(this->SLAM_system_ptr->color_mat.size().height); 968
 
   if (true) {
     drawKeypoints(this->SLAM_system_ptr->color_mat.clone(),
@@ -1583,11 +1595,12 @@ void UI_engine::render_sub_viewport1() {
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, this->SLAM_system_ptr->color_mat.cols,
                   this->SLAM_system_ptr->color_mat.rows, GL_BGR,
                   GL_UNSIGNED_BYTE, this->SLAM_system_ptr->color_mat.data);
-//  while (true) {
-//    cv::imshow("render viewport 1 texture", this->SLAM_system_ptr->color_mat);
-//    cout << this->SLAM_system_ptr->color_mat.cols << endl;
-//    cout << this->SLAM_system_ptr->color_mat.rows << endl;
-//  }
+  //  while (true) {
+  //    cv::imshow("render viewport 1 texture",
+  //    this->SLAM_system_ptr->color_mat); cout <<
+  //    this->SLAM_system_ptr->color_mat.cols << endl; cout <<
+  //    this->SLAM_system_ptr->color_mat.rows << endl;
+  //  }
 
   glBegin(GL_QUADS);
   glTexCoord2f(0.0f, 1.0f);
@@ -1896,7 +1909,7 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
   // Key Esc, exit.
   if (UI_ptr->normal_key[27] == 1) {
 #ifdef LOGGING
-    LOG_INFO("Exit by key Esc pressed event");
+    LOG_INFO("Exit by key Esc pressed event ------)>");
 #endif
     exit(0);
   }
