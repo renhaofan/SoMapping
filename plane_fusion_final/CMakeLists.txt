@@ -10,6 +10,16 @@ include(${PROJECT_SOURCE_DIR}/cmake/UseCUDA.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/UseGLUT.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/UseGLEW.cmake)
 
+# add qt
+include(${PROJECT_SOURCE_DIR}/cmake/UseQt5.cmake)
+set(Qt5_LIBS
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Widgets
+    Qt5::OpenGL
+)
+
+
 # set executable path
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 # set lib path
@@ -43,7 +53,6 @@ include_directories(${CMAKE_SOURCE_DIR}/Timer)
 
 # add config.h
 include_directories(${CMAKE_SOURCE_DIR}/Config)
-
 
 
 # deprecate warnings, specify OpenGL version
@@ -168,3 +177,29 @@ add_executable(test_alignment test_alignment.cpp)
 target_link_libraries(test_alignment ${OpenCV_LIBS})
 
 
+#########################################
+############# test Qt5 ##################
+#########################################
+add_executable(test_qt test_qt.cpp)
+target_link_libraries(test_qt ${Qt5_LIBS})
+
+#########################################
+############# test Qt5 stream ###########
+#########################################
+include_directories(${CMAKE_SOURCE_DIR}/Stream)
+
+set(SOURCE_STREAM
+    Stream/main.cpp
+    Stream/mainwindow
+    Stream/grabstream.cpp
+    Stream/mainwindow.cpp
+    Stream/pcolor.cpp
+    Stream/showstream.cpp
+    )
+
+set(STREAM_RESOURCES
+    Stream/images.qrc
+    )
+
+add_executable(test_stream ${SOURCE_STREAM} ${STREAM_RESOURCES})
+target_link_libraries(test_stream ${Qt5_LIBS})
