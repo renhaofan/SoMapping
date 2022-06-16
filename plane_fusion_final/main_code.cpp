@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 
   // Load ground truth file
   string ground_truth_path =
-      "/home/steve/dataset/scene0427_00_alignement/groundtruth.txt";
+      "/home/steve/dataset/scene0427_00_alignement/groundtruth_opengl.txt";
   Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path);
 
 #ifdef LOGGING

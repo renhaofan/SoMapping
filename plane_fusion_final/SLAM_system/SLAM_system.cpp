@@ -22,11 +22,16 @@
 SLAM_system::SLAM_system() {
   SLAM_system_settings::instance()->set_to_default();
 #ifdef LOGGING
-  LOG_INFO_I("Used depth sensor fx", SLAM_system_settings::instance()->depth_params.sensor_fx);
-  LOG_INFO_I("Used depth sensor fy", SLAM_system_settings::instance()->depth_params.sensor_fy);
-  LOG_INFO_I("Used depth sensor cx", SLAM_system_settings::instance()->depth_params.sensor_cx);
-  LOG_INFO_I("Used depth sensor cy", SLAM_system_settings::instance()->depth_params.sensor_cy);
-  LOG_INFO_I("Used depth sensor scale", SLAM_system_settings::instance()->depth_params.sensor_scale);
+  LOG_INFO_I("Used depth sensor fx",
+             SLAM_system_settings::instance()->depth_params.sensor_fx);
+  LOG_INFO_I("Used depth sensor fy",
+             SLAM_system_settings::instance()->depth_params.sensor_fy);
+  LOG_INFO_I("Used depth sensor cx",
+             SLAM_system_settings::instance()->depth_params.sensor_cx);
+  LOG_INFO_I("Used depth sensor cy",
+             SLAM_system_settings::instance()->depth_params.sensor_cy);
+  LOG_INFO_I("Used depth sensor scale",
+             SLAM_system_settings::instance()->depth_params.sensor_scale);
 #endif
 }
 
@@ -200,7 +205,7 @@ void Ground_truth_SLAM_system::init_modules() {
   this->map_engine->init_map();
 
   // BUG
-//  this->track_engine->init();
+  //  this->track_engine->init();
 }
 
 void Ground_truth_SLAM_system::process_one_frame() {
@@ -512,33 +517,32 @@ void Basic_voxel_SLAM_system::generate_mesh() {
 int find_submap_plane_in_list(
     std::vector<std::vector<My_Type::Vector2i>> &global_plane_container,
     const My_Type::Vector2i &submap_plane) {
-    for (int plane_id = 0; plane_id < global_plane_container.size(); plane_id++) {
-        for (int list_id = 0; list_id < global_plane_container[plane_id].size();
-             list_id++) {
-            if (global_plane_container[plane_id][list_id] == submap_plane)
-                return plane_id;
-        }
+  for (int plane_id = 0; plane_id < global_plane_container.size(); plane_id++) {
+    for (int list_id = 0; list_id < global_plane_container[plane_id].size();
+         list_id++) {
+      if (global_plane_container[plane_id][list_id] == submap_plane)
+        return plane_id;
     }
-    return -1;
+  }
+  return -1;
 }
 
 bool compute_plane_similarity(Plane_info &plane_1, Plane_info &plane_2) {
-    const float inner_product_threshold = 0.95;
-    const float distance = 0.04;
+  const float inner_product_threshold = 0.95;
+  const float distance = 0.04;
 
-    My_Type::Vector3f normal_1(plane_1.nx, plane_1.ny, plane_1.nz);
-    My_Type::Vector3f normal_2(plane_2.nx, plane_2.ny, plane_2.nz);
-    if (normal_1.dot(normal_2) < inner_product_threshold) return false;
-    if (fabsf(plane_1.d - plane_2.d) > distance) return false;
+  My_Type::Vector3f normal_1(plane_1.nx, plane_1.ny, plane_1.nz);
+  My_Type::Vector3f normal_2(plane_2.nx, plane_2.ny, plane_2.nz);
+  if (normal_1.dot(normal_2) < inner_product_threshold) return false;
+  if (fabsf(plane_1.d - plane_2.d) > distance) return false;
 
-    return true;
+  return true;
 }
 #if _WIN32
 #pragma endregion
 #elif __unix__
 #pragma endregion }
 #endif
-
 
 #if __unix__
 #pragma region "Submap_SLAM_system" {
@@ -1683,7 +1687,6 @@ void Submap_SLAM_system::detect_loop() {
   }
 }
 
-
 void Submap_SLAM_system::generate_submap_to_global_plane_mapper(
     std::vector<std::vector<My_Type::Vector2i>> &global_plane_container) {
   global_plane_container.clear();
@@ -2235,6 +2238,23 @@ void Somapping_SLAM_system::track_camera_pose() {
       model_keypoints, this->estimated_camera_pose.mat);
 
   this->estimated_camera_pose.synchronize_to_GPU();
+
+
+  //  Trajectory_node ground_truth_trajectory_node;
+  //  bool state = this->data_engine->get_next_ground_truth_camera_pose(
+  //      ground_truth_trajectory_node);
+
+  // Update camera pose
+  //  if (state) {
+  //    this->estimated_camera_pose.load_pose(ground_truth_trajectory_node);
+  //    this->timestamp = ground_truth_trajectory_node.time;
+  //  } else {
+  //#ifdef LOGGING
+  //    LOG_WARNING("No ground truth loaded!");
+  //#endif
+  //    printf("No ground_truth loaded!\n");
+  //    this->processing_state = ProcessingState::STOP_PROCESS;
+  //  }
 
 #ifdef COMPILE_DEBUG_CODE
   tracker_ptr->generate_icp_correspondence_lines(
@@ -3414,7 +3434,6 @@ void Somapping_SLAM_system::filter_loop_matches(
     }
   }
 }
-
 
 void Somapping_SLAM_system::match_plane_by_parameter(
     std::vector<Plane_info> &previous_map_planes,
