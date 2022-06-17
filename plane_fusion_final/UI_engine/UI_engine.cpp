@@ -6,7 +6,9 @@
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
- *  @todo if (this->view_flag_list[0]) switch somapping_slam_system, submap_slam_system
+ *  @todo if (this->view_flag_list[0]) switch somapping_slam_system,
+ *  @todo Press key 'o', switch camera psoe BUGS.
+ * submap_slam_system
  */
 
 #include "UI_engine.h"
@@ -434,9 +436,6 @@ void UI_engine::render_main_viewport() {
 
   // 1. Draw OpenGL world coordiate
   if (this->view_flag_list[1]) {
-#ifdef LOGGING
-    LOG_INFO("Press key 1. Draw OpenGL world coordinate.");
-#endif
     // Transform to OpenGL world coordinate
     this->OpenGL_draw_in_OpenGL_world_coordinate();
 
@@ -447,10 +446,6 @@ void UI_engine::render_main_viewport() {
 
   // 2. Draw camera trajectories
   if (this->view_flag_list[2]) {
-#ifdef LOGGING
-    LOG_INFO("Press key 2. Draw camera trajectories.");
-#endif
-
     // Transform to SLAM world coordinate
     this->OpenGL_draw_in_SLAM_world_coordinate();
 
@@ -507,9 +502,6 @@ void UI_engine::render_main_viewport() {
 
   // 3. Draw voxel block
   if (this->view_flag_list[3]) {
-#ifdef LOGGING
-    LOG_INFO("Press key 3. Draw non-planar voxel block.");
-#endif
     // if (typeid(this->SLAM_system_ptr->map_engine) == typeid(Basic_Voxel_map
     // *))
     //{
@@ -620,9 +612,6 @@ void UI_engine::render_main_viewport() {
 
   // 4. Draw current points cloud
   if (this->view_flag_list[4]) {
-#ifdef LOGGING
-    LOG_INFO("Press key 4. Draw current point cloud.");
-#endif
     // Transform to SLAM world coordinate
     this->OpenGL_draw_in_some_camera_coordinate(
         this->SLAM_system_ptr->estimated_camera_pose.mat);
@@ -653,10 +642,6 @@ void UI_engine::render_main_viewport() {
 
   // 5. Draw model point cloud
   if (this->view_flag_list[5]) {
-#ifdef LOGGING
-    LOG_INFO("Press key 5. Draw model point cloud.");
-#endif
-
     if (false) {
       // Transform to SLAM world coordinate
       this->OpenGL_draw_in_some_camera_coordinate(
@@ -740,10 +725,6 @@ void UI_engine::render_main_viewport() {
 
   // 6. Draw normals
   if (this->view_flag_list[6]) {
-#ifdef LOGGING
-    LOG_INFO("Press key 6. Draw plane region meshes.");
-#endif
-
     // Model normal debug
     if (false) {
       this->render_engine.generate_normal_segment_line(
@@ -876,10 +857,6 @@ void UI_engine::render_main_viewport() {
 
   // 7. Draw model surface
   if (this->view_flag_list[7]) {
-#ifdef LOGGING
-    LOG_INFO("Press key 7. Draw model surface.");
-#endif
-
     if (SLAM_system_settings::instance()->generate_mesh_for_visualization) {
       // Set Light at OpenGL camera viewpoint
       this->OpenGL_draw_in_OpenGL_camera_coordinate();
@@ -1032,9 +1009,6 @@ void UI_engine::render_main_viewport() {
 
   // 8. Draw current plane segmentation
   if (this->view_flag_list[8]) {
-#ifdef LOGGING
-    LOG_INFO("Press key 8. Draw current plane segmentation.");
-#endif
     // Show plane segmentation pseudo render result
     if (true) {
       // this->render_engine.pseudo_render_plane_labels(this->SLAM_system_ptr->plane_detector->dev_current_plane_labels);
@@ -1197,10 +1171,6 @@ void UI_engine::render_main_viewport() {
 
   //
   if (this->view_flag_list[9]) {
-#ifdef LOGGING
-    LOG_INFO("Press key 9. Not sure");
-#endif
-
     if (false) {
       this->OpenGL_draw_in_SLAM_world_coordinate();
 
@@ -1270,11 +1240,6 @@ void UI_engine::render_main_viewport() {
 
   // 10. Model features
   if (this->view_flag_list[0]) {
-#ifdef LOGGING
-    LOG_WARNING(
-        "Press key 0. Draw keypoint in each submap. [BUGS]"
-        "sommapping SLAM public derivated from submap SLAM");
-#endif
     float half_cube_size = (float)(VOXEL_SIZE * 0.2 * 8);
 
     // Draw keypoint in each submap
@@ -1284,8 +1249,7 @@ void UI_engine::render_main_viewport() {
           dynamic_cast<Submap_SLAM_system *>(this->SLAM_system_ptr);
 
       if (JSON_CONFIG::instance()->j["SLAM"]["Somapping_SLAM_system"]) {
-        slam_system_ptr =
-                dynamic_cast<Submap_SLAM_system *>(slam_system_ptr);
+        slam_system_ptr = dynamic_cast<Submap_SLAM_system *>(slam_system_ptr);
       }
       //      SLAM_system *slam_system_ptr = this->SLAM_system_ptr;
       //      * slam_system_ptr =
@@ -1841,39 +1805,93 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
   UI_ptr->show_reference_object = true;
 
   if (UI_ptr->normal_key[uchar('1')] == 1 ||
-      UI_ptr->normal_key[uchar('!')] == 1)
+      UI_ptr->normal_key[uchar('!')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key 1. Draw OpenGL world coordinate.");
+#endif
     UI_ptr->view_flag_list[1] = !UI_ptr->view_flag_list[1];
+  }
+
   if (UI_ptr->normal_key[uchar('2')] == 1 ||
-      UI_ptr->normal_key[uchar('@')] == 1)
+      UI_ptr->normal_key[uchar('@')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key 2. Draw camera trajectories.");
+#endif
     UI_ptr->view_flag_list[2] = !UI_ptr->view_flag_list[2];
+  }
+
   if (UI_ptr->normal_key[uchar('3')] == 1 ||
-      UI_ptr->normal_key[uchar('#')] == 1)
+      UI_ptr->normal_key[uchar('#')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key 3. Draw non-planar voxel block.");
+#endif
     UI_ptr->view_flag_list[3] = !UI_ptr->view_flag_list[3];
+  }
+
   if (UI_ptr->normal_key[uchar('4')] == 1 ||
-      UI_ptr->normal_key[uchar('$')] == 1)
+      UI_ptr->normal_key[uchar('$')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key 4. Draw current point cloud.");
+#endif
     UI_ptr->view_flag_list[4] = !UI_ptr->view_flag_list[4];
+  }
+
   if (UI_ptr->normal_key[uchar('5')] == 1 ||
-      UI_ptr->normal_key[uchar('%')] == 1)
+      UI_ptr->normal_key[uchar('%')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key 5. Draw model point cloud.");
+#endif
     UI_ptr->view_flag_list[5] = !UI_ptr->view_flag_list[5];
+  }
+
   if (UI_ptr->normal_key[uchar('6')] == 1 ||
-      UI_ptr->normal_key[uchar('^')] == 1)
+      UI_ptr->normal_key[uchar('^')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key 6. Draw plane region meshes.");
+#endif
     UI_ptr->view_flag_list[6] = !UI_ptr->view_flag_list[6];
+  }
+
   if (UI_ptr->normal_key[uchar('7')] == 1 ||
-      UI_ptr->normal_key[uchar('&')] == 1)
+      UI_ptr->normal_key[uchar('&')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key 7. Draw model surface.");
+#endif
     UI_ptr->view_flag_list[7] = !UI_ptr->view_flag_list[7];
+  }
+
   if (UI_ptr->normal_key[uchar('8')] == 1 ||
-      UI_ptr->normal_key[uchar('*')] == 1)
+      UI_ptr->normal_key[uchar('*')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key 8. Draw current plane segmentation.");
+#endif
     UI_ptr->view_flag_list[8] = !UI_ptr->view_flag_list[8];
+  }
+
   if (UI_ptr->normal_key[uchar('9')] == 1 ||
-      UI_ptr->normal_key[uchar('(')] == 1)
+      UI_ptr->normal_key[uchar('(')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key 9. Not sure");
+#endif
     UI_ptr->view_flag_list[9] = !UI_ptr->view_flag_list[9];
+  }
+
   if (UI_ptr->normal_key[uchar('0')] == 1 ||
-      UI_ptr->normal_key[uchar(')')] == 1)
+      UI_ptr->normal_key[uchar(')')] == 1) {
+#ifdef LOGGING
+    LOG_WARNING(
+        "Press key 0. Draw keypoint in each submap. [BUGS]"
+        "sommapping SLAM public derivated from submap SLAM");
+#endif
     UI_ptr->view_flag_list[0] = !UI_ptr->view_flag_list[0];
+  }
 
   // Sub viewport2 render mode
   if (UI_ptr->normal_key[uchar('`')] == 1 ||
       UI_ptr->normal_key[uchar('~')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key ~. Change viewport2 render mode.");
+#endif
     UI_ptr->sub_viewport2_mode =
         (SubViewport2Mode)((int)UI_ptr->sub_viewport2_mode + 1);
     if (UI_ptr->sub_viewport2_mode >= SubViewport2Mode::SVP2MODE_NUM)
@@ -1882,6 +1900,9 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
   // Main viewport render mode
   if (UI_ptr->normal_key[uchar('r')] == 1 ||
       UI_ptr->normal_key[uchar('R')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key r. Change main viewport render mode.");
+#endif
     UI_ptr->main_viewport_render_mode =
         (MainViewportRenderMode)((int)UI_ptr->main_viewport_render_mode + 1);
     if (UI_ptr->main_viewport_render_mode >=
@@ -1892,6 +1913,10 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
   // Do nothing.
   if (UI_ptr->normal_key[uchar('t')] == 1 ||
       UI_ptr->normal_key[uchar('T')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key t. Do nothing.");
+#endif
+
     // if (UI_ptr->render_object_id <
     // main_engine_ptr->map_engine_ptr->fragment_index + 1)
     //{
@@ -1906,6 +1931,10 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
   // Do nothing.
   if (UI_ptr->normal_key[uchar('g')] == 1 ||
       UI_ptr->normal_key[uchar('G')] == 1) {
+#ifdef LOGGING
+    LOG_INFO("Press key g. Do nothing.");
+#endif
+
     //// match list
     // if (UI_ptr->render_match_list_id <
     // main_engine_ptr->map_engine_ptr->feature_map_match_graph.size() - 1)
@@ -1927,6 +1956,10 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
 
   // Not sure.
   if (';' == key || ':' == key) {
+#ifdef LOGGING
+    LOG_INFO("Press key :, Do nothing.");
+#endif
+
     Eigen::Matrix4f temp_pose;
     static int view_pose_id = 0;
     if (view_pose_id == 0) {
@@ -1954,6 +1987,9 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
   if ('o' == key || 'O' == key) {
     /*std::cout << "GL camera extrinsic matrix inverse is :" << std::endl;
         UI_ptr->GL_camera_Frame.print();*/
+#ifdef LOGGING
+    LOG_WARNING("Press key o. Switch estimate camera pose. [BUGS]");
+#endif
 
     Eigen::Matrix4f current_pose_mat =
         UI_ptr->SLAM_system_ptr->estimated_camera_pose.mat.eval();
@@ -1986,12 +2022,19 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
 
   // Force to stop WITH BUGS
   if ('i' == key || 'I' == key) {
+#ifdef LOGGING
+    LOG_WARNING("Press key i. Force to stop.[BUGS]");
+#endif
     UI_ptr->SLAM_system_ptr->all_data_process_done = true;
     UI_ptr->SLAM_system_ptr->end_of_process_data();
   }
 
   // Screen shot one frame
   if ('l' == key || 'L' == key) {
+#ifdef LOGGING
+    LOG_INFO("Press key l. Screen shot one frame.");
+#endif
+
     // Screen shot counter
     static int screen_shot_counter = 0;
     string screen_shot_path = "main_viewport_screenshot";
@@ -2001,8 +2044,12 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
     screen_shot_counter++;
   }
 
-  // Screen shot contious frame from current frame.
+  // Screen shot continous frame from current frame.
   if ('k' == key || 'K' == key) {
+#ifdef LOGGING
+    LOG_INFO("Press key k. Screen continous frame.");
+#endif
+
     UI_ptr->record_continuous = !UI_ptr->record_continuous;
   }
 
@@ -2014,12 +2061,18 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
 
   // GLCamera fov--
   if ('[' == key || '{' == key) {
+#ifdef LOGGING
+    LOG_INFO("Press key [. GLCamera fov--");
+#endif
     if (UI_parameters::instance()->GL_camera_fov >= 10.0f)
       UI_parameters::instance()->GL_camera_fov -= 5.0f;
   }
 
   // GLCamera fov++
   if (']' == key || '}' == key) {
+#ifdef LOGGING
+    LOG_INFO("Press key [. GLCamera fov++");
+#endif
     if (UI_parameters::instance()->GL_camera_fov >= 10.0f)
       UI_parameters::instance()->GL_camera_fov += 5.0f;
   }
@@ -2029,7 +2082,7 @@ void UI_engine::OpenGL_NormalKeyFunction(unsigned char key, int x, int y) {
 #ifdef LOGGING
     LOG_INFO("Exit by key Esc pressed event ------)>");
 #endif
-    exit(0);
+    exit(EXIT_SUCCESS);
   }
 }
 
