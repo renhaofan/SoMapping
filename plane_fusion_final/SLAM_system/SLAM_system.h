@@ -368,6 +368,19 @@ class Somapping_SLAM_system : public Submap_SLAM_system {
   /** @brief Vocabulary data structure. */
   DBoW3::Vocabulary ORB_vocabulary;
 
+  /** @brief Convert ScanNet pose GT to OpenGL pose GT. */
+  Eigen::Matrix4f transform_matrix;
+
+  /** @brief Read GT camera pose from ScanNet. */
+  std::vector<Eigen::Matrix4f> camera_poses;
+
+  /** @brief Read camera pose number from scene txt file. */
+  size_t pose_nums = 0;
+
+  /** @brief Camera pose index. */
+  size_t pose_idx = 0;
+
+
   /** @brief Default constructor. */
   Somapping_SLAM_system();
   /** @brief Default destructor. */
@@ -422,4 +435,8 @@ class Somapping_SLAM_system : public Submap_SLAM_system {
       std::vector<Plane_info> &previous_map_planes,
       std::vector<Plane_info> &current_map_planes,
       std::vector<std::pair<int, int>> &plane_matches);
+
+  void compose_transform_matrix();
+
+  void load_camera_pose();
 };

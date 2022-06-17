@@ -4,6 +4,8 @@
  *  @author haofan ren, yqykrhf@163.com
  *  @version beta 0.0
  *  @date 22-5-21
+ *  @todo optimize Somapping_SLAM_system::load_camera_pose() from matrix as
+ * quaternion. save memory
  */
 
 #include "SLAM_system.h"
@@ -22,15 +24,15 @@
 SLAM_system::SLAM_system() {
   SLAM_system_settings::instance()->set_to_default();
 #ifdef LOGGING
-  LOG_INFO_I("Used depth sensor fx",
+  LOG_INFO_I("Used depth sensor fx ",
              SLAM_system_settings::instance()->depth_params.sensor_fx);
-  LOG_INFO_I("Used depth sensor fy",
+  LOG_INFO_I("Used depth sensor fy ",
              SLAM_system_settings::instance()->depth_params.sensor_fy);
-  LOG_INFO_I("Used depth sensor cx",
+  LOG_INFO_I("Used depth sensor cx ",
              SLAM_system_settings::instance()->depth_params.sensor_cx);
-  LOG_INFO_I("Used depth sensor cy",
+  LOG_INFO_I("Used depth sensor cy ",
              SLAM_system_settings::instance()->depth_params.sensor_cy);
-  LOG_INFO_I("Used depth sensor scale",
+  LOG_INFO_I("Used depth sensor scale ",
              SLAM_system_settings::instance()->depth_params.sensor_scale);
 #endif
 }
@@ -2043,6 +2045,9 @@ Somapping_SLAM_system::~Somapping_SLAM_system() {
 }
 
 void Somapping_SLAM_system::init(Data_engine *data_engine_ptr) {
+  compose_transform_matrix();
+  load_camera_pose();
+
   this->init_parameters(data_engine_ptr);
   this->init_modules();
 }
@@ -2100,24 +2105,17 @@ void Somapping_SLAM_system::process_one_frame() {
   this->preprocess();
 
   // Detect and match features
-  this->feature_detector->detect_orb_features(
-      this->preprocess_engine->dev_hierarchy_intensity,
-      this->preprocess_engine->hierarchy_points);
-  this->feature_map_ptr_array.back()->get_model_keypoints(
-      this->feature_detector->current_keypoint_position,
-      this->estimated_camera_pose,
-      this->feature_detector->visible_model_keypoints,
-      this->feature_detector->visible_model_features,
-      this->feature_detector->visible_point_model_index);
-  this->feature_detector->match_orb_features(
-      this->feature_map_ptr_array.back()->model_keypoints.size());
-
-  // sdkResetTimer(&(this->timer_average));
-  // sdkStartTimer(&(this->timer_average));
-  // sdkStopTimer(&(this->timer_average));
-  // float elapsed_time = sdkGetAverageTimerValue(&(this->timer_average));
-  ////float elapsed_time = sdkGetTimerValue(&(this->timer_average));
-  // printf("%f\n", elapsed_time);
+//  this->feature_detector->detect_orb_features(
+//      this->preprocess_engine->dev_hierarchy_intensity,
+//      this->preprocess_engine->hierarchy_points);
+//  this->feature_map_ptr_array.back()->get_model_keypoints(
+//      this->feature_detector->current_keypoint_position,
+//      this->estimated_camera_pose,
+//      this->feature_detector->visible_model_keypoints,
+//      this->feature_detector->visible_model_features,
+//      this->feature_detector->visible_point_model_index);
+//  this->feature_detector->match_orb_features(
+//      this->feature_map_ptr_array.back()->model_keypoints.size());
 
   // Track camera pose
   this->track_camera_pose();
@@ -2141,6 +2139,7 @@ void Somapping_SLAM_system::process_one_frame() {
   this->update_to_map();
 
   // Store camera pose (for results evaluation)
+  this->timestamp = pose_idx - 1;
   Trajectory_node one_node(this->timestamp, this->estimated_camera_pose.mat);
   this->estimated_trajectory_array.back().push_back(one_node);
   // Generate estimated trajectory
@@ -2183,86 +2182,23 @@ void Somapping_SLAM_system::preprocess() {
 }
 
 void Somapping_SLAM_system::track_camera_pose() {
-  // Generate current keypoints and model keypoints
-  std::vector<Eigen::Vector3f> current_keypoints;
-  std::vector<Eigen::Vector3f> model_keypoints;
-  current_keypoints.resize(
-      this->feature_detector->current_keypoint_position.size());
-  model_keypoints.resize(
-      this->feature_detector->current_keypoint_position.size());
-  //
-  int max_model_number =
-      this->feature_map_ptr_array.back()->model_keypoints.size();
-  Eigen::Matrix4f pose_inv = this->estimated_camera_pose.mat.inverse();
-  for (int current_point_id = 0;
-       current_point_id <
-       this->feature_detector->current_keypoint_position.size();
-       current_point_id++) {
-    int model_point_id =
-        this->feature_detector->current_match_to_model_id[current_point_id];
-    if (model_point_id >= 0 && model_point_id < max_model_number) {
-      current_keypoints[current_point_id] = Eigen::Vector3f(
-          this->feature_detector->current_keypoint_position[current_point_id].x,
-          this->feature_detector->current_keypoint_position[current_point_id].y,
-          this->feature_detector->current_keypoint_position[current_point_id]
-              .z);
-      Eigen::Vector3f model_point(this->feature_map_ptr_array.back()
-                                      ->model_keypoints[model_point_id]
-                                      .point.x,
-                                  this->feature_map_ptr_array.back()
-                                      ->model_keypoints[model_point_id]
-                                      .point.y,
-                                  this->feature_map_ptr_array.back()
-                                      ->model_keypoints[model_point_id]
-                                      .point.z);
-      model_point = pose_inv.block(0, 0, 3, 3) * model_point.eval() +
-                    pose_inv.block(0, 3, 3, 1);
-      model_keypoints[current_point_id] = model_point;
-    } else {
-      current_keypoints[current_point_id] = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-      model_keypoints[current_point_id] = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-    }
-  }
-
-  // ICP + keypoint tracking
-  Keypoint_ICP_tracker *tracker_ptr =
-      dynamic_cast<Keypoint_ICP_tracker *>(this->track_engine);
-  tracker_ptr->track_camera_pose(
-      this->preprocess_engine->dev_hierarchy_points,
-      this->preprocess_engine->dev_hierarchy_model_points,
-      this->preprocess_engine->dev_hierarchy_normals,
-      this->preprocess_engine->dev_hierarchy_model_normals,
-      this->preprocess_engine->dev_hierarchy_intensity,
-      this->preprocess_engine->dev_hierarchy_model_intensity,
-      this->preprocess_engine->dev_hierarchy_model_gradient, current_keypoints,
-      model_keypoints, this->estimated_camera_pose.mat);
-
-  this->estimated_camera_pose.synchronize_to_GPU();
-
-
   //  Trajectory_node ground_truth_trajectory_node;
   //  bool state = this->data_engine->get_next_ground_truth_camera_pose(
   //      ground_truth_trajectory_node);
+  ////   Update camera pose
+  //    if (state) {
+  //        this->estimated_camera_pose.load_pose(ground_truth_trajectory_node);
+  //      this->timestamp = ground_truth_trajectory_node.time;
+  //    } else {
+  //  #ifdef LOGGING
+  //      LOG_WARNING("No ground truth loaded!");
+  //  #endif
+  //      printf("No ground_truth loaded!\n");
+  //      this->processing_state = ProcessingState::STOP_PROCESS;
+  //    }
+  this->estimated_camera_pose.load_pose(this->camera_poses[pose_idx++]);
 
-  // Update camera pose
-  //  if (state) {
-  //    this->estimated_camera_pose.load_pose(ground_truth_trajectory_node);
-  //    this->timestamp = ground_truth_trajectory_node.time;
-  //  } else {
-  //#ifdef LOGGING
-  //    LOG_WARNING("No ground truth loaded!");
-  //#endif
-  //    printf("No ground_truth loaded!\n");
-  //    this->processing_state = ProcessingState::STOP_PROCESS;
-  //  }
-
-#ifdef COMPILE_DEBUG_CODE
-  tracker_ptr->generate_icp_correspondence_lines(
-      this->preprocess_engine->dev_hierarchy_points,
-      this->preprocess_engine->dev_hierarchy_model_points,
-      this->preprocess_engine->dev_hierarchy_normals,
-      this->preprocess_engine->dev_hierarchy_model_normals);
-#endif
+  this->estimated_camera_pose.synchronize_to_GPU();
 }
 
 void Somapping_SLAM_system::update_to_map() {
@@ -3467,6 +3403,118 @@ void Somapping_SLAM_system::match_plane_by_parameter(
         break;
       }
     }
+  }
+}
+
+void Somapping_SLAM_system::compose_transform_matrix() {
+  this->transform_matrix.setIdentity();
+  std::ifstream scene_config;
+  std::string scene_path = JSON_CONFIG::instance()->j["scene"]["path"];
+  if (scene_path[scene_path.length() - 1] != '/') {
+    scene_path += "/";
+  }
+  scene_path += JSON_CONFIG::instance()->j["scene"]["name"];
+  scene_path += ".txt";
+
+  scene_config.open(scene_path);
+  if (!scene_config.is_open()) {
+#ifdef LOGGING
+    LOG_FATAL("Failed to open scene config file " + scene_path);
+#endif
+    fprintf(
+        stderr,
+        "File %s, Line %d, Function %s, Failed to open scene config file %s",
+        __FILE__, __LINE__, __FUNCTION__, scene_path.c_str());
+    exit(EXIT_FAILURE);
+  }
+  std::string tmp;
+
+  scene_config >> tmp;
+  scene_config >> tmp;
+  // extract axisAlignment
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      scene_config >> transform_matrix.data()[j * 4 + i];
+    }
+  }
+
+  // transform to opengl
+  Eigen::Matrix4f t;
+  t.setIdentity();
+  t(0, 0) = -1;
+  t(1, 1) = 0;
+  t(1, 2) = -1;
+  t(2, 1) = -1;
+  t(2, 2) = 0;
+
+  // compose
+  transform_matrix = t * transform_matrix.eval();
+
+  scene_config.close();
+  if (scene_config.is_open()) {
+#ifdef LOGGING
+    LOG_FATAL("Failed to close scene config file " + scene_path);
+#endif
+    fprintf(
+        stderr,
+        "File %s, Line %d, Function %s, Failed to close scene config file %s",
+        __FILE__, __LINE__, __FUNCTION__, scene_path.c_str());
+    exit(EXIT_FAILURE);
+  }
+#ifdef LOGGING
+  LOG_INFO("Compose transform matrix done.");
+#endif
+}
+
+void Somapping_SLAM_system::load_camera_pose() {
+  std::string scene_path = JSON_CONFIG::instance()->j["scene"]["path"];
+  if (scene_path[scene_path.length() - 1] != '/') {
+    scene_path += "/";
+  }
+  std::string pose_path = scene_path + "pose/";
+
+  // Get file num
+  DIR *dir;
+  struct dirent *ptr;
+  dir = opendir(pose_path.c_str());
+  if (NULL == dir) {
+#ifdef LOGGING
+    LOG_ERROR("Failed to open dir!");
+#endif
+    fprintf(stderr, "File %s, Line %d, Function %s(): Failed to opendir %s.\n",
+            __FILE__, __LINE__, __FUNCTION__, pose_path.c_str());
+    exit(EXIT_FAILURE);
+  }
+  while ((ptr = readdir(dir)) != 0) {
+    // ignore . and .. file
+    if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0)
+      continue;
+    pose_nums++;
+  }
+  closedir(dir);
+
+  std::ifstream pose_file;
+  Eigen::Matrix4f pose;
+  // Read and store camera pose into container
+  for (size_t idx = 0; idx < pose_nums; ++idx) {
+    pose_file.open(pose_path + std::to_string(idx) + ".txt");
+    if (!pose_file.is_open()) {
+#ifdef LOGGING
+      LOG_FATAL("Failed to open pose file " + scene_path);
+#endif
+      fprintf(
+          stderr,
+          "File %s, Line %d, Function %s, Failed to open scene config file %s",
+          __FILE__, __LINE__, __FUNCTION__, scene_path.c_str());
+      exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        pose_file >> pose.data()[j * 4 + i];
+      }
+    }
+    camera_poses.push_back(this->transform_matrix * pose);
+    pose_file.close();
   }
 }
 

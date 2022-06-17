@@ -40,6 +40,11 @@ void My_pose::load_pose(Trajectory_node &trajectory_node) {
   this->mat(2, 3) = trajectory_node.tz;
 }
 
+void My_pose::load_pose(const Matrix4f &mat4) {
+  this->mat.setIdentity();
+  this->mat = mat4;
+}
+
 // Synchronize from CPU to GPU
 void My_pose::synchronize_to_GPU() {
   Eigen::Matrix4f mat_inv = this->mat.inverse();

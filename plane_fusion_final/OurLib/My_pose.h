@@ -92,6 +92,8 @@ class My_pose {
   */
   void load_pose(Trajectory_node &camera_pose);
 
+  void load_pose(const Eigen::Matrix4f& mat4);
+
   //! Synchronize pose matrix form CPU memory to device(GPU) memory.
   void synchronize_to_GPU();
 
