@@ -30,7 +30,7 @@ for i in range(4):
 print(axisAlignment)
 print(frame_transform)
 
-with open(os.path.join(scene_path, 'groundtruth_opengl.txt'), 'x') as f:
+with open(os.path.join(scene_path, 'groundtruth_opengl_float.txt'), 'x') as f:
     f.write('# ground truth trajectory\n')
     f.write('# scene: ' + scene_path.rstrip('/').split('/')[-1] + '\n')
     f.write('# fake_timestamp tx ty tz qx qy qz qw ' + '\n')
@@ -49,12 +49,12 @@ with open(os.path.join(scene_path, 'groundtruth_opengl.txt'), 'x') as f:
             quaternion = r.as_quat()
             # write to file
             f.write(file.split('.')[0] + ' ')
-            f.write(str(pose[0][-1]) + ' ')
-            f.write(str(pose[1][-1]) + ' ')
-            f.write(str(pose[2][-1]) + ' ')
-            f.write(str(quaternion[0]) + ' ')
-            f.write(str(quaternion[1]) + ' ')
-            f.write(str(quaternion[2]) + ' ')
-            f.write(str(quaternion[3]))
+            f.write(format(pose[0][-1], '.6f') + ' ')
+            f.write(format(pose[1][-1], '.6f') + ' ')
+            f.write(format(pose[2][-1], '.6f') + ' ')
+            f.write(format(quaternion[0], '.6f') + ' ')
+            f.write(format(quaternion[1], '.6f') + ' ')
+            f.write(format(quaternion[2], '.6f') + ' ')
+            f.write(format(quaternion[3], '.6f') + ' ')
             if file.split('.')[0] != str(len(files) - 1):
                 f.write('\n')
