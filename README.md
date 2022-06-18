@@ -74,6 +74,9 @@ float round_by_stride(float value, float stride);
 ### 4. Fast UI_switch key 4 and 8
 ### 5. Key qe && we 
 ### 6. Release slower than Debug
+
+FATAL ERROR even with GT pose. Same error occoured test on ScanNet scene0000_00
+
 Release exe:
 ```
 CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Map_engine/Plane_map.cpp:293 code=2(cudaErrorMemoryAllocation) "cudaMalloc((void **)&temp_entry, (ORDERED_PLANE_TABLE_LENGTH + EXCESS_PLANE_TABLE_LENGTH) * sizeof(PlaneHashEntry))" 
