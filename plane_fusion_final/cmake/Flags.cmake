@@ -1,6 +1,7 @@
 ###############
 # Flags.cmake #
 ###############
+set(CMAKE_CXX_STANDARD 11)
 
 # If on Mac OS X:
 IF(${CMAKE_SYSTEM} MATCHES "Darwin")
@@ -24,7 +25,15 @@ ENDIF()
 
 # If on Linux, make sure that C++11 support is enabled.
 IF(${CMAKE_SYSTEM} MATCHES "Linux")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
+  set(CFLAGS_WARN "-Wall -Wextra -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -O3 ${CFLAGS_WARN} -std=c++11 -pthread -lstdc++")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLOGGING")
+  # -g for gdb debug, -march=native for memory alignment such that SIMD.
+  #SET(CMAKE_CXX_FLAGS "-fPIC -O3 -march=native ${CFLAGS_WARN} ${CMAKE_CXX_FLAGS} -std=c++11 -lstdc++")
+  #SET(CMAKE_CXX_FLAGS "-fPIC -g ${CFLAGS_WARN} ${CMAKE_CXX_FLAGS}")
+#  if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+#      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-unused-function")
+#  endif()
 ENDIF()
 
 # If on Windows and using Visual Studio:

@@ -72,8 +72,7 @@ class JSON_CONFIG {
   }
   json j;
 
-  void init(
-      const std::string& s = "../../plane_fusion_final/Config/config.json");
+  void init();
   void check();
 
   JSON_CONFIG();

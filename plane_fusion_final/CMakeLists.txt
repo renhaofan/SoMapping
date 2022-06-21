@@ -2,18 +2,30 @@ cmake_minimum_required(VERSION 3.10)
 
 project(PlaneFusion)
 
-# std c++ 11
-set(CMAKE_CXX_STANDARD 11)
+
+# mkdir to store log info
+execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/main_viewport_screenshot)
+# screenshot
+execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/log)
+
+# Add additional compiler flags #
+include(${PROJECT_SOURCE_DIR}/cmake/Flags.cmake)
+
+# set executable/lib path
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
+
 # add cmake path, have no idea about why include needed indeed or link glew bug.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 include(${PROJECT_SOURCE_DIR}/cmake/UseCUDA.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/UseGLUT.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/UseGLEW.cmake)
+# deprecate warnings, specify OpenGL version
+# credit: https://blog.csdn.net/u010815558/article/details/90288869
+if (POLICY CMP0072)
+  set(OpenGL_GL_PREFERENCE LEGACY)
+endif()
 
-# set executable path
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-# set lib path
-set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
 # soft link src/bin---->build/bin
 # Warnings: possible bug in windows,
 # Possible solution: set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
@@ -23,14 +35,6 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
 #    file(COPY ${CMAKE_BINARY_DIR}/bin DESTINATION ${CMAKE_SOURCE_DIR})
 #endif()
 
-# mkdir to store log info
-execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/main_viewport_screenshot)
-# Flag logging concerned
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLOGGING")
-#set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -DLOGTOSTDERR")
-
-# screenshot
-execute_process(COMMAND mkdir ${CMAKE_BINARY_DIR}/bin/log)
 
 # set utils
 file(GLOB UTILS_SOURCES
@@ -40,31 +44,7 @@ file(GLOB UTILS_SOURCES
 )
 include_directories(${CMAKE_SOURCE_DIR}/Log)
 include_directories(${CMAKE_SOURCE_DIR}/Timer)
-
-# add config.h
 include_directories(${CMAKE_SOURCE_DIR}/Config)
-
-
-
-# deprecate warnings, specify OpenGL version
-# credit: https://blog.csdn.net/u010815558/article/details/90288869
-if (POLICY CMP0072)
-  set(OpenGL_GL_PREFERENCE LEGACY)
-endif()
-
-#################################
-# Add additional compiler flags #
-#################################
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-unused-function")
-endif()
-if(NOT MSVC_IDE)
-    set(CFLAGS_WARN "-Wall -Wextra -Wno-unused-parameter -Wno-strict-aliasing")
-    set(CMAKE_CXX_FLAGS "-fPIC -O3 ${CFLAGS_WARN} ${CMAKE_CXX_FLAGS} -std=c++11 -lstdc++ -Wno-unknown-pragmas")
-    # -g for gdb debug, -march=native for memory alignment such that SIMD.
-    #SET(CMAKE_CXX_FLAGS "-fPIC -O3 -march=native ${CFLAGS_WARN} ${CMAKE_CXX_FLAGS} -std=c++11 -lstdc++")
-    #SET(CMAKE_CXX_FLAGS "-fPIC -g ${CFLAGS_WARN} ${CMAKE_CXX_FLAGS}")
-endif()
 
 ################################
 # Specify the libraries to use #
@@ -122,21 +102,23 @@ set(THIRD_LIB
     ${GLUT_LIBRARY}
     ${GLEW_LIBRARY}
     )
-target_link_libraries(${PROJECT_NAME} ${CUDA_LIBRARIES} ${THIRD_LIB})
-set(HEADERS ./Plane_detector/Plane_detector.h)
+
 
 ##########################################
 # Specify the target and where to put it #
 ##########################################
-include(${PROJECT_SOURCE_DIR}/cmake/Flags.cmake)
-
 if(WITH_CUDA)
     CUDA_ADD_EXECUTABLE(FUSION main_code.cpp ${UTILS_SOURCES})
 else()
     add_executable(FUSION main_code.cpp ${UTILS_SOURCES})
 endif()
 
-target_link_libraries(FUSION ${PROJECT_NAME} ${CUDA_LIBRARY} rt cuda)
+target_link_libraries(FUSION
+    ${PROJECT_NAME}
+    ${THIRD_LIB}
+    ${CUDA_LIBRARY}
+    rt
+    cuda)
 
 ##########################################
 ######### test google log ################
