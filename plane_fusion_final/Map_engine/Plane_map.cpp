@@ -410,7 +410,7 @@ void Plane_map::generate_plane_map(const HashEntry *dev_entries,
     }
     //
     checkCudaErrors(cudaFree(temp_plane_pixel_array));
-    printf("total_plane_block_num = %d\n", total_plane_block_num);
+    // printf("total_plane_block_num = %d\n", total_plane_block_num);
   }
 }
 
@@ -454,6 +454,6 @@ void Plane_map::generate_planar_block_render_information() {
                              number_of_blocks * 8 * sizeof(My_Type::Vector3f),
                              cudaMemcpyDeviceToHost));
 
-  printf("number_of_planar_2D blocks = %d\n", number_of_blocks);
+  // printf("number_of_planar_2D blocks = %d\n", number_of_blocks);
   this->number_of_pixel_blocks = number_of_blocks;
 }

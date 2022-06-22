@@ -450,7 +450,7 @@ __global__ void generate_vertex_color_KernelFunc(
   }
 
   if (is_planar_voxel) {
-    // BUG maybe
+    // BUG maybe FATAL
     if (plane_label < 0 || plane_label > 127)
       printf("plane_label = %d\n", plane_label);
     if (plane_label_mapper[plane_label].y < 0 ||

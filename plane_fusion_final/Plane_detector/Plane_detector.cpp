@@ -148,7 +148,7 @@ void Plane_detector::transfer_plane_coordinate(
   }
 
   //! Debug
-  if (1) {
+  if (false) {
     //
     for (int plane_id = 1; plane_id < this->current_plane_counter; plane_id++) {
       printf(
@@ -825,10 +825,7 @@ void Plane_stereoprojection_detector::cluster_cells(
 Plane_super_pixel_detector::Plane_super_pixel_detector() {}
 
 Plane_super_pixel_detector::~Plane_super_pixel_detector() {
-  //
   free(this->super_pixel_adjacent_mat);
-
-  // Release CUDA data
   checkCudaErrors(cudaFree(this->dev_super_pixel_id_image));
   checkCudaErrors(cudaFree(this->dev_super_pixel_mat));
   checkCudaErrors(cudaFree(this->dev_super_pixel_accumulate_mat));
@@ -1035,6 +1032,7 @@ void Plane_super_pixel_detector::fit_plane_for_each_cell(
     // CUDA_CKECK_KERNEL;
   }
 }
+
 
 #if __unix__
 #pragma region "Flood fill" {
@@ -1569,8 +1567,6 @@ void Plane_super_pixel_detector::cluster_cells(
                              cudaMemcpyDeviceToHost));
 
   // Flood fill
-#pragma region(Flood fill)
-  //
   {
     //// Init
     // for (int cell_index = 0; cell_index < this->cell_mat_size.width *
@@ -1701,7 +1697,6 @@ void Plane_super_pixel_detector::cluster_cells(
     for (int plane_id = 1; plane_id < this->current_plane_counter; plane_id++)
       this->current_planes[plane_id] = this->plane_region_params[plane_id];
   }
-#pragma endregion
 
   // Re-label
   {
