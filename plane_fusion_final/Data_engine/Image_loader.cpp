@@ -64,7 +64,7 @@ void get_file_num(const std::string path, size_t *cnt) {
 #ifdef LOGGING
     LOG_ERROR("Failed to open dir!");
 #endif
-    fprintf(stderr, "File %s, Line %d, Function %s(): Failed to opendir %s.\n",
+    fprintf(stderr, "File %s, Line %d, Function %s(): Failed to opendir %s\n",
             __FILE__, __LINE__, __FUNCTION__, path.c_str());
     exit(EXIT_FAILURE);
   }
@@ -110,6 +110,7 @@ Offline_image_loader::Offline_image_loader(const string cal, const string dir,
   LOG_INFO("<(------ Initialising offline image loader ...");
 #endif
 
+  DM = dm;
   switch (dm) {
     case DatasetMode::ICL:
       color_dir = append_slash_to_dirname(dir) + "rgb/";
@@ -732,11 +733,13 @@ bool Offline_image_loader::load_next_frame(double &timestamp,
       }
 
       // add reference lvkun, directly resize color image to align
-      cv::Mat color_mat1;
-      cv::resize(temp, color_mat1, depth_mat.size());
-      cv::cvtColor(color_mat1, color_mat, cv::COLOR_BGRA2BGR);
-
-//      cv::cvtColor(temp, color_mat, cv::COLOR_BGRA2BGR);
+      if (this->DM == DatasetMode::SCANNET) {
+        cv::Mat color_mat1;
+        cv::resize(temp, color_mat1, depth_mat.size());
+        cv::cvtColor(color_mat1, color_mat, cv::COLOR_BGRA2BGR);
+      } else {
+        cv::cvtColor(temp, color_mat, cv::COLOR_BGRA2BGR);
+      }
       break;
     }
     case ImageLoaderMode::UNEQUAL_COLOR_AND_DEPTH_FRAMES:

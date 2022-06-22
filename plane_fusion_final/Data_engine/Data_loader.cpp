@@ -67,8 +67,8 @@ void Data_loader::load_ground_truth(string ground_truth_path,
     this->with_ground_truth_trajectory = false;
     fprintf(stderr,
             "File %s, Line %d, Function %s(), "
-            "Can not open ground truth file!\n",
-            __FILE__, __LINE__, __FUNCTION__);
+            "Can not open ground truth file: %s\n",
+            __FILE__, __LINE__, __FUNCTION__, ground_truth_path.c_str());
   }
 
   // is_ICL_NUIM_data : Transformate from left-hand coordinate to right-hand

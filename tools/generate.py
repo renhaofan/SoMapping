@@ -11,7 +11,10 @@ the original scene****_**.txt file.
 import numpy as np
 
 #txt_path = '/home/steve/dataset/scene0000_00/scene0000_00.txt'
-txt_path = '/home/steve/dataset/scene0427_00/scene0427_00.txt'
+#txt_path = '/home/steve/dataset/scene0427_00/scene0427_00.txt'
+#txt_path = '/home/steve/dataset/scene0006_01/scene0006_01.txt'
+txt_path = '/home/steve/dataset/ScanNet/scene0009_00/scene0009_00.txt'
+
 save_name = txt_path.split('/')[-1].split('.')[0] + '_TUM_Format.txt'
 
 valid_bitnum = 6

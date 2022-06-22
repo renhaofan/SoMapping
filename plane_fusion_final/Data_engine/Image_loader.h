@@ -149,6 +149,9 @@ class Offline_image_loader : public Image_loader {
     DATASETMODE_NUMBER = 6 /** The number of enum DatasetMode options. */
   };
 
+  /** @brief Store the dataset mode from char** argv. Add by renhaofan. */
+  int DM = -1;
+
   /** @brief Frame index. zero by default. */
   size_t frame_index = 0;
   /** @brief The number of frames. */
