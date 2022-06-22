@@ -110,6 +110,32 @@ Possible reason is optimization poblem. `CMAKE_CXX_FLAGS -O0` . However nan occu
 
 NOT BECAUSE OPTIMAIZE FLAG
 
+### 15. Mesh_generator_KernelFunc.cu Line 453
+
+```c++
+if (is_planar_voxel) {
+
+​    // BUG maybe
+
+​    if (plane_label < 0 || plane_label > 127)
+
+​      printf("plane_label = %d\n", plane_label);
+
+​    if (plane_label_mapper[plane_label].y < 0 ||
+
+​        plane_label_mapper[plane_label].y > 127)
+
+​      printf("plane_label_mapper[plane_label].y = %d\n",
+
+​             plane_label_mapper[plane_label].y);
+
+​    if (plane_label_mapper[plane_label].y > 0)
+
+​      plane_label = plane_label_mapper[plane_label].y;
+```
+
+ 
+
 
 ## 1. clang-format
 
