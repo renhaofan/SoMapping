@@ -18,45 +18,7 @@
 
 #pragma once
 #include "OurLib/My_matrix.h"
-
-/** @brief Min plane distance. */
-#define MIN_PLANE_DISTANCE 0.02
-
-/**
- * @brief Histogram step.
- * @note Try 0.02.
- */
-#define HISTOGRAM_STEP 0.05
-
-/**
- * @brief Histogram width.
- * @note 0.08 * 64 = 2.56 * 2 (-2.56 to +2.56)
- */
-#define HISTOGRAM_WIDTH 128
-
-/** @brief Maxmum of current planes. */
-#define MAX_CURRENT_PLANES 64
-/** @brief Maxmum of model planes. */
-#define MAX_MODEL_PLANES 1024
-
-/** @brief Unknown. */
-#define MAX_HIST_NORMALS 1024
-
-/** @brief Unknown. */
-#define MAX_VALID_DEPTH_M 9.0
-
-/** @brief Unknown. */
-#define MIN_CELLS_OF_DIRECTION 55.0f
-/** @brief Unknown. */
-#define MIN_CELLS_OF_PLANE 50.0f
-
-/** @brief Unknown. */
-#define MIN_AREA_OF_DIRECTION 1.0f
-/** @brief Unknown. */
-#define MIN_AREA_OF_PLANE 0.5f
-
-/** @brief Unknown. */
-#define MIN_CELL_NORMAL_INNER_PRODUCT_VALUE 0.97
+#include "Config.h"
 
 /** @brief Cell info data structure. */
 typedef struct struct_Cell_info {
@@ -165,9 +127,6 @@ typedef struct struct_Plane_match_info {
   float match_weight;
 } Plane_match_info;
 
-/** @brief Size of super pixel CUDA block width. */
-#define SUPER_PIXEL_BLOCK_WIDTH 16
-
 /** @brief Superpixel data structure. */
 typedef struct struct_Super_pixel {
   /** @brief 2D position. */
@@ -201,13 +160,6 @@ typedef struct struct_Super_pixel {
 
 } Super_pixel;
 
-/** @brief Plane Hash entries. */
-#define ORDERED_PLANE_TABLE_LENGTH 0x40000
-/** @brief Plane Hash entries. */
-#define ORDERED_PLANE_TABLE_MASK 0x3FFFF
-
-/** @brief Excess table length. */
-#define EXCESS_PLANE_TABLE_LENGTH 0x10000
 
 /** @brief Plane hash entry data structure. */
 typedef struct PlaneHashEntry {
@@ -219,26 +171,6 @@ typedef struct PlaneHashEntry {
   int ptr;
 } PlaneHashEntry;
 
-/** @brief Plane pixel block width. */
-#define PLANE_PIXEL_BLOCK_WIDTH 16
-/** @brief Plane pixel block size. */
-#define PLANE_PIXEL_BLOCK_SIZE \
-  (PLANE_PIXEL_BLOCK_WIDTH * PLANE_PIXEL_BLOCK_WIDTH)
-
-/** @brief Track plane threshold. */
-#define TRACK_PLANE_THRESHOLD 0.6
-/** @brief Pixel block number */
-#define PIXEL_BLOCK_NUM 0x10000
-
-/**
- *  @brief Plane pixel size in meter.
- *  @note Try 0.005
- */
-#define PLANE_PIXEL_SIZE 0.004
-/** @brief Half of plane pixel size in meter. */
-#define HALF_PLANE_PIXEL_SIZE PLANE_PIXEL_SIZE * 0.5
-/** @brief Plane pixel block size in meter. */
-#define PLANE_PIXEL_BLOCK_WIDTH_M (PLANE_PIXEL_BLOCK_WIDTH * PLANE_PIXEL_SIZE)
 
 /** @brief Plane pixel data structure. */
 typedef struct struct_Plane_PIXEL {
