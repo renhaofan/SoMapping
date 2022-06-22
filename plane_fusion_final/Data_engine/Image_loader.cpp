@@ -252,6 +252,7 @@ void Offline_image_loader::read_image_parameters() {
 }
 
 void Offline_image_loader::read_calibration_parameters(string cal) {
+  cout << cal << endl;
   if (cal.empty() || cal.length() == 0) {
 #ifdef LOGGING
     LOG_WARNING(
@@ -261,6 +262,14 @@ void Offline_image_loader::read_calibration_parameters(string cal) {
     return;
   }
   std::ifstream f(cal);
+  if (!f.is_open()) {
+#ifdef LOGGING
+    LOG_FATAL_F("Failed to open file: ", cal);
+#endif
+    fprintf(stderr, "File %s, Line %d, Function %s(), Failed to open file: %s",
+            __FILE__, __LINE__, __FUNCTION__, cal.c_str());
+    exit(EXIT_FAILURE);
+  }
 
   // Color camera parameters
   double fx, fy, cx, cy;

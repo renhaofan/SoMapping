@@ -11,6 +11,12 @@ UI_engine::interactive_events() 中 有ws，qe的区别。( UI_engine::interacti
 
 `Main_engine.cpp` line 31 choose the basic voxel salm/gt_slam/submap slam.
 
+`Plane_map.cpp` Line 413 `printf("total_plane_block_num = %d\n", total_plane_block_num);`
+
+`Plane_map.cpp` Line 457 ` printf("number_of_planar_2D blocks = %d\n", number_of_blocks);`
+
+`SLAM_system.cpp`Line 2394 `printf("frame_id = %d\n", frame_id);`
+
 
 ## BUG
 
@@ -82,6 +88,31 @@ Release exe:
 CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Map_engine/Plane_map.cpp:293 code=2(cudaErrorMemoryAllocation) "cudaMalloc((void **)&temp_entry, (ORDERED_PLANE_TABLE_LENGTH + EXCESS_PLANE_TABLE_LENGTH) * sizeof(PlaneHashEntry))" 
 ```
 occured.  Likely to out of memory. And
+
+`Plane_detector.cpp`  bool is_valid 可能检查的不够完备
+
+```
+ //! Debug
+  if (1) {
+    //
+    for (int plane_id = 1; plane_id < this->current_plane_counter; plane_id++) {
+      printf(
+          "%d : (%f, %f, %f), %f , %f , %d\t", plane_id,
+          this->current_planes[plane_id].nx, this->current_planes[plane_id].ny,
+          this->current_planes[plane_id].nz, this->current_planes[plane_id].d,
+          this->current_planes[plane_id].area,
+          this->current_planes[plane_id].cell_num);
+
+      if (this->current_planes[plane_id].is_valid) {
+        printf("true \n");
+      } else {
+        printf("false \n");
+      }
+    }
+    printf("\n");
+  }
+```
+
 ```
 frame_id = 273
 1 : (-nan, -nan, -nan), -nan , 0.871626 , 2	true 

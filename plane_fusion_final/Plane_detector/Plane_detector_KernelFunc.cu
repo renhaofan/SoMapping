@@ -9,20 +9,18 @@
 #include <float.h>
 #include <helper_cuda.h>
 #include <helper_functions.h>
-//
 #include <float.h>
 
 #include "OurLib/reduction_KernelFunc.cuh"
 #include "Plane_detector_KernelFunc.cuh"
 
 // Tool functions
-//
 __device__ void generate_local_coordinate(Plane_coordinate &local_coordinate);
-//
+
 __device__ inline void transform_to_local_coordinate(
     My_Type::Vector3f &src_point, My_Type::Vector3f &dst_point,
     Plane_coordinate &local_coordinate);
-//
+
 __device__ inline void transform_from_local_coordinate(
     My_Type::Vector3f &src_point, My_Type::Vector3f &dst_point,
     Plane_coordinate &local_coordinate);
@@ -50,8 +48,11 @@ __global__ void fit_plane_for_cells_KernelFunc(
   My_Type::Vector3f current_normal = current_normals[index];
   if (current_normal.norm() < FLT_EPSILON) is_valid_cell = false;
 
+#if __unix__
+#pragma region "Compute position of points in this cell" {
+#elif _WIN32
 #pragma region(Compute position of points in this cell)
-
+#endif
   // Thread id
   int tid = threadIdx.x + blockDim.x * threadIdx.y;
 
@@ -91,10 +92,17 @@ __global__ void fit_plane_for_cells_KernelFunc(
     cell_info_mat[cell_index].z = weight_center.z;
   }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
+#if __unix__
+#pragma region "Fit normal vector for each cell" {
+#elif _WIN32
 #pragma region(Fit normal vector for each cell)
-
+#endif
   //
   current_point -= weight_center;
 
@@ -186,9 +194,18 @@ __global__ void fit_plane_for_cells_KernelFunc(
     cell_normal_share = cell_normal;
   }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
+#if __unix__
+#pragma region "Counter the number of valid points" {
+#elif _WIN32
 #pragma region(Counter the number of valid points)
+#endif
+
 
   // Load cell normal vector for each cell
   __syncthreads();
@@ -213,7 +230,11 @@ __global__ void fit_plane_for_cells_KernelFunc(
     }
   }
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 }
 // Cpp call CUDA
 void fit_plane_for_cells_CUDA(dim3 block_rect, dim3 thread_rect,
@@ -225,10 +246,9 @@ void fit_plane_for_cells_CUDA(dim3 block_rect, dim3 thread_rect,
       current_points, current_normals, sensor_params, cell_info_mat);
 }
 
-//
 #define MIN_VALID_POINTS_IN_CELL 50
 //#define MIN_VALID_POINTS_IN_CELL	200
-//
+
 __global__ void histogram_PxPy_KernelFunc(const Cell_info *cell_info_mat,
                                           float *hist_PxPy) {
   // Max histogram range
@@ -302,7 +322,6 @@ void histogram_PxPy_CUDA(dim3 block_rect, dim3 thread_rect,
                                                          hist_PxPy);
 }
 
-//
 __global__ void find_PxPy_peaks_KernelFunc(const float *hist_mat,
                                            Hist_normal *hist_normal,
                                            int *peak_counter) {
@@ -381,7 +400,6 @@ void find_PxPy_peaks_CUDA(dim3 block_rect, dim3 thread_rect, float *hist_mat,
                                                           peak_counter);
 }
 
-//
 __global__ void histogram_prj_dist_KernelFunc(const Cell_info *cell_info_mat,
                                               const Hist_normal *hist_normal,
                                               float *distance_histogram) {
@@ -486,7 +504,13 @@ void find_prj_dist_peaks_CUDA(dim3 block_rect, dim3 thread_rect,
       prj_dist_hist, hist_normal, peak_index, current_planes);
 }
 
+
+#if __unix__
+#pragma region "GPU K - means" {
+#elif _WIN32
 #pragma region(GPU K - means)
+#endif
+
 // 1. Mark plane label for each cells
 __global__ void mark_plane_label_for_cells_KernelFunc(
     const Plane_info *current_plane, Cell_info *cell_info_mat, int plane_num) {
@@ -584,7 +608,12 @@ __global__ void compute_mean_plane_para_KernelFunc(
     __shared__ float cache_f0[256], cache_f1[256], cache_f2[256], cache_f3[256];
     int tid = threadIdx.x;
 
+#if __unix__
+#pragma region "Reduce cell position and number - of - cell" {
+#elif _WIN32
 #pragma region(Reduce cell position and number - of - cell)
+#endif
+
     //
     if (is_valid_cell && plane_index == cell_plane_index) {
       cache_f0[tid] = px;
@@ -609,9 +638,17 @@ __global__ void compute_mean_plane_para_KernelFunc(
       atomicAdd(&plane_mean_paramters[plane_index].z, cache_f2[0]);
       atomicAdd(&plane_mean_paramters[plane_index].counter, (int)cache_f3[0]);
     }
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
+#if __unix__
+#pragma region "Reduce cell normal" {
+#elif _WIN32
 #pragma region(Reduce cell normal)
+#endif
     //
     if (is_valid_cell && plane_index == cell_plane_index) {
       cache_f0[tid] = cell_nx;
@@ -632,9 +669,18 @@ __global__ void compute_mean_plane_para_KernelFunc(
       atomicAdd(&plane_mean_paramters[plane_index].ny, cache_f1[0]);
       atomicAdd(&plane_mean_paramters[plane_index].nz, cache_f2[0]);
     }
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
+
+#if __unix__
+#pragma region "plane area" {
+#elif _WIN32
 #pragma region(plane area)
+#endif
     //
     if (is_valid_cell && plane_index == cell_plane_index) {
       cache_f0[tid] = cell_info_mat[cell_index].area;
@@ -647,7 +693,11 @@ __global__ void compute_mean_plane_para_KernelFunc(
     if (tid == 0)
       atomicAdd(&plane_mean_paramters[plane_index].area, cache_f0[0]);
 
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
   }
 }
 // 3. Compute mean parameter of planes
@@ -939,9 +989,12 @@ void K_mean_iterate_CUDA(dim3 block_rect, dim3 thread_rect,
   // 6. Merge similar planes
   merge_similar_planes_KernelFunc<<<1, 1>>>(current_plane, plane_num);
 }
+#if _WIN32
 #pragma endregion
+#elif __unix__
+#pragma endregion }
+#endif
 
-//
 __global__ void label_current_planes_KernelFunc(const Cell_info *cell_info_mat,
                                                 int *current_plane_labels) {
   // Coordinate/index of cell
@@ -957,7 +1010,7 @@ __global__ void label_current_planes_KernelFunc(const Cell_info *cell_info_mat,
   int plane_label = cell_info_mat[cell_index].plane_index;
   current_plane_labels[index] = plane_label;
 }
-//
+
 void label_current_planes_CUDA(dim3 block_rect, dim3 thread_rect,
                                const Cell_info *cell_info_mat,
                                int *current_plane_labels) {
@@ -965,7 +1018,6 @@ void label_current_planes_CUDA(dim3 block_rect, dim3 thread_rect,
       cell_info_mat, current_plane_labels);
 }
 
-//
 __global__ void relabel_plane_labels_KernelFunc(
     const My_Type::Vector2i *matches, int *current_plane_labels) {
   // Coordinate/index of pixel
@@ -977,7 +1029,7 @@ __global__ void relabel_plane_labels_KernelFunc(
   int current_label = current_plane_labels[index];
   current_plane_labels[index] = matches[current_label].y;
 }
-//
+
 void relabel_plane_labels_CUDA(dim3 block_rect, dim3 thread_rect,
                                const My_Type::Vector2i *matches,
                                int *current_plane_labels) {
@@ -985,7 +1037,6 @@ void relabel_plane_labels_CUDA(dim3 block_rect, dim3 thread_rect,
       matches, current_plane_labels);
 }
 
-//
 __global__ void count_planar_pixel_number_KernelFunc(const int *plane_labels,
                                                      Plane_info *plane_list,
                                                      int plane_counter) {
@@ -1013,7 +1064,7 @@ __global__ void count_planar_pixel_number_KernelFunc(const int *plane_labels,
     }
   }
 }
-//
+
 void count_planar_pixel_number_CUDA(dim3 block_rect, dim3 thread_rect,
                                     const int *plane_labels,
                                     Plane_info *plane_list, int plane_counter) {
@@ -1021,7 +1072,6 @@ void count_planar_pixel_number_CUDA(dim3 block_rect, dim3 thread_rect,
       plane_labels, plane_list, plane_counter);
 }
 
-//
 __global__ void count_overlap_pixel_number_KernelFunc(
     const int *current_plane_labels, const int *model_plane_labels,
     int current_plane_counter, int *relative_matrix) {
@@ -1055,7 +1105,7 @@ __global__ void count_overlap_pixel_number_KernelFunc(
     __syncthreads();
   }
 }
-//
+
 void count_overlap_pixel_number_CUDA(dim3 block_rect, dim3 thread_rect,
                                      const int *current_plane_labels,
                                      const int *model_plane_labels,
@@ -1069,7 +1119,7 @@ void count_overlap_pixel_number_CUDA(dim3 block_rect, dim3 thread_rect,
 // ------------------------------------ Super Pixel Functions :
 #define INVALID_PXIEL -1
 #define OUTLAYER_OF_SUPER_PIXEL -2
-//
+
 __global__ void init_super_pixel_image_KernelFunc(
     const My_Type::Vector3f *points, const My_Type::Vector3f *normals,
     int *super_pixel_id_image, int super_pixel_width,
@@ -1110,7 +1160,7 @@ __global__ void init_super_pixel_image_KernelFunc(
   if (is_valid_pixel) super_pixel_id = blockIdx.x + blockIdx.y * gridDim.x;
   super_pixel_id_image[pixel_index] = super_pixel_id;
 }
-//
+
 void init_super_pixel_image_CUDA(dim3 block_rect, dim3 thread_rect,
                                  const My_Type::Vector3f *points,
                                  const My_Type::Vector3f *normals,
@@ -1122,7 +1172,7 @@ void init_super_pixel_image_CUDA(dim3 block_rect, dim3 thread_rect,
       number_of_block_per_line);
 }
 
-//
+
 __global__ void update_cluster_center_KernelFunc(
     const My_Type::Vector3f *points, const My_Type::Vector3f *normals,
     const int *super_pixel_id_image, Super_pixel *accumulate_super_pixels,
@@ -1233,7 +1283,7 @@ __global__ void update_cluster_center_KernelFunc(
                 cache_i[0]);
   }
 }
-//
+
 __global__ void process_accumulate_super_pixel_KernelFunc(
     const Super_pixel *accumulate_super_pixels, int number_of_block_per_line,
     Super_pixel *super_pixels) {
@@ -1279,7 +1329,7 @@ __global__ void process_accumulate_super_pixel_KernelFunc(
   int super_pixel_index = blockIdx.x + gridDim.x * blockIdx.y;
   super_pixels[super_pixel_index] = temp_sp;
 }
-//
+
 void update_cluster_center_CUDA(
     dim3 block_rect, dim3 thread_rect, const My_Type::Vector3f *points,
     const My_Type::Vector3f *normals, const int *super_pixel_id_image,
@@ -1297,7 +1347,7 @@ void update_cluster_center_CUDA(
       accumulate_super_pixels, number_of_block_per_line, super_pixels);
 }
 
-//
+
 __device__ inline float compute_super_pixel_distance(
     const Super_pixel &temp_sp, const My_Type::Vector3f &normal_vec,
     const My_Type::Vector3f &point_vec, const My_Type::Vector2f &center_vec,
@@ -1332,7 +1382,7 @@ __device__ inline float compute_super_pixel_distance(
 
   return (distance_normal + distance_laplacian + distance_center);
 }
-//
+
 __global__ void pixel_find_associate_center_KernelFunc(
     const My_Type::Vector3f *points, const My_Type::Vector3f *normals,
     const Super_pixel *super_pixels, int *super_pixel_id_image,
@@ -1392,7 +1442,7 @@ __global__ void pixel_find_associate_center_KernelFunc(
   //
   super_pixel_id_image[pixel_index] = min_super_pixel_id;
 }
-//
+
 void pixel_find_associate_center_CUDA(
     dim3 block_rect, dim3 thread_rect, const My_Type::Vector3f *points,
     const My_Type::Vector3f *normals, const Super_pixel *super_pixels,
@@ -1403,7 +1453,7 @@ void pixel_find_associate_center_CUDA(
       weight_pixel_data, weight_normal_position, sensor_params);
 }
 
-//
+
 __device__ void generate_local_coordinate(Plane_coordinate &local_coordinate) {
   local_coordinate.x_vec = My_Type::Vector3f(1.0f, 0.0f, 0.0f);
   if (fabsf(local_coordinate.x_vec.dot(local_coordinate.z_vec)) >= 0.71) {
@@ -1421,7 +1471,7 @@ __device__ void generate_local_coordinate(Plane_coordinate &local_coordinate) {
   //
   local_coordinate.y_vec = local_coordinate.z_vec.cross(local_coordinate.x_vec);
 }
-//
+
 __device__ inline void transform_to_local_coordinate(
     My_Type::Vector3f &src_point, My_Type::Vector3f &dst_point,
     Plane_coordinate &local_coordinate) {
@@ -1429,7 +1479,7 @@ __device__ inline void transform_to_local_coordinate(
   dst_point.y = local_coordinate.y_vec.dot(src_point);
   dst_point.z = local_coordinate.z_vec.dot(src_point);
 }
-//
+
 __device__ inline void transform_from_local_coordinate(
     My_Type::Vector3f &src_point, My_Type::Vector3f &dst_point,
     Plane_coordinate &local_coordinate) {
@@ -1437,7 +1487,7 @@ __device__ inline void transform_from_local_coordinate(
               src_point.y * local_coordinate.y_vec +
               src_point.z * local_coordinate.z_vec;
 }
-//
+
 __global__ void generate_base_vector_for_each_cell_KernelFunc(
     const Super_pixel *super_pixels, Plane_coordinate *base_vectors) {
   // Coordinate/index of cell
@@ -1456,8 +1506,12 @@ __global__ void generate_base_vector_for_each_cell_KernelFunc(
   //
   base_vectors[super_pixel_index] = temp_coordinate;
 }
-//
+
+#if __unix__
+#pragma region "ICP method" {
+#elif _WIN32
 #pragma region(ICP method)
+#endif
 //
 __global__ void fit_plane_for_cells_KernelFunc(
     const My_Type::Vector3f *points, const int *super_pixel_id_image,
@@ -1641,9 +1695,17 @@ __global__ void update_super_pixel_params_KenrelFunc(
   // Update super pixel params
   super_pixels[super_pixel_id] = temp_sp;
 }
+#if _WIN32
 #pragma endregion
-//
+#elif __unix__
+#pragma endregion }
+#endif
+
+#if __unix__
+#pragma region "tangent angle fit" {
+#elif _WIN32
 #pragma region(tangent angle fit)
+#endif
 //
 __global__ void fit_plane_for_cells_KernelFunc_2(
     const My_Type::Vector3f *points, const int *super_pixel_id_image,
@@ -1842,8 +1904,12 @@ __global__ void update_super_pixel_params_KenrelFunc_2(
   super_pixels[super_pixel_id] = temp_sp;
 }
 
+#if _WIN32
 #pragma endregion
-//
+#elif __unix__
+#pragma endregion }
+#endif
+
 void fit_plane_for_cells_CUDA(
     dim3 block_rect, dim3 thread_rect, const My_Type::Vector3f *points,
     const int *super_pixel_id_image, Plane_coordinate *base_vectors,
@@ -1878,7 +1944,7 @@ void fit_plane_for_cells_CUDA(
   }
 }
 
-//
+
 #define OUTLAYER_BAND_COEFF 1.0f
 __global__ void eliminate_planar_cell_outlayers_KernelFunc(
     const My_Type::Vector3f *points, Sensor_params sensor_params,
@@ -1940,7 +2006,7 @@ __global__ void eliminate_planar_cell_outlayers_KernelFunc(
   // TODO : ...
 }
 
-//
+
 __global__ void generate_cells_info_KernelFunc(
     const Super_pixel *super_pixels, const Sensor_params sensor_params,
     const int super_pixel_width, Cell_info *cell_info_mat) {
@@ -1986,7 +2052,7 @@ __global__ void generate_cells_info_KernelFunc(
     }
   }
 }
-//
+
 void generate_cells_info_CUDA(dim3 block_rect, dim3 thread_rect,
                               const Super_pixel *super_pixels,
                               const Sensor_params sensor_params,
@@ -2033,7 +2099,7 @@ __global__ void relabel_super_pixels_KernelFunc(const Cell_info *cell_info_mat,
     }
   }
 }
-//
+
 void relabel_super_pixels_CUDA(dim3 block_rect, dim3 thread_rect,
                                const Cell_info *cell_info_mat,
                                int *super_pixel_id_image, int *plane_id_image,

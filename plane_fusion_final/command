@@ -8,4 +8,9 @@
 
 ../../plane_fusion_final/Files/ScanNet/train/scene0427_00_TUM_Format_alignment.txt /home/steve/dataset/ScanNet/scene0427_00  5
 
+../../plane_fusion_final/Files/ScanNet/train/scene0009_00_TUM_Format_alignment.txt /home/steve/dataset/ScanNet/scene0009_00 5
+
+../../plane_fusion_final/Files/ScanNet/train/scene0069_00_TUM_Format_alignment.txt /home/steve/dataset/ScanNet/scene0069_00 5
+
 ../../plane_fusion_final/Files/ScanNet/train/scene0006_01_TUM_Format_alignment.txt /home/steve/dataset/ScanNet/scene0006_01 5
+

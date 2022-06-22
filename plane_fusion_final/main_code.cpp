@@ -22,13 +22,28 @@ using namespace std;
 void print_argvs(int argc, char **argv);
 
 int main(int argc, char **argv) {
-  JSON_CONFIG::instance()->init();
+//  JSON_CONFIG::instance()->init();
   //  JSON_CONFIG::instance()->j["PlaneDetection"]["MAX_MODEL_PLANES"] = 9999;
   //  cout << JSON_CONFIG::instance()->j["PlaneDetection"]["MAX_MODEL_PLANES"]
   //       << endl;
+  std::ifstream jfile("../../plane_fusion_final/Config/config.json");
+  if (!jfile.is_open()) {
+#ifdef LOGGING
+    LOG_WARNING("Failed to open json files, using default value.");
+#endif
+  }
+  jfile >> JSON_CONFIG::instance()->j;
+  jfile.close();
+  if (jfile.is_open()) {
+#ifdef LOGGING
+    LOG_ERROR("Failed to close json files.");
+#endif
+  }
+
+
 
 #ifdef LOGGING
-  Log::init(&argc, &argv);
+      Log::init(&argc, &argv);
   LOG_INFO("<(------ Initialising video sequence ...");
 #endif
 
@@ -50,17 +65,20 @@ int main(int argc, char **argv) {
     string dir = string(argv[2]);
     int dm = std::atoi(argv[3]);
     image_loader_ptr = new Offline_image_loader(cal, dir, dm);
-    // replace scene by command argc
-    JSON_CONFIG::instance()->j["scene"]["path"] = dir;
-    std::string::size_type pos = dir.find("scene");
-    if (pos == std::string::npos) {
+    if (JSON_CONFIG::instance()->j["SLAM"]["Somapping_SLAM_system"]) {
+      // replace scene by command argc
+      JSON_CONFIG::instance()->j["scene"]["path"] = dir;
+      std::string::size_type pos = dir.find("scene");
+      if (pos == std::string::npos) {
 #ifdef LOGGING
         LOG_FATAL("Failed to find scene name");
 #endif
-        fprintf(stderr, "File %s, Line %d, Function %s (), Failed to find scene name",
+        fprintf(stderr,
+                "File %s, Line %d, Function %s (), Failed to find scene name",
                 __FILE__, __LINE__, __FUNCTION__);
+      }
+      JSON_CONFIG::instance()->j["scene"]["name"] = dir.substr(pos, 12);
     }
-    JSON_CONFIG::instance()->j["scene"]["name"] = dir.substr(pos, 12);
 #ifdef LOGGING
     LOG_INFO("Offline image loader mode");
     LOG_INFO("Dataset dir: " + dir);
@@ -113,10 +131,10 @@ int main(int argc, char **argv) {
   Main_engine::instance()->init(argc, argv, image_loader_ptr);
 
   // Load ground truth file
-  string ground_truth_path =
-      "/home/steve/dataset/scene0427_00_alignement/"
-      "groundtruth_opengl.txt";
-  Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path);
+  //  string ground_truth_path =
+  //      "/home/steve/dataset/ScanNet/scene0427_00_alignement/"
+  //      "groundtruth_opengl.txt";
+  //  Main_engine::instance()->data_engine->load_ground_truth(ground_truth_path);
 
 #ifdef LOGGING
   LOG_INFO("<(------ Run main thread ...");
