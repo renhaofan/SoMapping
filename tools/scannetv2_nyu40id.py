@@ -2,6 +2,7 @@ import glob as gb
 import sys
 import cv2
 import os
+from cv2 import COLORMAP_SPRING
 import matplotlib.pyplot as plt
 import numpy as np
 import re
@@ -25,9 +26,6 @@ nyu40_colormap = [(0, 0, 0), (174, 199, 232), (152, 223, 138), (31, 119, 180), (
 (178, 127, 135), (120, 185, 128), (146, 111, 194), (44, 160, 44), (112, 128, 144), 
 (96, 207, 209), (227, 119, 194), (213, 92, 176), (94, 106, 211), (82, 84, 163), 
 (100, 85, 144)]
-
-
-
 
 # resize adjust to the depth image size
 rdim = (640, 480)
@@ -85,8 +83,10 @@ if __name__ == '__main__':
     # print(dis)
 
     # raw label image -- 16 bit
-    raw_img = cv2.imread('scannet_info/test_images/6.png', -1)
+    # raw_img = cv2.imread('scannet_info/test_images/6.png', -1)
+    raw_img = cv2.imread('/home/steve/dataset/ScanNet/scene0427_00/label-filt/0.png', -1)
     img = cv2.resize(raw_img, rdim, interpolation = cv2.INTER_NEAREST)
+    
     print(img.shape)
 
     rows, cols = img.shape[0], img.shape[1]
@@ -107,14 +107,19 @@ if __name__ == '__main__':
     #         f.write(mylabeldir + "failed\n")
 
     """
-    Visualize nyu40 lable image 
+    Visualize nyu40 lable image,  
+    remove id value except [wall] [floor] [ceiling]
+    wall nyu40 id:color, 1: (174, 199, 232)
+    floor nyu40 id:color, 2: (152, 223, 138)
+    ceiling nyu40 id:color, 22: (78, 71, 183)
     """
     colorimg = np.zeros((rows, cols, 3), dtype='uint8')
     for i in range(rows):
         for j in range(cols):
-            colorimg[i, j, 0] = nyu40_colormap[img[i,j]][2] # B
-            colorimg[i, j, 1] = nyu40_colormap[img[i,j]][1] # G
-            colorimg[i, j, 2] = nyu40_colormap[img[i,j]][0] # R
+            if (img[i, j] == 1 or img[i, j] == 2 or img[i, j] == 22):
+                colorimg[i, j, 0] = nyu40_colormap[img[i,j]][2] # B
+                colorimg[i, j, 1] = nyu40_colormap[img[i,j]][1] # G
+                colorimg[i, j, 2] = nyu40_colormap[img[i,j]][0] # R
     
  
     wall_nyu40id = nyu40_classes.index('wall')
