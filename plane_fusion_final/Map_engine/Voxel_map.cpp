@@ -27,7 +27,6 @@ Voxel_map::Voxel_map() {
   // this->submap_pose.mat.setIdentity();
 }
 
-
 Voxel_map::~Voxel_map() {
   // CUDA
   // collision counter
@@ -315,6 +314,10 @@ int Voxel_map::allocate_voxel_block(My_Type::Vector3f *dev_current_points,
     last_block_num = this->number_of_blocks;
     // cout << "block_inc = " << block_inc << endl;
     if (this->max_voxel_block_number < this->number_of_blocks) {
+#ifdef LOGGING
+      LOG_ERROR_III("Map use out of voxel block! MAX < current number. i.e. ",
+                   this->max_voxel_block_number, " < ", this->number_of_blocks);
+#endif
       printf("Map use out of voxel block! : %d < %d\r\n",
              this->max_voxel_block_number, this->number_of_blocks);
       this->out_of_block = true;
@@ -406,8 +409,7 @@ void Voxel_map::fusion_SDF_to_voxel(My_Type::Vector3f *dev_current_points,
 void Voxel_map::fusion_plane_label_to_voxel(
     My_Type::Vector3f *dev_current_points, int *plane_img,
     Eigen::Matrix4f camera_pose, Eigen::Matrix4f submap_pose) {
-
-    // this->camera_pose_in_submap.mat = this->submap_pose.mat.inverse() * pose;
+  // this->camera_pose_in_submap.mat = this->submap_pose.mat.inverse() * pose;
   this->camera_pose_in_submap.mat = submap_pose.inverse() * camera_pose;
   this->camera_pose_in_submap.synchronize_to_GPU();
 
@@ -425,9 +427,9 @@ void Voxel_map::fusion_plane_label_to_voxel(
   prj_fusion_plane_label_CUDA(
       block_rect, thread_rect, dev_current_points,
       this->camera_pose_in_submap.dev_mat_inv,
-      SLAM_system_settings::instance()->depth_params,
-      this->raycast_depth_width, this->raycast_depth_height,
-      this->dev_visible_list, this->dev_voxel_block_array, plane_img);
+      SLAM_system_settings::instance()->depth_params, this->raycast_depth_width,
+      this->raycast_depth_height, this->dev_visible_list,
+      this->dev_voxel_block_array, plane_img);
   // CUDA_CKECK_KERNEL;
 }
 
@@ -702,7 +704,6 @@ void Voxel_map::update_from_last_voxel_map(
   checkCudaErrors(cudaFree(dev_temp_visible_flag));
   checkCudaErrors(cudaFree(dev_temp_visible_entries));
 }
-
 
 void Voxel_map::clear_Voxel_map() {
   // collision counter

@@ -517,12 +517,10 @@ std::vector<std::pair<int, int>> Plane_detector::find_most_overlap_model_plane(
 }
 
 void Plane_detector::prepare_to_detect() {
-  //
   memset(this->cell_info_mat, 0x00,
          this->cell_mat_size.x * this->cell_mat_size.y * sizeof(Cell_info));
   memset(this->current_planes, 0x00, MAX_CURRENT_PLANES * sizeof(Plane_info));
 
-  //
   checkCudaErrors(cudaMemset(
       this->dev_cell_info_mat, 0x00,
       this->cell_mat_size.x * this->cell_mat_size.y * sizeof(Cell_info)));

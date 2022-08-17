@@ -2,9 +2,8 @@
 
 #pragma once
 
-//
 #include "OurLib/My_matrix.h"
-//
+
 #include "Feature_detector/Feature_detector.h"
 #include "Map_engine/voxel_definition.h"
 #include "OurLib/My_pose.h"

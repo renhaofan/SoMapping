@@ -1,6 +1,11 @@
+/**
+ *  @file Mesh_structure.h
+ *  @brief Marching cube concerned array.
+ *  @author haofan ren, yqykrhf@163.com
+ *  @version beta 0.0
+ *  @date 22-5-21
+ */
 
-
-//
 #include "OurLib/My_matrix.h"
 
 // Edge table for marching cube

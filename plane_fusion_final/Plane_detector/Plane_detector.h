@@ -36,11 +36,12 @@ class Plane_detector {
   Cell_info *cell_info_mat;
   /** @brief Current cell information matrix. */
   Cell_info *dev_cell_info_mat;
+
   /** @brief Cell label of each pixel/point. */
   int *dev_current_cell_labels;
-
   /** @brief Current plane_labels. */
   int *dev_current_plane_labels;
+
   /** @brief Model plane labels (store in Plane_Map). */
   int current_plane_counter;
   /** @brief Current plane counter. */
@@ -79,6 +80,15 @@ class Plane_detector {
 
   virtual void init();
 
+  /**
+   * @brief Detect plane
+   * @param dev_current_points
+   * @param dev_current_normals
+   * @param camera_pose
+   * @param dev_model_planes
+   * @param dev_previous_plane_labels
+   * @param with_continuous_frame_tracking
+   */
   void detect_plane(const My_Type::Vector3f *dev_current_points,
                     const My_Type::Vector3f *dev_current_normals,
                     const Eigen::Matrix4f &camera_pose,

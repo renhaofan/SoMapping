@@ -347,10 +347,10 @@ void Basic_voxel_SLAM_system::process_one_frame() {
   }
 
 #ifdef LOGGING
-  LOG_INFO("frame : " + to_string(this->frame_id));
+  LOG_INFO("Frame : " + to_string(this->frame_id));
 #endif
 
-  printf("frame : %d\n", this->frame_id);
+   printf("Frame : %d\n", this->frame_id);
 
   // Raycast point from map (2.71 ms)
   this->map_engine->raycast_points_from_map(this->estimated_camera_pose.mat,

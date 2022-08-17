@@ -22,10 +22,11 @@
 
 // voxel
 #include "SLAM_system/SLAM_system_settings.h"
+//#include "voxel_defination.h"
 #include "voxel_defination.h"
 
-// My type
-#include "OurLib/My_matrix.h"
+// My type.  Include in SLAM_system_settings.h
+//#include "OurLib/My_matrix.h"
 
 //        block   entry flags
 void build_entry_flag_CUDA(dim3 block_rect, dim3 thread_rect,

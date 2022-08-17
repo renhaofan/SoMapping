@@ -22,7 +22,7 @@ using namespace std;
 void print_argvs(int argc, char **argv);
 
 int main(int argc, char **argv) {
-//  JSON_CONFIG::instance()->init();
+  //  JSON_CONFIG::instance()->init();
   //  JSON_CONFIG::instance()->j["PlaneDetection"]["MAX_MODEL_PLANES"] = 9999;
   //  cout << JSON_CONFIG::instance()->j["PlaneDetection"]["MAX_MODEL_PLANES"]
   //       << endl;
@@ -40,10 +40,8 @@ int main(int argc, char **argv) {
 #endif
   }
 
-
-
 #ifdef LOGGING
-      Log::init(&argc, &argv);
+  Log::init(&argc, &argv);
   LOG_INFO("<(------ Initialising video sequence ...");
 #endif
 

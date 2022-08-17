@@ -14,24 +14,7 @@ void UI_engine::render_sub_viewport1() {
   }
 
   glViewport(this->main_viewport_width, this->sub_viewport_height,
-             this->sub_viewport_width, this->sub_viewport_height);
-```
-
-```c++
-# 需要添加depth2color align的判断
-bool Offline_image_loader::load_next_frame(double &timestamp,
-                                           cv::Mat &color_mat,
-                                           cv::Mat &depth_mat);                                  
-```
-
-```c++
-void Offline_image_loader::read_calibration_parameters(string cal) {
-    ...
-  SLAM_system_settings::instance()->set_intrinsic(fx, fy, cx, cy, 1.0f / scale);
-  SLAM_system_settings::instance()->set_extrinsic(d2c, d2i);        
-}  
-
-
+             this->sub_viewport_width, this->sub_viewport_height);                        
 ```
 
 ```c++
@@ -115,6 +98,6 @@ Main_engine::instance()->init(argc, argv, image_loader_ptr);
 
 ```
 Main_engine::instance()->run();
-    UI_engine::instance()->run();
+    UI_engine::instance()->run() {glutMainLoop()}
 ```
 

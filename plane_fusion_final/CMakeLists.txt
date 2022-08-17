@@ -50,7 +50,8 @@ include_directories(${CMAKE_SOURCE_DIR}/Config)
 # Specify the libraries to use #
 ################################
 # opencv 3.4.5
-set(OpenCV_DIR "/usr/local/opencv345/share/OpenCV")
+#set(OpenCV_DIR "/usr/local/opencv345/share/OpenCV") # cuda 11.6
+set(OpenCV_DIR "/home/steve/Downloads/Source-Archive/OpenCV/OpenCV-cuda10.2/opencv-3.4.5/build")  # cuda 10.2
 set(CUDA_HEADERS "${PROJECT_SOURCE_DIR}/3rdparty/cuda-samples/Common")
 
 find_package(OpenCV REQUIRED)#opencv 3.4.5
@@ -123,6 +124,7 @@ target_link_libraries(FUSION
 ##########################################
 ######### test google log ################
 ##########################################
+#set(CMAKE_CXX_STANDARD 17)
 add_executable(test_glog test_glog.cpp )
 target_link_libraries(test_glog ${CERES_LIBRARIES})
 

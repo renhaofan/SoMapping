@@ -165,7 +165,31 @@ if (is_planar_voxel) {
 ​      plane_label = plane_label_mapper[plane_label].y;
 ```
 
- 
+### 16. Map use out of voxel block! : 32768 < 32772
+
+`Voxel_map.cpp` Line 311
+
+```c++
+    checkCudaErrors(cudaMemcpy(&(this->number_of_blocks),
+                               this->dev_number_of_blocks, sizeof(int),
+                               cudaMemcpyDeviceToHost));
+    block_inc = this->number_of_blocks - last_block_num;
+    last_block_num = this->number_of_blocks;
+    // cout << "block_inc = " << block_inc << endl;
+    if (this->max_voxel_block_number < this->number_of_blocks) {
+      printf("Map use out of voxel block! : %d < %d\r\n",
+             this->max_voxel_block_number, this->number_of_blocks);
+      this->out_of_block = true;
+      return this->number_of_blocks;
+    }
+  }
+```
+
+`max_voxel_block_number` actually `SUBMAP_VOXEL_BLOCK_NUM`
+
+```
+CUDA error at /home/steve/code/mycode/SoMapping/plane_fusion_final/Map_engine/Mesh_generator.cpp:372 code=1(cudaErrorInvalidValue) "cudaMemcpy( this->planar_triangles, this->dev_planar_triangles, this->number_of_planar_triangles * 3 * sizeof(My_Type::Vector3f), cudaMemcpyDeviceToHost)"  
+```
 
 
 ## 1. clang-format
