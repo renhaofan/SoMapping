@@ -28,7 +28,7 @@ nyu40_colormap = [(0, 0, 0), (174, 199, 232), (152, 223, 138), (31, 119, 180), (
 (100, 85, 144)]
 
 
-img = cv2.imread('340.png', -1)
+img = cv2.imread('/home/steve/dataset/scannetv2_mp_images/scene0000_00/label/2560.png', -1)
 
 rows, cols = img.shape[0], img.shape[1]
 colorimg = np.zeros((rows, cols, 3), dtype='uint8')
