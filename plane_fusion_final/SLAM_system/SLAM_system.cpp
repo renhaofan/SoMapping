@@ -2196,6 +2196,7 @@ void Somapping_SLAM_system::track_camera_pose() {
   //      printf("No ground_truth loaded!\n");
   //      this->processing_state = ProcessingState::STOP_PROCESS;
   //    }
+//  std::cout << "Estimated pose: \n" << this->camera_poses[pose_idx] << "\n";
   this->estimated_camera_pose.load_pose(this->camera_poses[pose_idx++]);
 
   this->estimated_camera_pose.synchronize_to_GPU();
@@ -2391,7 +2392,7 @@ void Somapping_SLAM_system::update_to_map() {
   LOG_INFO_I("frame_id = ", this->frame_id);
 #endif
 
-  printf("frame_id = %d\n", frame_id);
+//  printf("frame_id = %d\n", frame_id);
 
   if ((this->frame_id % 5 == 4) && this->enable_plane_map) {
     Submap_Voxel_map *map_ptr =
